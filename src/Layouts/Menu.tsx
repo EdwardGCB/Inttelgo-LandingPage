@@ -102,16 +102,21 @@ const menuData: Record<string, MenuSection> = {
   withIcon: {
     title: "BECA 2025",
     type: "link",
-    href: "/beca-2",
-  },
-  pse: {
-    title: "Pagos por PSE",
-    type: "link",
-    href: "/pagos-pse",
+    href: "/beca",
   },
 };
 
-export default function Menu({ className }: { className?: string }) {
+export default function Menu({
+  className,
+  textColor = "text-white hover:text-white/80",
+  detailsColor = "invert brightness-0",
+  lineColor = "bg-white/50",
+}: {
+  className?: string;
+  textColor?: string;
+  detailsColor?: string;
+  lineColor?: string;
+}) {
   const [open, setOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -133,17 +138,19 @@ export default function Menu({ className }: { className?: string }) {
   return (
     <header
       className={cn(
-        "flex justify-between items-center px-4 md:px-8 py-4 bg-transparent",
+        "flex justify-between items-center px-4 md:px-8 py-4",
         className
       )}
     >
       {/* Imagen izquierda */}
       <div className="flex-shrink-0">
-        <img
-          src="/logo-monocromatico.svg"
-          alt="Logo izquierdo"
-          className="w-32 md:w-48 filter invert brightness-0"
-        />
+        <Link to="/">
+          <img
+            src="/logo-monocromatico.svg"
+            alt="Logo izquierdo"
+            className={cn("w-32 filter", detailsColor)}
+          />
+        </Link>
       </div>
 
       {!isMobile ? (
@@ -154,14 +161,15 @@ export default function Menu({ className }: { className?: string }) {
                 {Object.entries(menuData)
                   .filter(([key]) => key !== "pse")
                   .map(([key, section], index) => (
-                    <>
-                      <NavigationMenuItem key={key}>
+                    <div key={key} className="contents">
+                      <NavigationMenuItem>
                         {section.type === "link" ? (
                           <NavigationMenuLink
                             asChild
                             className={
                               navigationMenuTriggerStyle() +
-                              " bg-transparent text-white text-lg font-medium hover:bg-gradient-to-b hover:from-transparent hover:to-white/60 "
+                              " bg-transparent text-sm font-medium hover:bg-gradient-to-b hover:from-transparent hover:to-white/60 " +
+                              textColor
                             }
                           >
                             <Link to={section.href || "#"}>
@@ -170,10 +178,15 @@ export default function Menu({ className }: { className?: string }) {
                           </NavigationMenuLink>
                         ) : (
                           <>
-                            <NavigationMenuTrigger className="bg-transparent text-white text-lg font-medium hover:bg-gradient-to-b hover:from-transparent hover:to-white/60">
+                            <NavigationMenuTrigger
+                              className={cn(
+                                "bg-transparent text-sm font-medium hover:bg-gradient-to-b hover:from-transparent hover:to-white/60",
+                                textColor
+                              )}
+                            >
                               {section.title}
                             </NavigationMenuTrigger>
-                            <NavigationMenuContent className="backdrop-blur-md">
+                            <NavigationMenuContent className="backdrop-blur-2xl">
                               <ul
                                 className={`grid gap-2 ${
                                   key === "components"
@@ -183,9 +196,12 @@ export default function Menu({ className }: { className?: string }) {
                               >
                                 {section.items?.map(
                                   (item: MenuItem, itemIndex: number) => (
-                                    <li key={itemIndex}>
+                                    <li key={item.href || itemIndex}>
                                       <NavigationMenuLink
-                                        className="hover:bg-gradient-to-b hover:from-transparent hover:to-white/60 text-primary-foreground"
+                                        className={cn(
+                                          "hover:bg-gradient-to-b hover:from-transparent hover:to-white/60 text-primary-foreground ",
+                                          textColor
+                                        )}
                                         asChild
                                       >
                                         <Link
@@ -221,28 +237,37 @@ export default function Menu({ className }: { className?: string }) {
                           </>
                         )}
                       </NavigationMenuItem>
-                      {index < Object.entries(menuData).length - 2 && (
-                        <div className="w-px h-6 bg-white/50 mx-2" />
+                      {index <
+                        Object.entries(menuData).filter(
+                          ([key]) => key !== "pse"
+                        ).length -
+                          1 && (
+                        <div className={cn("w-px h-6 mx-2", lineColor)} />
                       )}
-                    </>
+                    </div>
                   ))}
               </NavigationMenuList>
             </NavigationMenu>
           </div>
           {/* Imagen derecha */}
           <div className="flex-shrink-0">
-            <img
-              src="/icono-control.svg"
-              alt="Logo derecho"
-              className="w-8 h-8 md:w-12 md:h-12 filter invert brightness-0"
-            />
+            <Link to="/pse">
+              <img
+                src="/pse.svg"
+                alt="PSE"
+                className={cn(
+                  "h-15 hover:scale-105 transition-transform cursor-pointer",
+                  detailsColor
+                )}
+              />
+            </Link>
           </div>
         </>
       ) : (
         <div className="flex items-center gap-4">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-white">
+              <Button variant="ghost" size="icon" className={cn(textColor)}>
                 <MenuIcon className="h-10 w-10" />
               </Button>
             </SheetTrigger>
@@ -297,7 +322,7 @@ export default function Menu({ className }: { className?: string }) {
                             {section.items?.map(
                               (item: MenuItem, itemIndex: number) => (
                                 <Link
-                                  key={itemIndex}
+                                  key={item.href || itemIndex}
                                   to={item.href || "#"}
                                   onClick={() => setOpen(false)}
                                   className="flex flex-col gap-2 py-3 px-4 hover:bg-orange-100 hover:text-orange-800 rounded-lg transition-all duration-300 border border-transparent hover:border-orange-200 group"
@@ -336,6 +361,17 @@ export default function Menu({ className }: { className?: string }) {
                     )
                   )}
                 </Accordion>
+
+                {/* Enlace PSE en el menú móvil */}
+                <div className="flex justify-center w-full">
+                  <Button className="w-[90%] backdrop-blur-md  bg-orange-500 hover:bg-orange-900 ">
+                    <Link to="/pse" onClick={() => setOpen(false)}>
+                      <div className="flex items-center gap-3">
+                        <span>Pagar con PSE</span>
+                      </div>
+                    </Link>
+                  </Button>
+                </div>
 
                 {/* Footer del menú */}
                 <div className="pt-4 border-t border-orange-200 text-center">

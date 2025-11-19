@@ -1,37 +1,58 @@
 import Menu from "@/Layouts/Menu";
 import Graph from "@/components/Canvas/Graph";
+import { cn } from "@/lib/utils";
+import type { ReactNode } from "react";
 
-const BannerPlanes = () => {
+interface BannerPlanesProps {
+  image: string;
+  className?: string;
+  children?: ReactNode;
+}
+
+const BannerPlanes = ({
+  image = "",
+  className = "",
+  children,
+}: BannerPlanesProps) => {
   return (
-    <div className="relative bg-gradient-to-r from-orange-400 via-orange-600 to-orange-800 overflow-hidden mb-12">
+    <div className={cn("relative overflow-hidden mb-12", className)}>
       <Graph />
-      <Menu className={"text-white"} />
-      <div className="flex flex-col lg:flex-row items-center gap-4 sm:gap-6 lg:gap-8 px-4 sm:px-6 md:px-12 lg:px-20 py-8 sm:py-12 md:py-16 lg:py-20">
-        <div className="hidden sm:block flex-shrink-0 w-full sm:w-2/3 lg:w-1/3 order-1 lg:order-1">
+      <Menu className={"text-white hover:text-white/80 bg-transparent"} />
+      <div
+        className={cn(
+          "flex items-center px-4 sm:px-6 md:px-12 lg:px-20 py-8 sm:py-12 md:py-16 lg:py-20",
+          children
+            ? "flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8"
+            : "justify-center"
+        )}
+      >
+        <div
+          className={cn(
+            "flex-shrink-0",
+            children
+              ? "hidden sm:block w-full sm:w-2/3 lg:w-1/3"
+              : "w-full flex justify-center"
+          )}
+        >
           <img
-            src="/banners/plan-internet/1.webp"
+            src={`/banners/plan/${image}`}
             alt="Banner Planes"
-            className="w-full h-auto object-contain max-w-xs sm:max-w-sm md:max-w-md mx-auto lg:mx-0"
+            className={cn(
+              "w-full h-auto object-contain animate-zoom-in-out",
+              children
+                ? "max-w-xs sm:max-w-sm md:max-w-md mx-auto lg:mx-0"
+                : "w-full h-auto object-contain"
+            )}
+            style={{
+              animation: "zoom-in-out 3s ease-in-out infinite",
+            }}
           />
         </div>
-        <div className="flex-1 flex items-center justify-center order-2 lg:order-2">
-          <section className="relative text-center">
-            <h2 className="text-6xl sm:text-7xl xl:text-7xl 2xl:text-7xl text-orange-50 font-bold leading-tight tracking-wide drop-shadow-lg">
-              <div>
-                Los planes{" "}
-                <span className="text-orange-100 font-extrabold">
-                  mas veloces
-                </span>
-              </div>
-              <div>
-                de{" "}
-                <span className="text-orange-100 font-extrabold">internet</span>{" "}
-                para tu{" "}
-                <span className="text-orange-100 font-extrabold">hogar</span>
-              </div>
-            </h2>
-          </section>
-        </div>
+        {children && (
+          <div className="flex-1 flex items-center justify-center order-2 lg:order-2">
+            {children}
+          </div>
+        )}
       </div>
     </div>
   );

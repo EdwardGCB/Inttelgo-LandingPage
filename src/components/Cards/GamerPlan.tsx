@@ -15,6 +15,7 @@ interface Plan {
   price: string;
   category: string;
   caracteristicas: string[];
+  extras: string[];
 }
 
 interface GamerPlanProps {
@@ -23,35 +24,51 @@ interface GamerPlanProps {
 
 function GamerPlan({ plan }: GamerPlanProps) {
   return (
-    <div className="relative w-full flex flex-col items-center transition-transform duration-300 hover:scale-105 z-10">
+    <div className="relative w-full flex flex-col items-center group cursor-pointer z-10 transition-transform duration-300 hover:scale-105">
       {/* Mbps Card flotante */}
-      <Card className=" bg-primary border-3 border-purple-700 absolute -top-10 left-1/2 -translate-x-1/2 z-20 w-3xs h-3xs flex items-center justify-center rounded-xl">
+      {plan.extras.map((extra, index) => (
+        <Card
+          key={`extra-${index}`}
+          className="absolute left-1/25 -translate-x-1/2 z-21 p-3 border-none"
+          style={{
+            top: `${1 + index * 4.5}rem`,
+            background: "linear-gradient(90deg, #a21caf 0%, #7c3aed 100%)",
+          }}
+        >
+          <CardContent className="text-primary-foreground flex flex-col items-center justify-center w-full h-full p-0">
+            <span className="text-xl md:text-2xl lg:text-3xl font-bold">
+              {extra}
+            </span>
+          </CardContent>
+        </Card>
+      ))}
+      <Card className="bg-primary border-3 border-purple-700 absolute -top-10 left-1/2 -translate-x-1/2 z-20 w-3xs h-3xs flex items-center justify-center rounded-xl">
         <Stars starCount={40} />
 
-        <CardContent className="relative z-10 text-primary-foreground flex flex-col items-center justify-center w-full h-full">
+        <CardContent className="relative z-10 text-primary-foreground flex flex-col items-center justify-center w-full h-full text-center">
           <span className="text-6xl font-bold leading-none">{plan.title}</span>
         </CardContent>
       </Card>
 
       {/* Card flotante a la derecha con ícono */}
-      <Card
-        className="absolute -top-5 left-[calc(50%+90px)] z-30 w-14 h-14 flex items-center justify-center rounded-xl bg-purple-700 border-2 border-white shadow-lg"
-        style={{
-          animation: "tilt 2s ease-in-out infinite alternate",
-        }}
-      >
+      <Card className="absolute -top-5 left-[calc(50%+90px)] z-30 w-14 h-14 flex items-center justify-center rounded-xl bg-purple-700 border-2 border-white shadow-lg">
         <CardContent className="flex items-center justify-center w-full h-full p-0">
-          <img
-            src={iconoControl}
-            alt="icono control"
-            className="w-12 h-12 filter invert brightness-0"
-          />
+          <div
+            className="transition-all duration-500 ease-in-out scale-110"
+            style={{
+              animation: "floatRotate 3s ease-in-out infinite",
+            }}
+          >
+            <img
+              src={iconoControl}
+              alt="icono control"
+              className="w-12 h-12 filter invert brightness-0"
+            />
+          </div>
         </CardContent>
       </Card>
 
-      <Card className="bg-primary pt-24 border-3 border-purple-700 relative w-full shadow-lg hover:shadow-xl transition-shadow z-10 overflow-hidden">
-        {/* Borde neón animado con Tailwind */}
-
+      <Card className="bg-primary pt-24 border-3 border-purple-700 relative w-full shadow-lg hover:shadow-xl hover:shadow-purple-500/50 z-10 overflow-hidden">
         <Stars starCount={90} />
         {/* Fondo de estrellas dentro del card */}
         <CardHeader className="text-center pb-4 relative z-10 rounded-t-xl" />

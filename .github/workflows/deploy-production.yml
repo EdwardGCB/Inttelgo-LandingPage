@@ -1,0 +1,106 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main # Cambia a 'master' si esa es tu rama de producción
+    paths:
+      # Solo ejecutar si hay cambios en código fuente (no en dist)
+      - "src/**"
+      - "public/**"
+      - "package.json"
+      - "package-lock.json"
+      - "vite.config.ts"
+      - "tsconfig*.json"
+      - ".github/workflows/**"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write # Necesario para crear releases
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Ejecutar linter (opcional)
+        run: npm run lint
+        continue-on-error: true # No fallar el build si hay warnings de lint
+
+      - name: Build de producción
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Verificar carpeta dist
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "Error: La carpeta dist no fue generada"
+            exit 1
+          fi
+          echo "✅ Build exitoso. Contenido de dist:"
+          ls -la dist/
+
+      - name: Instalar zip (si es necesario)
+        run: |
+          if ! command -v zip &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y zip
+          fi
+
+      - name: Crear archivo ZIP con dist
+        run: |
+          cd dist
+          zip -r ../dist-build.zip . -q
+          cd ..
+          echo "✅ Archivo ZIP creado: dist-build.zip"
+          ls -lh dist-build.zip
+
+      - name: Obtener información del commit
+        id: commit-info
+        run: |
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "sha_full=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+          echo "message=$(git log -1 --pretty=%B)" >> $GITHUB_OUTPUT
+          echo "author=$(git log -1 --pretty=%an)" >> $GITHUB_OUTPUT
+
+      - name: Crear release con dist
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist-build.zip
+          tag_name: v${{ github.run_number }}
+          name: Release v${{ github.run_number }} - Build ${{ steps.commit-info.outputs.sha_short }}
+          body: |
+            ## 🚀 Release Automático
+
+            **Build Number:** ${{ github.run_number }}
+            **Commit:** ${{ steps.commit-info.outputs.sha_short }}
+            **Autor:** ${{ steps.commit-info.outputs.author }}
+
+            ### 📦 Contenido
+            Este release contiene la carpeta `dist` completa lista para desplegar en producción.
+
+            ### 📝 Cambios
+            ${{ steps.commit-info.outputs.message }}
+
+            ### 🔗 Información del Commit
+            - **SHA completo:** `${{ steps.commit-info.outputs.sha_full }}`
+            - **Rama:** `${{ github.ref_name }}`
+            - **Fecha:** ${{ github.event.head_commit.timestamp }}
+
+            ---
+            *Este release fue creado automáticamente por GitHub Actions*
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
