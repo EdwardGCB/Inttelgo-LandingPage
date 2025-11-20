@@ -30,7 +30,7 @@ jobs:
       - name: Verify dist folder
         run: |
           if [ ! -d "dist" ]; then
-            echo "❌ Error: La carpeta dist no fue generada"
+            echo "Error: La carpeta dist no fue generada"
             exit 1
           fi
           echo "Build exitoso"

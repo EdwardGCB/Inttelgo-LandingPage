@@ -1,21 +1,22 @@
-import { collaborators } from "@/data/collaborators";
+import { fundations } from "@/data/fundations";
 import { cn } from "@/lib/utils";
 
-const duplicatedLogos = [...collaborators, ...collaborators];
+const duplicatedLogos = [...fundations, ...fundations];
 
-export function CollaboratorsMarquee() {
+export function FundationsMarquee() {
   return (
     <section className="w-full rounded-3xl border border-white/10 bg-gradient-to-b from-[#0F0F0F] via-[#111827] to-[#0F0F0F] px-6 py-10 text-white shadow-[0_20px_45px_-25px_rgba(0,0,0,0.8)]">
       <div className="max-w-3xl space-y-3">
         <p className="text-sm uppercase tracking-[0.35em] text-white/60">
-          Colaboradores
+          Fundaciones
         </p>
         <h4 className="text-3xl font-semibold">
-          Empresas aliadas con Inttelgo
+          Aliados estratégicos para el desarrollo social
         </h4>
         <p className="text-white/70">
-          Inttelgo GO llega a tu hogar para ofrecerte un excelente servicio de
-          entretenimiento y conectividad confiable y de calidad.
+          Trabajamos de la mano con fundaciones y organizaciones comprometidas
+          con el desarrollo educativo y social de nuestras comunidades, llevando
+          conectividad y oportunidades a los hogares colombianos.
         </p>
       </div>
 

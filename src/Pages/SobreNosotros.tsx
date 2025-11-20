@@ -1,4 +1,5 @@
 import BannerAbboutUs from "@/components/Banners/BannerAbboutUs";
+import { FundationsMarquee } from "@/components/blocks/FundationsMarquee";
 import AnimatedLines from "@/components/Canvas/AnimatedLines";
 import Box3DViewer from "@/components/Canvas/Box3DViewer";
 import Timeline from "@/components/Timeline/Timeline";
@@ -209,10 +210,9 @@ export default function SobreNosotros() {
           {/* Acordeones - derecha */}
           <div className="w-full">
             <Accordion
-              type="single"
-              collapsible
+              type="multiple"
               className="w-full space-y-4"
-              defaultValue="item-1"
+              defaultValue={["item-1", "item-2"]}
             >
               <AccordionItem value="item-1" className="border rounded-lg px-6">
                 <AccordionTrigger className="text-xl lg:text-2xl font-bold text-secondary-foreground hover:no-underline py-6">
@@ -330,6 +330,9 @@ export default function SobreNosotros() {
             </Accordion>
           </div>
         </div>
+      </div>
+      <div className="w-full bg-white py-12 px-4 sm:px-6 md:px-10 lg:px-20">
+        <FundationsMarquee />
       </div>
     </div>
   );

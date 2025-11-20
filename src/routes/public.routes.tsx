@@ -26,6 +26,7 @@ const SeguridadPage = lazy(() => import("@/Pages/Legal&Regulatorio/Seguridad"));
 const RegulacionTicPage = lazy(
   () => import("@/Pages/Legal&Regulatorio/RegulacionTIC")
 );
+const SpeedTest = lazy(() => import("@/Pages/SpeedTest"));
 const PsePage = lazy(() => import("@/Pages/pse"));
 
 export const publicRoutes: RouteObject[] = [
@@ -48,6 +49,10 @@ export const publicRoutes: RouteObject[] = [
       {
         path: "planes/telefonia",
         element: <PlanTelefoniaPage />,
+      },
+      {
+        path: "planes/internet/speedtest",
+        element: <SpeedTest />,
       },
       {
         path: "sobre-nosotros",

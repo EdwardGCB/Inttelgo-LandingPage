@@ -58,7 +58,7 @@ const TVChannelEffect = () => {
   }, []);
 
   return (
-    <div className="relative w-99 md:w-74 lg:w-64 xl:w-74 max-w-md mx-auto">
+    <div className="relative w-89 md:w-74 lg:w-64 xl:w-74 max-w-md mx-auto">
       {/* Marco de TV */}
       <div className="relative">
         {/* Pantalla */}

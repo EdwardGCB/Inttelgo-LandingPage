@@ -93,7 +93,7 @@ const PublicLayout = () => {
 
   return (
     <div className="relative flex min-h-screen flex-col bg-white">
-      <div className="sticky top-0 z-50 md:border-b bg-white/95 shadow-sm backdrop-blur-md">
+      {/*<div className="sticky top-0 z-50 md:border-b bg-white/95 shadow-sm backdrop-blur-md">
         <div
           className={`block transition-all duration-500 ${
             showLeadCapture
@@ -134,7 +134,7 @@ const PublicLayout = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div>*/}
 
       {/* Main Content */}
       <main className="flex-1">

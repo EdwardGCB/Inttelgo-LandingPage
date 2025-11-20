@@ -113,14 +113,16 @@ export default function Television() {
         <div className="block md:hidden">
           {/* Imagen de fondo para móvil */}
           <div
-            className="w-full h-64 bg-cover bg-center bg-no-repeat"
+            className="w-full h-200 bg-cover bg-center bg-no-repeat"
             style={{
               backgroundImage:
-                "url('/banners/plan/television/television-mobile.webp')",
+                "url('/banners/plan/television/television-celular.webp')",
             }}
           >
-            <div className="flex justify-center items-center h-full">
-              <TVChannelEffect />
+            <div className="relative w-full justify-center">
+              <div className="transform translate-y-27 transition-transform duration-300">
+                <TVChannelEffect />
+              </div>
             </div>
           </div>
 

@@ -53,14 +53,14 @@ const carouselData = [
           </Card>
 
           {/* Texto de características (solo desktop) */}
-          <div className="hidden md:block absolute md:top-[40px] lg:top-[40px] md:left-30 lg:left-60 z-30 text-base md:text-xl lg:text-2xl font-bold text-white drop-shadow-lg text-right">
+          <div className="hidden md:block absolute md:top-[40px] lg:top-[40px] md:left-30 lg:left-[32%] z-30 text-base md:text-xl lg:text-2xl font-bold text-white drop-shadow-2xl text-right">
             <div className="flex flex-col items-end gap-1">
               <span className="flex items-center gap-2">
                 Bajas latencias{" "}
                 <Star className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" />
               </span>
               <span className="flex items-center gap-2">
-                Nat abierta{" "}
+                NAT abierta{" "}
                 <Star className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" />
               </span>
               <span className="flex items-center gap-2">
@@ -88,13 +88,13 @@ const carouselData = [
           </Card>
 
           {/* Card principal - 500 Megas */}
-          <Card className="w-[160px] sm:w-[200px] md:w-[240px] lg:w-70 h-[180px] sm:h-[220px] md:h-65 lg:h-75 shadow-lg hover:shadow-xl transition-all bg-gradient-to-b from-white/60 to-transparent border-white shadow-2sx shadow-orange-500/50 ring-4 ring-orange-400/20">
+          <Card className="lg:absolute lg:left-[47%] w-[160px] sm:w-[200px] md:w-[240px] lg:w-70 h-[180px] sm:h-[220px] md:h-65 lg:h-75 shadow-lg hover:shadow-xl transition-all bg-gradient-to-b from-white/60 to-transparent border-white shadow-2sx shadow-orange-500/50 ring-4 ring-orange-400/20">
             <CardHeader className="pb-1 sm:pb-2 border-b-2 border-white text-center">
               <CardTitle className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-extrabold text-orange-500 drop-shadow-lg">
                 500
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-2 sm:pt-3 md:pt-4">
+            <CardContent className="pt-2 sm:pt-3 md:pt-4 lg:pt-0">
               <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white uppercase text-center leading-tight">
                 Megas <br /> Simétricas
               </h3>

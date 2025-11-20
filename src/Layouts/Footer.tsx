@@ -93,14 +93,14 @@ export default function Footer() {
           />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          {/*<iframe
+          <iframe
             src="https://www.youtube.com/watch?v=QLpGbtd_xtE"
             title="YouTube video player"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             referrerPolicy="strict-origin-when-cross-origin"
             allowFullScreen
             className="w-full h-full"
-          ></iframe>*/}
+          ></iframe>
           <div className="flex justify-center">
             <Link to="/pse">
               <img

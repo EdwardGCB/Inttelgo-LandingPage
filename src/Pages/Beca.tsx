@@ -45,7 +45,7 @@ const ganadores2024: Ganador[] = [
     id: 1,
     nombre: "Laura Restrepo",
     imagen: "/ganadores/laura-restrepo.jpg",
-    link: "https://www.tiktok.com/@laurarestrepo?is_from_webapp=1&sender_device=pc",
+    link: "https://www.tiktok.com/@inttelgo?is_from_webapp=1&sender_device=pc",
     carrera: "Técnico Laboral: Auxiliar en Comercio Exterior",
   },
 ];
@@ -84,9 +84,7 @@ function WinnerFlipCard({ ganador }: { ganador: Ganador }) {
           <span>{ganador.carrera}</span>
         </div>
         <a href={ganador.link} target="_blank" rel="noopener noreferrer">
-          <Button variant="outline" className="text-black">
-            Conoce su historia
-          </Button>
+          <Button variant="orange">Conoce su historia</Button>
         </a>
       </div>
     </div>
