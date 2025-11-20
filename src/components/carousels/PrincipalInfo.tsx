@@ -18,20 +18,20 @@ import { ChevronsUp, DollarSign, Star } from "lucide-react";
 const carouselData = [
   {
     id: 1,
-    backgroundImage: "/banners/home/universo.webp",
+    backgroundImage: "",
     height: "h-[550px] md:h-[900px]",
     component: <Router3DViewer className="w-full h-full" />,
   },
   {
     id: 2,
     backgroundImage: "/banners/home/universo.webp",
-    height: "h-[500px] md:h-[600px]",
+    height: "h-[550px] md:h-[900px]",
     component: <Planes />,
   },
   {
     id: 3,
     backgroundImage: "/banners/home/nave.webp",
-    height: "h-[400px] md:h-[500px]",
+    height: "h-[550px] md:h-[900px]",
     component: (
       <div className="w-full h-full px-4 sm:px-6 md:px-8 lg:px-16">
         {/* Título */}
@@ -132,7 +132,7 @@ function PrincipalInfo() {
       {/* Contenido sobre la imagen */}
       <div className="relative z-10">
         <Stars
-          starCount={50}
+          starCount={120}
           colors={[
             "#FFFFFF",
             "#F8F9FA",
@@ -144,7 +144,11 @@ function PrincipalInfo() {
             "#495057",
           ]}
         />
-        <Menu className="text-white bg-transparent" />
+        <Menu
+          className="text-white bg-transparent"
+          logo="logo-blanco.svg"
+          detailsColor=""
+        />
 
         {/* Carousel */}
         <Carousel
@@ -159,8 +163,8 @@ function PrincipalInfo() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="left-4 top-1/2 bg-white/10 border-white/20 text-white hover:bg-white/20" />
-          <CarouselNext className="right-4 top-1/2 bg-white/10 border-white/20 text-white hover:bg-white/20" />
+          <CarouselPrevious className="left-4 top-1/2 text-orange-400 size-12" />
+          <CarouselNext className="right-4 top-1/2 text-orange-400 size-12" />
         </Carousel>
 
         {/* Indicadores de slide */}

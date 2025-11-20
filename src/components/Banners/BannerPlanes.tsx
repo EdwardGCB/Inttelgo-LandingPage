@@ -17,7 +17,10 @@ const BannerPlanes = ({
   return (
     <div className={cn("relative overflow-hidden mb-12", className)}>
       <Graph />
-      <Menu className={"text-white hover:text-white/80 bg-transparent"} />
+      <Menu
+        className={"text-white hover:text-white/80 bg-transparent"}
+        logo="logo-monocromatico.svg"
+      />
       <div
         className={cn(
           "flex items-center px-4 sm:px-6 md:px-12 lg:px-20 py-8 sm:py-12 md:py-16 lg:py-20",

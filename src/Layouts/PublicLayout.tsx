@@ -3,6 +3,7 @@ import { useCallback, useEffect /*useState*/ } from "react";
 import { /*ArrowRight,*/ Gauge, Phone } from "lucide-react";
 import { Link, Outlet } from "react-router-dom";
 import Footer from "./Footer";
+import ScrollToTop from "@/components/ScrollToTop";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -93,6 +94,7 @@ const PublicLayout = () => {
 
   return (
     <div className="relative flex min-h-screen flex-col bg-white">
+      <ScrollToTop />
       {/*<div className="sticky top-0 z-50 md:border-b bg-white/95 shadow-sm backdrop-blur-md">
         <div
           className={`block transition-all duration-500 ${

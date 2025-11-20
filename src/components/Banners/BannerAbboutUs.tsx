@@ -32,6 +32,8 @@ export default function BannerAbboutUs({
           className={
             "text-white hover:text-white/80 bg-gradient-to-b from-black to-transparent"
           }
+          detailsColor=""
+          logo="logo-blanco.svg"
         />
       </div>
 

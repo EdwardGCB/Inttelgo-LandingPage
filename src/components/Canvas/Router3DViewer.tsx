@@ -25,7 +25,7 @@ const infoData = [
   {
     id: 3,
     title: "Alta velocidad",
-    description: "1 Mbps de respuesta",
+    description: "1 Ms de respuesta",
     image: "/cards/speed-test.svg",
   },
 ];

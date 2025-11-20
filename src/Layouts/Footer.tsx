@@ -52,6 +52,7 @@ const menuItems: MenuItem[] = [
   { titulo: "Planes", ruta: "/planes" },
   { titulo: "Nosotros", ruta: "/nosotros" },
   { titulo: "Contacto", ruta: "/contacto" },
+  { titulo: "PSE", ruta: "/PSE" },
 ];
 
 const legalItems: MenuItem[] = [
@@ -85,31 +86,22 @@ export default function Footer() {
         <h2 className="text-2xl font-bold text-primary-foreground">
           CONOCE COMO PUEDES REALIZAR EL PAGO DE TU FACTURA
         </h2>
-        <div className="flex justify-center items-center">
-          <img
-            src="/banners/bn-inferior1.jpg"
-            alt="Banner Inferior"
-            className="w-1/2"
-          />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          <iframe
-            src="https://www.youtube.com/watch?v=QLpGbtd_xtE"
-            title="YouTube video player"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerPolicy="strict-origin-when-cross-origin"
-            allowFullScreen
-            className="w-full h-full"
-          ></iframe>
-          <div className="flex justify-center">
-            <Link to="/pse">
-              <img
-                src="/pse.svg"
-                alt="pse"
-                className="w-90 object-cover hover:scale-105 transition-transform cursor-pointer invert brightness-0"
-              />
-            </Link>
-          </div>
+        <iframe
+          src="https://www.youtube.com/watch?v=QLpGbtd_xtE"
+          title="YouTube video player"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerPolicy="strict-origin-when-cross-origin"
+          allowFullScreen
+          className="w-full h-full"
+        ></iframe>
+        <div className="flex justify-center">
+          <Link to="/pse">
+            <img
+              src="/pse.svg"
+              alt="pse"
+              className="w-90 object-cover hover:scale-105 transition-transform cursor-pointer"
+            />
+          </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mx-5 lg:mx-20">
           <div className="flex flex-col space-y-2">

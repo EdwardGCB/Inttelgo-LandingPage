@@ -106,13 +106,13 @@ export default function Planes() {
   };
 
   return (
-    <div className="w-full overflow-hidden relative py-2 md:py-8">
-      <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-center text-white">
+    <div className="w-full  overflow-hidden relative py-2 md:py-8 flex flex-col items-center justify-center">
+      <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-center text-white mb-8">
         Mas megas por el
         <br />
         <span className="text-orange-500 font-extrabold">mismo precio</span>
       </h2>
-      <div className="container mx-auto px-4 md:px-16 lg:px-32 flex-1 ">
+      <div className="w-full md:h-[600px] container mx-auto px-4 md:px-16 lg:px-32 flex flex-col items-center justify-center">
         <Carousel
           setApi={setApi}
           className="w-full mx-auto flex items-center justify-center"
@@ -159,29 +159,29 @@ export default function Planes() {
             })}
           </CarouselContent>
         </Carousel>
-      </div>
 
-      {/* Botón para conocer más */}
-      <div className="w-full flex justify-center mt-8">
-        <Button
-          onClick={() => navigate("/planes/internet")}
-          size="lg"
-          className="relative overflow-hidden bg-gradient-to-r from-[#FF9900] to-[#EC5406] text-white font-bold px-8 py-6 text-lg rounded-full shadow-lg hover:shadow-2xl hover:shadow-orange-500/50 transition-all duration-300 hover:scale-110 group"
-          style={{
-            animation: "pulse 2s ease-in-out infinite",
-          }}
-        >
-          <span className="relative z-10">Conocer más</span>
-
-          {/* Efecto de brillo que pasa por el botón */}
-          <span
-            className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent"
+        {/* Botón para conocer más */}
+        <div className="w-full flex items-center justify-center mt-8">
+          <Button
+            onClick={() => navigate("/planes/internet")}
+            size="lg"
+            className="relative overflow-hidden bg-gradient-to-r from-[#FF9900] to-[#EC5406] text-white font-bold px-8 py-6 text-lg rounded-full shadow-lg hover:shadow-2xl hover:shadow-orange-500/50 transition-all duration-300 hover:scale-110 group"
             style={{
-              animation: "shine 3s ease-in-out infinite",
-              transform: "translateX(-100%)",
+              animation: "pulse 2s ease-in-out infinite",
             }}
-          />
-        </Button>
+          >
+            <span className="relative z-10">Conocer más</span>
+
+            {/* Efecto de brillo que pasa por el botón */}
+            <span
+              className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent"
+              style={{
+                animation: "shine 3s ease-in-out infinite",
+                transform: "translateX(-100%)",
+              }}
+            />
+          </Button>
+        </div>
       </div>
 
       <style>{`

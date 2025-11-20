@@ -111,11 +111,13 @@ export default function Menu({
   textColor = "text-white hover:text-white/80",
   detailsColor = "invert brightness-0",
   lineColor = "bg-white/50",
+  logo = "logo-negro.svg",
 }: {
   className?: string;
   textColor?: string;
   detailsColor?: string;
   lineColor?: string;
+  logo?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -146,9 +148,9 @@ export default function Menu({
       <div className="flex-shrink-0">
         <Link to="/">
           <img
-            src="/logo-monocromatico.svg"
+            src={`/${logo}`}
             alt="Logo izquierdo"
-            className={cn("w-32 filter", detailsColor)}
+            className={cn("w-32 filter drop-shadow-lg", detailsColor)}
           />
         </Link>
       </div>
