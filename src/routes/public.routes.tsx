@@ -1,5 +1,5 @@
 import { lazy } from "react";
-import { RouteObject } from "react-router-dom";
+import type { RouteObject } from "react-router-dom";
 
 // Lazy loading de layout
 const Layout = lazy(() => import("@/Layouts/PublicLayout"));
@@ -22,9 +22,7 @@ const PrivacidadPage = lazy(
   () => import("@/Pages/Legal&Regulatorio/Privacidad")
 );
 const TerminosPage = lazy(() => import("@/Pages/Legal&Regulatorio/Terminos"));
-const SeguridadPage = lazy(
-  () => import("@/Pages/Legal&Regulatorio/Seguridad")
-);
+const SeguridadPage = lazy(() => import("@/Pages/Legal&Regulatorio/Seguridad"));
 const RegulacionTicPage = lazy(
   () => import("@/Pages/Legal&Regulatorio/RegulacionTIC")
 );
@@ -106,4 +104,3 @@ export const publicRoutes: RouteObject[] = [
     ],
   },
 ];
-
