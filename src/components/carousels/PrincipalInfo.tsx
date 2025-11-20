@@ -18,14 +18,14 @@ import { ChevronsUp, DollarSign, Star } from "lucide-react";
 const carouselData = [
   {
     id: 1,
-    backgroundImage: "/banners/home/galaxia.jpg",
+    backgroundImage: "/banners/home/galaxia.webp",
     height:
       "h-[550px] md:h-[900px]  bg-gradient-to-b from-transparent via-black/40 to-black",
     component: <Router3DViewer className="w-full h-full" />,
   },
   {
     id: 2,
-    backgroundImage: "/banners/home/galaxia.jpg",
+    backgroundImage: "/banners/home/galaxia.webp",
     height:
       "h-[550px] md:h-[900px]  bg-gradient-to-b from-transparent via-black/40 to-black",
     component: <Planes />,
