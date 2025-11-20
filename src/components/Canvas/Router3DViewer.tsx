@@ -135,20 +135,22 @@ function Router3DViewer({ className = "" }: Router3DViewerProps) {
               }}
             >
               <Suspense fallback={null}>
-                <Environment
-                  files="/models/hdri.hdr"
-                  background={false}
-                  environmentIntensity={0.6}
-                />
-                <ambientLight intensity={0.8} />
+                {!isMobile ? (
+                  <Environment
+                    files="/models/hdri.hdr"
+                    background={false}
+                    environmentIntensity={0.6}
+                  />
+                ) : null}
+                <ambientLight intensity={isMobile ? 1.5 : 0.8} />
                 <directionalLight
                   position={[10, 10, 5]}
-                  intensity={1}
+                  intensity={isMobile ? 5 : 1}
                   castShadow
                 />
                 <pointLight
                   position={[-10, 5, -10]}
-                  intensity={0.5}
+                  intensity={isMobile ? 0.8 : 0.5}
                   color="#ffffff"
                 />
 

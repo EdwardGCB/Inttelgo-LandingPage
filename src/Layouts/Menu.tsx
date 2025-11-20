@@ -21,7 +21,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 
@@ -121,6 +121,18 @@ export default function Menu({
 }) {
   const [open, setOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const location = useLocation();
+
+  // Función para verificar si una ruta está activa
+  const isActiveRoute = (href?: string) => {
+    if (!href) return false;
+    if (href === "/") {
+      return location.pathname === "/";
+    }
+    return (
+      location.pathname === href || location.pathname.startsWith(href + "/")
+    );
+  };
 
   useEffect(() => {
     const checkIsMobile = () => {
@@ -168,11 +180,13 @@ export default function Menu({
                         {section.type === "link" ? (
                           <NavigationMenuLink
                             asChild
-                            className={
-                              navigationMenuTriggerStyle() +
-                              " bg-transparent text-sm font-medium hover:bg-gradient-to-b hover:from-transparent hover:to-white/60 " +
-                              textColor
-                            }
+                            className={cn(
+                              navigationMenuTriggerStyle(),
+                              "bg-transparent text-sm font-medium hover:bg-gradient-to-b hover:from-transparent hover:to-white/60",
+                              isActiveRoute(section.href)
+                                ? "text-orange-500 font-semibold"
+                                : textColor
+                            )}
                           >
                             <Link to={section.href || "#"}>
                               {section.title}
@@ -202,19 +216,23 @@ export default function Menu({
                                       <NavigationMenuLink
                                         className={cn(
                                           "hover:bg-gradient-to-b hover:from-transparent hover:to-white/60 text-primary-foreground ",
-                                          textColor
+                                          isActiveRoute(item.href)
+                                            ? "text-bold"
+                                            : textColor
                                         )}
                                         asChild
                                       >
                                         <Link
                                           to={item.href || "#"}
-                                          className={
+                                          className={cn(
                                             item.featured
                                               ? "from-muted/50 to-muted flex h-full w-full flex-col justify-end rounded-md bg-linear-to-b p-6 no-underline outline-hidden select-none focus:shadow-md"
                                               : item.icon
                                               ? "flex-row items-center gap-2 rounded-md p-2 transition-all duration-300"
-                                              : "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-all duration-300"
-                                          }
+                                              : "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-all duration-300",
+                                            isActiveRoute(item.href) &&
+                                              "font-semibold"
+                                          )}
                                         >
                                           {item.icon && (
                                             <IconRenderer
@@ -293,12 +311,22 @@ export default function Menu({
                         to={section.href || "#"}
                         onClick={() => setOpen(false)}
                         className={cn(
-                          "flex items-center py-4 px-4 font-semibold hover:bg-orange-200 hover:text-orange-800 rounded-lg transition-all duration-300 border border-transparent hover:border-orange-300 hover:shadow-md group",
-                          isMobile ? "text-base" : "text-lg"
+                          "flex items-center py-4 px-4 font-semibold hover:bg-orange-200 hover:text-orange-800 rounded-lg transition-all duration-300 border group",
+                          isMobile ? "text-base" : "text-lg",
+                          isActiveRoute(section.href)
+                            ? "bg-orange-200 text-orange-800 border-orange-300 shadow-md"
+                            : "border-transparent hover:border-orange-300 hover:shadow-md"
                         )}
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-2 h-2 bg-orange-500 rounded-full group-hover:bg-orange-600 transition-colors"></div>
+                          <div
+                            className={cn(
+                              "w-2 h-2 rounded-full transition-colors",
+                              isActiveRoute(section.href)
+                                ? "bg-orange-700 w-3 h-3"
+                                : "bg-orange-500 group-hover:bg-orange-600"
+                            )}
+                          ></div>
                           <span>{section.title}</span>
                         </div>
                       </Link>
@@ -327,7 +355,12 @@ export default function Menu({
                                   key={item.href || itemIndex}
                                   to={item.href || "#"}
                                   onClick={() => setOpen(false)}
-                                  className="flex flex-col gap-2 py-3 px-4 hover:bg-orange-100 hover:text-orange-800 rounded-lg transition-all duration-300 border border-transparent hover:border-orange-200 group"
+                                  className={cn(
+                                    "flex flex-col gap-2 py-3 px-4 hover:bg-orange-100 hover:text-orange-800 rounded-lg transition-all duration-300 border group",
+                                    isActiveRoute(item.href)
+                                      ? "bg-orange-100 text-orange-800 border-orange-200 font-semibold"
+                                      : "border-transparent hover:border-orange-200"
+                                  )}
                                 >
                                   <div className="flex items-center gap-3">
                                     {item.icon && (
