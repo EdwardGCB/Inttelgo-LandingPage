@@ -36,12 +36,12 @@ jobs:
             echo "❌ Error: La carpeta dist no fue generada"
             exit 1
           fi
-          echo "✅ Build exitoso"
-          echo "📁 Contenido de dist:"
+          echo "Build exitoso"
+          echo "Contenido de dist:"
           ls -la dist/ | head -20
-          echo "📦 Tamaño:"
+          echo "Tamaño:"
           du -sh dist/
-          echo "📊 Número de archivos:"
+          echo "Número de archivos:"
           find dist -type f | wc -l
 
       - name: Deploy to FTP server
