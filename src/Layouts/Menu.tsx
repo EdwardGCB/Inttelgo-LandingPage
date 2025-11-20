@@ -251,7 +251,10 @@ export default function Menu({
           </div>
           {/* Imagen derecha */}
           <div className="flex-shrink-0">
-            <Link to="/pse">
+            <a
+              href="https://combopay.co/invoices/inttel-go-sas"
+              target="_blank"
+            >
               <img
                 src="/pse.svg"
                 alt="PSE"
@@ -260,7 +263,7 @@ export default function Menu({
                   detailsColor
                 )}
               />
-            </Link>
+            </a>
           </div>
         </>
       ) : (
