@@ -132,13 +132,12 @@ function PlanInternetPage() {
         <Suspense fallback={<LoadingSpinner size="md" />}>
           <AnimatedLines />
         </Suspense>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10 items-center my-10">
           <div className="flex justify-center items-center">
             <img
-              src="/plans/internet/1.webp"
+              src="/banners/plan/internet/2.webp"
               alt="Internet Rápido"
-              width={500}
-              height={500}
+              className="size-full rounded-2xl"
             />
           </div>
           <div className="col-span-1 md:col-span-2 space-y-4 px-4 md:px-0">

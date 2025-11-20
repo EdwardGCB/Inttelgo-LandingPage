@@ -260,10 +260,7 @@ export default function Menu({
               <img
                 src="/pse.svg"
                 alt="PSE"
-                className={cn(
-                  "h-15 hover:scale-105 transition-transform cursor-pointer",
-                  detailsColor
-                )}
+                className="h-15 hover:scale-105 transition-transform cursor-pointer drop-shadow-lg"
               />
             </a>
           </div>

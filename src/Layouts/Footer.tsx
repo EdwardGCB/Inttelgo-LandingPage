@@ -49,10 +49,14 @@ const redesSociales: SocialNetwork[] = [
 
 const menuItems: MenuItem[] = [
   { titulo: "Inicio", ruta: "/" },
-  { titulo: "Planes", ruta: "/planes" },
-  { titulo: "Nosotros", ruta: "/nosotros" },
+  { titulo: "Planes Internet", ruta: "/planes/internet" },
+  { titulo: "Planes Televisión", ruta: "/planes/television" },
+  { titulo: "Planes Telefonía", ruta: "/planes/telefonia" },
+  { titulo: "Sobre Nosotros", ruta: "/sobre-nosotros" },
+  { titulo: "Centros de Experiencia", ruta: "/centros-de-experiencia" },
   { titulo: "Contacto", ruta: "/contacto" },
-  { titulo: "PSE", ruta: "/PSE" },
+  { titulo: "Beca", ruta: "/beca" },
+  { titulo: "PSE", ruta: "/pse" },
 ];
 
 const legalItems: MenuItem[] = [
@@ -86,22 +90,24 @@ export default function Footer() {
         <h2 className="text-2xl font-bold text-primary-foreground">
           CONOCE COMO PUEDES REALIZAR EL PAGO DE TU FACTURA
         </h2>
-        <iframe
-          src="https://www.youtube.com/watch?v=QLpGbtd_xtE"
-          title="YouTube video player"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          referrerPolicy="strict-origin-when-cross-origin"
-          allowFullScreen
-          className="w-full h-full"
-        ></iframe>
+        <div className="w-full aspect-video rounded-lg overflow-hidden">
+          <iframe
+            src="https://www.youtube.com/embed/QLpGbtd_xtE"
+            title="YouTube video player"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+            className="w-full h-full"
+          ></iframe>
+        </div>
         <div className="flex justify-center">
-          <Link to="/pse">
+          <a href="https://combopay.co/invoices/inttel-go-sas" target="_blank">
             <img
               src="/pse.svg"
               alt="pse"
               className="w-90 object-cover hover:scale-105 transition-transform cursor-pointer"
             />
-          </Link>
+          </a>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mx-5 lg:mx-20">
           <div className="flex flex-col space-y-2">
@@ -141,15 +147,27 @@ export default function Footer() {
           </div>
           <div className="flex flex-col space-y-2">
             <h3 className=" text-xl font-bold text-primary-foreground">Menu</h3>
-            {menuItems.map((item, index) => (
-              <Link
-                key={index}
-                to={item.ruta}
-                className="text-base text-primary-foreground hover:underline"
-              >
-                {item.titulo}
-              </Link>
-            ))}
+            {menuItems.map((item, index) =>
+              item.titulo === "PSE" ? (
+                <a
+                  key={index}
+                  href="https://combopay.co/invoices/inttel-go-sas"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-base text-primary-foreground hover:underline"
+                >
+                  {item.titulo}
+                </a>
+              ) : (
+                <Link
+                  key={index}
+                  to={item.ruta}
+                  className="text-base text-primary-foreground hover:underline"
+                >
+                  {item.titulo}
+                </Link>
+              )
+            )}
           </div>
           <div className="flex flex-col space-y-2">
             <h3 className=" text-xl font-bold text-primary-foreground">

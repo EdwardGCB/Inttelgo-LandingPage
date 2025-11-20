@@ -12,7 +12,7 @@ interface DataProps {
 
 function Translucent({ data }: DataProps) {
   return (
-    <Card className="bg-gradient-to-t from-transparent to-white/50 border-none hover:bg-white/15 transition-all duration-300">
+    <Card className="bg-gradient-to-t from-transparent to-white/30 border-none hover:bg-white/15 transition-all duration-300 drop-shadow-xl">
       <CardContent>
         <CardHeader>
           {!data.image && (

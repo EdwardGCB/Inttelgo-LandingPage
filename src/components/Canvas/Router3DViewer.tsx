@@ -138,7 +138,7 @@ function Router3DViewer({ className = "" }: Router3DViewerProps) {
                 <Environment
                   files="/models/hdri.hdr"
                   background={false}
-                  environmentIntensity={1.2}
+                  environmentIntensity={3.5}
                 />
                 <ambientLight intensity={0.8} />
                 <directionalLight
