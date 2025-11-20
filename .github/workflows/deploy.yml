@@ -11,10 +11,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
@@ -22,10 +22,29 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Run TypeScript check
+        run: npm run build -- --mode production || (echo "❌ TypeScript check failed" && exit 1)
+
       - name: Build project
         run: npm run build
+        env:
+          NODE_ENV: production
 
-      - name: Deploy via FTP
+      - name: Verify dist folder
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "❌ Error: La carpeta dist no fue generada"
+            exit 1
+          fi
+          echo "✅ Build exitoso"
+          echo "📁 Contenido de dist:"
+          ls -la dist/ | head -20
+          echo "📦 Tamaño:"
+          du -sh dist/
+          echo "📊 Número de archivos:"
+          find dist -type f | wc -l
+
+      - name: Deploy to FTP server
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -34,3 +53,4 @@ jobs:
           local-dir: ./dist/
           server-dir: ./httpdocs/
           dangerous-clean-slate: true
+          log-level: verbose
