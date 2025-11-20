@@ -22,9 +22,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run TypeScript check
-        run: npm run build -- --mode production || (echo "❌ TypeScript check failed" && exit 1)
-
       - name: Build project
         run: npm run build
         env:
@@ -37,12 +34,10 @@ jobs:
             exit 1
           fi
           echo "Build exitoso"
-          echo "Contenido de dist:"
-          ls -la dist/ | head -20
-          echo "Tamaño:"
+          echo "Verificando archivos importantes:"
+          ls -la dist/models/ 2>/dev/null || echo "Carpeta models no encontrada en dist"
+          echo "Tamaño total:"
           du -sh dist/
-          echo "Número de archivos:"
-          find dist -type f | wc -l
 
       - name: Deploy to FTP server
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -52,5 +47,9 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/
           server-dir: ./httpdocs/
-          dangerous-clean-slate: true
+          dangerous-clean-slate: false
           log-level: verbose
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
