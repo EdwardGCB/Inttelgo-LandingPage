@@ -6,44 +6,84 @@ type Fundation = {
 
 export const fundations: Fundation[] = [
   {
-    name: "WEB MASTER COLOMBIA",
+    name: "YMCA",
     tagline: "Internet, networking, sofware, etc.",
-    logo: "/collaborators/WEB_MASTER_COLOMBIA.svg",
+    logo: "/fundations/fundaciones_ASOCIACION CRISTIANA DE JOVENES DE BOGOTA Y CUNDINAMARCA ACJ YMCA.webp",
   },
   {
-    name: "ESPN",
+    name: "Asociación Cristiana Deportiva",
     tagline: "Deportes en vivo",
-    logo: "/channels/CANAL_ESPN.svg",
+    logo: "/fundations/fundaciones_ASOCIACION CRISTIANA DEPORTIVA.webp",
   },
   {
-    name: "Warner",
-    tagline: "Películas y series",
-    logo: "/channels/CANAL_warner.svg",
+    name: "Corporación Humanitaria",
+    tagline: "Tierra Vida",
+    logo: "/fundations/fundaciones_CORPORACION HUMANITARIA TIERRA VIDA.webp",
   },
   {
-    name: "TNT",
+    name: "Funcenho",
     tagline: "Cine internacional",
-    logo: "/channels/CANAL_tnt.svg",
+    logo: "/fundations/fundaciones_FUNCENHO.webp",
   },
   {
-    name: "National Geographic",
+    name: "Laudes Infantis",
     tagline: "Documentales",
-    logo: "/channels/CANAL_national_geographic.svg",
+    logo: "/fundations/fundaciones_FUNDACIÒM LAUDES INFANTIS.webp",
   },
   {
-    name: "Paramount",
+    name: "Angeles del Paraíso",
     tagline: "Historias icónicas",
-    logo: "/channels/CANAL_paramount.svg",
+    logo: "/fundations/fundaciones_FUNDACION ANGELES DEL PARAISO.webp",
   },
   {
-    name: "FX",
-    tagline: "Series de culto",
-    logo: "/channels/CANAL_fx.svg",
+    name: "Construyendo Esperanza y Amor",
+    tagline: "Para un Futuro Mejor",
+    logo: "/fundations/fundaciones_FUNDACIÒN CONSTRUYENDO ESPERANZA Y AMOR PARA UN FUTURO MEJOR .webp",
   },
   {
-    name: "Star Channel",
+    name: "Enseñanza Integral",
     tagline: "Entretenimiento general",
-    logo: "/channels/CANAL_star.svg",
+    logo: "/fundations/fundaciones_FUNDACION ENSEÑANZA INTEGRAL.webp",
+  },
+  {
+    name: "Pepaso",
+    tagline: "Entretenimiento general",
+    logo: "/fundations/fundaciones_FUNDACION PEPASO.webp",
+  },
+  {
+    name: "Semilla de la Vida de Shadday",
+    tagline: "Entretenimiento general",
+    logo: "/fundations/fundaciones_FUNDACION SEMILLA DE LA VIDA DE SHADDAY.webp",
+  },
+  {
+    name: "Semilla de Vida Eterna",
+    tagline: "Entretenimiento general",
+    logo: "/fundations/fundaciones_FUNDACIÒN SEMILLA DE VIDA ETERNA.webp",
+  },
+  {
+    name: "Shalom Misión Xtrema",
+    tagline: "Entretenimiento general",
+    logo: "/fundations/fundaciones_FUNDACIÒN SHALOM MISIÒN XTREMA.webp",
+  },
+  {
+    name: "Torrencial de Juventud",
+    tagline: "Entretenimiento general",
+    logo: "/fundations/fundaciones_FUNDACIÒN TORRENCIAL DE JUVENTUD.webp",
+  },
+  {
+    name: "Verdaderos Heroes",
+    tagline: "Entretenimiento general",
+    logo: "/fundations/fundaciones_FUNDACION VERDADEROS HEROES.webp",
+  },
+  {
+    name: "Generación Juan",
+    tagline: "Entretenimiento general",
+    logo: "/fundations/fundaciones_GENERACION JUAN.webp",
+  },
+  {
+    name: "Peregrinos de la Esperanza",
+    tagline: "Entretenimiento general",
+    logo: "/fundations/fundaciones_PEREGRINOS DE LA ESPERANZA.webp",
   },
 ];
 

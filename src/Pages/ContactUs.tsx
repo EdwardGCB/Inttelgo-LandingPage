@@ -352,7 +352,7 @@ export default function ContactUs() {
                 >
                   <Card
                     className={cn(
-                      "w-20 h-20 sm:w-25 sm:h-25 md:w-30 md:h-30 lg:w-35 lg:h-35 p-0 hover:shadow-orange-500/50 hover:scale-105 hover:bg-gradient-to-b hover:from-[#FF9900] hover:to-[#EC5406] border-none rounded-full not-last:",
+                      "w-10 h-10 sm:w-15 sm:h-15 md:w-25 md:h-25 lg:w-30 lg:h-30 p-0 hover:shadow-orange-500/50 hover:scale-105 hover:bg-gradient-to-b hover:from-[#FF9900] hover:to-[#EC5406] border-none rounded-full not-last:",
                       red.classname
                     )}
                   >

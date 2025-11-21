@@ -1,61 +1,63 @@
 import { fundations } from "@/data/fundations";
 import { cn } from "@/lib/utils";
+import { Card, CardContent } from "../ui/card";
 
 const duplicatedLogos = [...fundations, ...fundations];
 
 export function FundationsMarquee() {
   return (
-    <section className="w-full rounded-3xl border border-white/10 bg-gradient-to-b from-[#0F0F0F] via-[#111827] to-[#0F0F0F] px-6 py-10 text-white shadow-[0_20px_45px_-25px_rgba(0,0,0,0.8)]">
-      <div className="max-w-3xl space-y-3">
-        <p className="text-sm uppercase tracking-[0.35em] text-white/60">
-          Fundaciones
-        </p>
+    <>
+      <div className="w-full space-y-3 text-center">
+        <p className="text-sm uppercase tracking-[0.35em]">Fundaciones</p>
         <h4 className="text-3xl font-semibold">
-          Aliados estratégicos para el desarrollo social
+          Compromiso social de Inttelgo S.A.S con la comunidad
         </h4>
-        <p className="text-white/70">
-          Trabajamos de la mano con fundaciones y organizaciones comprometidas
-          con el desarrollo educativo y social de nuestras comunidades, llevando
-          conectividad y oportunidades a los hogares colombianos.
-        </p>
       </div>
 
-      <div className="mt-10 space-y-6">
+      <div className="mt-10 space-y-6 relative">
         {[false, true].map((isReverse) => (
           <div
             key={isReverse ? "reverse" : "normal"}
-            className="overflow-hidden"
+            className="overflow-hidden relative"
           >
+            <div
+              className="absolute inset-0 z-10 pointer-events-none"
+              style={{
+                background:
+                  "linear-gradient(to right, white 0%, white 0%, transparent 20%, transparent 80%, white 100%, white 100%)",
+              }}
+            />
             <div
               className={cn(
                 "flex w-max gap-6",
-                isReverse ? "animate-marquee-reverse" : "animate-marquee"
+                isReverse
+                  ? "animate-marquee-reverse-fundations"
+                  : "animate-marquee-fundations"
               )}
             >
               {duplicatedLogos.map((logo, index) => (
-                <div
+                <Card
                   key={`${logo.name}-${index}-${isReverse ? "rev" : "fwd"}`}
-                  className="group flex shrink-0 min-w-52 items-center gap-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 transition hover:border-white/30 hover:bg-white/10"
+                  className="py-3"
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/90 p-2 shadow-inner">
-                    <img
-                      src={logo.logo}
-                      alt={logo.name}
-                      className="h-full w-full object-contain"
-                    />
-                  </div>
-                  <div>
-                    <p className="text-base font-semibold text-white">
-                      {logo.name}
-                    </p>
-                    <p className="text-sm text-white/70">{logo.tagline}</p>
-                  </div>
-                </div>
+                  <CardContent className="flex items-center gap-4 px-3">
+                    <div className="flex h-18 w-18 items-center justify-center rounded-xl shadow-inner border">
+                      <img
+                        src={logo.logo}
+                        alt={logo.name}
+                        className="h-full w-full object-contain rounded-xl"
+                      />
+                    </div>
+                    <div>
+                      <p className="text-base font-semibold ">{logo.name}</p>
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           </div>
         ))}
       </div>
-    </section>
+    </>
   );
 }

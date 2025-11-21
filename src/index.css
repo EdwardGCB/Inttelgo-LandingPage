@@ -295,4 +295,13 @@
       transform: translateX(0);
     }
   }
+
+  /* Animaciones personalizadas para FundationsMarquee */
+  .animate-marquee-fundations {
+    animation: marquee 60s linear infinite;
+  }
+
+  .animate-marquee-reverse-fundations {
+    animation: marquee-reverse 60s linear infinite;
+  }
 }

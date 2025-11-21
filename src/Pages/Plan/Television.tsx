@@ -110,17 +110,17 @@ export default function Television() {
       {/* Sección de beneficios */}
       <div className="w-full">
         {/* Versión móvil: imagen arriba, beneficios abajo con fondo negro */}
-        <div className="block md:hidden">
+        <div className="block lg:hidden">
           {/* Imagen de fondo para móvil */}
           <div
-            className="w-full h-200 bg-cover bg-center bg-no-repeat"
+            className="w-full h-250 bg-cover bg-center bg-no-repeat"
             style={{
               backgroundImage:
                 "url('/banners/plan/television/television-celular.webp')",
             }}
           >
             <div className="relative w-full justify-center">
-              <div className="transform translate-y-27 transition-transform duration-300">
+              <div className="transform translate-y-34 md:translate-y-[50%]  transition-transform duration-300">
                 <TVChannelEffect />
               </div>
             </div>
@@ -153,7 +153,7 @@ export default function Television() {
 
         {/* Versión desktop: diseño original */}
         <div
-          className="hidden md:block w-full bg-white py-12 px-4 sm:px-6 md:px-10 lg:px-20 bg-cover bg-center bg-no-repeat"
+          className="hidden lg:block w-full xl:h-150 2xl:h-200 bg-white py-12 px-4 sm:px-6 md:px-10 lg:px-20 bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage:
               "url('/banners/plan/television/television-2.webp')",
@@ -162,7 +162,7 @@ export default function Television() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 text-primary-foreground">
             <div className="flex items-center justify-center md:justify-start lg:justify-center">
               <div className="relative w-full max-w-sm md:max-w-md lg:max-w-lg">
-                <div className="transform md:translate-x-[-34%] md:translate-y-[-75%] lg:translate-x-[-14%] lg:-translate-y-[80%] xl:-translate-x-2.5 xl:-translate-y-37 transition-transform duration-300">
+                <div className="transform lg:-translate-x-[27%] lg:-translate-y-[80%] xl:-translate-x-[5%] xl:-translate-y-[65%] 2xl:-translate-x-[1.5%] 2xl:-translate-y-[17%] transition-transform duration-300">
                   <TVChannelEffect />
                 </div>
               </div>

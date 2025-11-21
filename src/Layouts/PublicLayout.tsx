@@ -1,6 +1,6 @@
-//import type { FormEvent } from "react";
-import { useCallback, useEffect /*useState*/ } from "react";
-import { /*ArrowRight,*/ Gauge, Phone } from "lucide-react";
+import type { FormEvent } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { ArrowRight, Gauge, Phone } from "lucide-react";
 import { Link, Outlet } from "react-router-dom";
 import Footer from "./Footer";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -11,13 +11,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-//import axios from "axios";
+import axios from "axios";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-//import { MessageToast } from "@/lib/messageToast";
+import { MessageToast } from "@/lib/messageToast";
 import "../animaciones.css";
 interface WhatsAppLine {
   title: string;
@@ -26,15 +26,15 @@ interface WhatsAppLine {
 }
 
 const PublicLayout = () => {
-  //const [showLeadCapture, setShowLeadCapture] = useState(false);
-  //const [leadPhone, setLeadPhone] = useState("");
+  const [showLeadCapture, setShowLeadCapture] = useState(false);
+  const [leadPhone, setLeadPhone] = useState("");
 
   useEffect(() => {
     let ticking = false;
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          ///setShowLeadCapture(window.scrollY >= 150);
+          setShowLeadCapture(window.scrollY >= 150);
           ticking = false;
         });
         ticking = true;
@@ -44,7 +44,7 @@ const PublicLayout = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  /*const handleLeadSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleLeadSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!leadPhone.trim()) {
       return;
@@ -73,7 +73,7 @@ const PublicLayout = () => {
     } finally {
       setLeadPhone("");
     }
-  };*/
+  };
 
   const whatsappLines: WhatsAppLine[] = [
     {
@@ -95,7 +95,7 @@ const PublicLayout = () => {
   return (
     <div className="relative flex min-h-screen flex-col bg-white">
       <ScrollToTop />
-      {/*<div className="sticky top-0 z-50 md:border-b bg-white/95 shadow-sm backdrop-blur-md">
+      <div className="sticky top-0 z-50 md:border-b bg-white/95 shadow-sm backdrop-blur-md">
         <div
           className={`block transition-all duration-500 ${
             showLeadCapture
@@ -136,7 +136,7 @@ const PublicLayout = () => {
             </div>
           </div>
         </div>
-      </div>*/}
+      </div>
 
       {/* Main Content */}
       <main className="flex-1">

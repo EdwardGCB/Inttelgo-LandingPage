@@ -11,8 +11,15 @@ import {
 } from "@/components/ui/accordion";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Separator } from "@/components/ui/separator";
+import CarrouselWinner from "@/components/carousels/TravelWinners";
 import { Check } from "lucide-react";
 import { Suspense, useEffect, useRef, useState } from "react";
+import {
+  lotteryWinners,
+  travelWinners2024,
+  travelWinners2025,
+  tvWinners,
+} from "@/lib/winners";
 
 const aboutUsContent = [
   "Somos una empresa de telecomunicaciones con origen en Soacha, especializada en ofrecer soluciones de conectividad de alta calidad para los estratos 0, 1 y 2. Nuestra red es 100% fibra óptica hasta el hogar (FTTH), lo que garantiza una conexión estable, de alta velocidad y con el mejor rendimiento del mercado.",
@@ -212,7 +219,7 @@ export default function SobreNosotros() {
             <Accordion
               type="multiple"
               className="w-full space-y-4"
-              defaultValue={["item-1", "item-2"]}
+              defaultValue={["item-4"]}
             >
               <AccordionItem value="item-1" className="border rounded-lg px-6">
                 <AccordionTrigger className="text-xl lg:text-2xl font-bold text-secondary-foreground hover:no-underline py-6">
@@ -325,6 +332,23 @@ export default function SobreNosotros() {
                       totalmente confiable.
                     </li>
                   </ul>
+                  <div className="space-y-4">
+                    <CarrouselWinner
+                      images={[...travelWinners2024, ...travelWinners2025]}
+                      title="Sorteo Viaje Santa Marta Anual"
+                      description="Conoce a nuestros ganadores de años anteriores"
+                    />
+                    <CarrouselWinner
+                      images={tvWinners}
+                      title="Sorteo TV'S por pago oportuno en PSE"
+                      description="Conoce a nuestros ganadores"
+                    />
+                    <CarrouselWinner
+                      images={lotteryWinners}
+                      title="Eventos y sorteos especiales"
+                      description="Conoce a nuestros ganadores de eventos y sorteos especiales"
+                    />
+                  </div>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>

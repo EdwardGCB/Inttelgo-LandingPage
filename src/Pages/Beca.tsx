@@ -44,7 +44,7 @@ const ganadores2024: Ganador[] = [
   {
     id: 1,
     nombre: "Laura Restrepo",
-    imagen: "/ganadores/laura-restrepo.jpg",
+    imagen: "/winners/BECA/laura-restrepo.jpg",
     link: "https://www.tiktok.com/@inttelgo?is_from_webapp=1&sender_device=pc",
     carrera: "Técnico Laboral: Auxiliar en Comercio Exterior",
   },
@@ -54,14 +54,14 @@ const ganadores2025: Ganador[] = [
   {
     id: 1,
     nombre: "Jummalay Neira",
-    imagen: "/ganadores/jummalay-neira.jpg",
+    imagen: "/winners/BECA/jummalay-neira.jpg",
     link: "https://www.tiktok.com/@jummalayneira?is_from_webapp=1&sender_device=pc",
     carrera: "Técnico Laboral: Auxiliar en Comercio Exterior",
   },
   {
     id: 2,
     nombre: "Diego Sierra",
-    imagen: "/ganadores/diego-sierra.jpg",
+    imagen: "/winners/BECA/diego-sierra.jpg",
     link: "https://www.tiktok.com/@diegosierra?is_from_webapp=1&sender_device=pc",
     carrera: "Técnico Laboral: Auxiliar en Comercio Exterior",
   },
@@ -131,7 +131,7 @@ export default function Beca() {
             >
               <Card
                 className={cn(
-                  "w-20 h-20 sm:w-25 sm:h-25 md:w-30 md:h-30 lg:w-35 lg:h-35 p-0 hover:shadow-orange-500/50 hover:scale-105 hover:bg-gradient-to-b hover:from-[#FF9900] hover:to-[#EC5406] border-none rounded-full not-last:",
+                  "w-10 h-10 sm:w-15 sm:h-15 md:w-25 md:h-25 lg:w-30 lg:h-30 p-0 hover:shadow-orange-500/50 hover:scale-105 hover:bg-gradient-to-b hover:from-[#FF9900] hover:to-[#EC5406] border-none rounded-full not-last:",
                   red.classname
                 )}
               >

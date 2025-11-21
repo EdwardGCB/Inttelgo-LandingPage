@@ -411,7 +411,8 @@ export default function Menu({
                 {/* Footer del menú */}
                 <div className="pt-4 border-t border-orange-200 text-center">
                   <div className="text-xs text-orange-500">
-                    © 2024 Inttelgo - Todos los derechos reservados
+                    © {new Date().getFullYear()} Inttelgo - Todos los derechos
+                    reservados
                   </div>
                 </div>
               </nav>
