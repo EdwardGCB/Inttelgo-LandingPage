@@ -95,7 +95,7 @@ export default function Pse() {
   const [consultLoading, setConsultLoading] = useState(false);
   const [banksLoading, setBanksLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
-  const apiUrl = import.meta.env.VITE_API_URL;
+  const apiUrl = getApiUrl();
 
   const idTypePlaceholder = identTypesLoading
     ? "Cargando tipos..."

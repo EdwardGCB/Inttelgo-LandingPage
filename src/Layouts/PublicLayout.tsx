@@ -18,6 +18,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { MessageToast } from "@/lib/messageToast";
+import { getApiUrl } from "@/lib/utils";
 import "../animaciones.css";
 interface WhatsAppLine {
   title: string;
@@ -52,7 +53,7 @@ const PublicLayout = () => {
 
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/contact/call`,
+        `${getApiUrl()}/contact/call`,
         {
           phone: leadPhone.trim(),
         }

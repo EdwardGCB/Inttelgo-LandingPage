@@ -20,7 +20,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import Menu from "@/Layouts/Menu";
-import { cn } from "@/lib/utils";
+import { cn, getApiUrl } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { Suspense, useEffect, useMemo, useState } from "react";
@@ -168,7 +168,7 @@ export default function ContactUs() {
   const onSubmit = async (formValues: ContactFormValues) => {
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/contact`,
+        `${getApiUrl()}/contact`,
         formValues
       );
       if (response.status === 200) {
