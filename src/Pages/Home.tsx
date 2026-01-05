@@ -76,11 +76,11 @@ function HomePage() {
             </Suspense>
           </div>
         </div>
-        <div className=" mx-10 sm:mx-4 md:mx-10 lg:mx-20 xl:mx-40 space-y-10 mb-20">
+        <div className=" mx-10 sm:mx-4 md:mx-10 lg:mx-20 xl:mx-40 space-y-10 mb-20 flex flex-col items-center justify-center">
           <Suspense fallback={<LoadingSpinner size="md" />}>
-            <AnimatedLines />
+            <AnimatedLines className="justify-start w-full" />
           </Suspense>
-          <div className="text-secondary-foreground">
+          <div className="text-secondary-foreground w-full ">
             <h3 className="text-4xl font-bold ">
               ¡Entregamos un servicio de calidad!
             </h3>
@@ -133,7 +133,25 @@ function HomePage() {
             ))}
           </div>
           <Card
-            className="bg-black border-white/20 hover:border-orange-500/50 transition-all duration-500 animate-pulse-glow relative overflow-hidden group"
+            className="p-0 w-1/2 hover:shadow-orange-500/50 hover:scale-105 hover:bg-gradient-to-b hover:from-[#FF9900] hover:to-[#EC5406] transition-all duration-500 ease-in-out cursor-pointer"
+            onClick={() =>
+              window.open(
+                "https://www.crcom.gov.co/es/pagina/regimen-proteccion-usuario",
+                "_blank",
+                "noopener,noreferrer"
+              )
+            }
+          >
+            <CardContent className="p-0">
+              <img
+                src="/banners/conoce-tus-derechos-y-deberes-como-usuario.jpg"
+                alt="Conoce tus derechos y deberes como usuario de servicios de telecomunicaciones - CRC"
+                className="w-full h-full object-contain"
+              />
+            </CardContent>
+          </Card>
+          <Card
+            className="w-full bg-black border-white/20 hover:border-orange-500/50 transition-all duration-500 animate-pulse-glow relative overflow-hidden group"
             style={{
               animation: `fadeInUp 0.8s ease-out 0.3s both`,
             }}
@@ -162,7 +180,7 @@ function HomePage() {
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   referrerPolicy="strict-origin-when-cross-origin"
                   allowFullScreen
-                  className="w-[90%] h-[90%] sm: rounded-lg shadow-lg group-hover/iframe:shadow-orange-500/50 transition-all duration-500 group-hover/iframe:scale-105"
+                  className="w-[90%] h-[90%] rounded-lg shadow-lg group-hover/iframe:shadow-orange-500/50 transition-all duration-500 group-hover/iframe:scale-105"
                 ></iframe>
               </div>
               <a
