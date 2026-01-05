@@ -133,7 +133,7 @@ function HomePage() {
             ))}
           </div>
           <Card
-            className="p-0 w-1/2 hover:shadow-orange-500/50 hover:scale-105 hover:bg-gradient-to-b hover:from-[#FF9900] hover:to-[#EC5406] transition-all duration-500 ease-in-out cursor-pointer"
+            className="p-0 w-[95%] md:w-1/2 hover:shadow-orange-500/50 hover:scale-105 hover:bg-gradient-to-b hover:from-[#FF9900] hover:to-[#EC5406] transition-all duration-500 ease-in-out cursor-pointer"
             onClick={() =>
               window.open(
                 "https://www.crcom.gov.co/es/pagina/regimen-proteccion-usuario",
