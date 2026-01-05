@@ -6,7 +6,12 @@ import { ThemeProvider } from "next-themes";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="light"
+      enableSystem={false}
+      forcedTheme="light"
+    >
       <App />
     </ThemeProvider>
   </StrictMode>

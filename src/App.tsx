@@ -4,6 +4,7 @@ import { SuspenseFallback } from "@/components/ui/loading-spinner";
 import { Toaster } from "./components/ui/sonner";
 import { publicRoutes } from "./routes/public.routes";
 import { otherRoutes } from "./routes/other.routes";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 function AppRoutes() {
   const routes = useRoutes([...publicRoutes, ...otherRoutes]);
@@ -13,6 +14,7 @@ function AppRoutes() {
 function App() {
   return (
     <Router>
+      <GoogleAnalytics />
       <Suspense fallback={<SuspenseFallback />}>
         <AppRoutes />
         <Toaster position="top-right" richColors />

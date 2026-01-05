@@ -8,6 +8,7 @@ import { Search, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Stars from "@/components/Canvas/Stars";
 import iconoControl from "../../../public/icono-control.svg";
+import { useCallback } from "react";
 
 interface Plan {
   title: string | null;
@@ -23,6 +24,11 @@ interface GamerPlanProps {
 }
 
 function GamerPlan({ plan }: GamerPlanProps) {
+  const phone = "573002698767";
+
+  const handleWhatsAppClick = useCallback(() => {
+    window.open(`https://wa.me/${phone}`, "_blank");
+  }, [phone]);
   return (
     <div className="relative w-full flex flex-col items-center group cursor-pointer z-10 transition-transform duration-300 hover:scale-105">
       {/* Mbps Card flotante */}
@@ -103,7 +109,11 @@ function GamerPlan({ plan }: GamerPlanProps) {
         </CardContent>
 
         <CardFooter className="relative z-10 backdrop-blur-sm rounded-b-xl">
-          <Button variant="purple" className="w-full py-6 flex rounded-xl ">
+          <Button
+            onClick={() => handleWhatsAppClick()}
+            variant="purple"
+            className="w-full py-6 flex rounded-xl "
+          >
             <Search />
             <span className="text-lg font-semibold">Saber más</span>
           </Button>

@@ -6,12 +6,12 @@ import { Check } from "lucide-react";
 import { Suspense } from "react";
 
 const planFeatures = [
-  "Internet ilimitado sin restricciones",
-  "Soporte 24/7",
-  "Modem con WIFI de alta velocidad incluido",
-  "Estabilidad en conexión",
-  "Garantía de soporte",
-  "Velocidad simétrica",
+  "Internet ilimitado sin restricciones.",
+  "Soporte 24/7.",
+  "Módem con WIFI de alta velocidad incluido.",
+  "Estabilidad en conexión.",
+  "Garantía de soporte.",
+  "Velocidad simétrica.",
 ];
 
 const plansData = [
@@ -22,7 +22,7 @@ const plansData = [
     category: "Gamer",
     caracteristicas: [
       "¡IP PUBLICA!",
-      "Modem 5G con wifi",
+      "Módem 5G con wifi",
       "NAT ABIERTA LAS 24/7",
     ],
     extras: ["+TV"],
@@ -33,9 +33,11 @@ const plansData = [
     price: "$80.000",
     category: "Básico",
     caracteristicas: [
-      "Velocidad simétrica",
-      "Tareas Básicas",
-      "Módem con WiFi",
+      "Navegación fluida y redes sociales",
+      "Streaming HD",
+      "Videollamadas estables",
+      "Descarga de archivos livianos",
+      "WIFI de uso domestico",
     ],
     extras: ["+TV"],
   },
@@ -45,9 +47,11 @@ const plansData = [
     price: "$95.000",
     category: "Básico",
     caracteristicas: [
-      "Velocidad simétrica",
-      "Tareas Básicas",
-      "Módem con WiFi",
+      "Streaming Full HD en varios dispositivos",
+      "Videollamadas en HD sin cortes",
+      "Clases virtuales y teletrabajo",
+      "Juegos online casuales",
+      "Descargas más rápidas",
     ],
     extras: ["+TV"],
   },
@@ -57,9 +61,11 @@ const plansData = [
     price: "$115.000",
     category: "Básico",
     caracteristicas: [
-      "Velocidad simétrica",
-      "Tareas Básicas",
-      "Módem con WiFi",
+      "Streaming 4K en múltiples pantallas",
+      "Gaming online con baja latencia",
+      "Subida y descarga de archivos pesados",
+      "Smart Home y cámaras IP",
+      "Ideal para creadores de contenido básicos",
     ],
     extras: ["+TV"],
   },
@@ -69,9 +75,11 @@ const plansData = [
     price: "$145.000",
     category: "Básico",
     caracteristicas: [
-      "Velocidad simétrica",
-      "Tareas Básicas",
-      "Módem con WiFi",
+      "Gaming competitivo",
+      "Streaming 4K/8K simultáneo",
+      "Teletrabajo intensivo",
+      "Servidores locales o acceso remoto",
+      "Descargas ultra rápidas",
     ],
     extras: ["+TV"],
   },
@@ -81,9 +89,10 @@ const plansData = [
     price: "$175.000",
     category: "Básico",
     caracteristicas: [
-      "Velocidad simétrica",
-      "Tareas Básicas",
-      "Módem con WiFi",
+      "Rendimiento cercano a 1 Gbps real",
+      "Streaming 8K sin buffering",
+      "Gaming competitivo profesional",
+      "Ideal para empresas pequeñas o streamers",
     ],
     extras: ["+TV"],
   },
@@ -95,7 +104,7 @@ export default function Television() {
       {/* Navbar + Fondo con grafo */}
       <Suspense fallback={<LoadingSpinner fullScreen size="xl" />}>
         <BannerPlanes
-          image="television/television-1.webp"
+          image="television/television-digital-banner.webp"
           className="bg-gradient-to-b from-orange-400 via-orange-600 to-[#903B67]"
         />
       </Suspense>
@@ -116,7 +125,7 @@ export default function Television() {
             className="w-full h-250 bg-cover bg-center bg-no-repeat"
             style={{
               backgroundImage:
-                "url('/banners/plan/television/television-celular.webp')",
+                "url('/banners/plan/television/television-canales-hd-movil.webp')",
             }}
           >
             <div className="relative w-full justify-center">
@@ -137,7 +146,7 @@ export default function Television() {
                 diseñados para ofrecer el mejor desempeño y latencias bajas.
               </p>
               <h2 className="text-2xl font-bold pt-4">
-                Nuestros Planes Incluyen Todo lo que Necesitas:
+                Nuestros planes incluyen todo lo que necesitas:
               </h2>
               <ul className="space-y-3">
                 {planFeatures.map((feature, index) => (
@@ -156,7 +165,7 @@ export default function Television() {
           className="hidden lg:block w-full xl:h-150 2xl:h-200 bg-white py-12 px-4 sm:px-6 md:px-10 lg:px-20 bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage:
-              "url('/banners/plan/television/television-2.webp')",
+              "url('/banners/plan/television/television-canales-hd-desktop.webp')",
           }}
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 text-primary-foreground">
@@ -176,7 +185,7 @@ export default function Television() {
                 diseñados para ofrecer el mejor desempeño y latencias bajas.
               </p>
               <h2 className="text-2xl md:text-3xl font-bold pt-4">
-                Nuestros Planes Incluyen Todo lo que Necesitas:
+                Nuestros planes incluyen todo lo que necesitas:
               </h2>
               <ul className="space-y-3">
                 {planFeatures.map((feature, index) => (

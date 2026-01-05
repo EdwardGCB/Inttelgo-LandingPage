@@ -109,15 +109,15 @@ export default function Beca() {
           <AnimatedLines />
         </Suspense>
         <p className="text-lg text-secondary-foreground/80">
-          En INTTELGO, creemos en el poder de la educacion. Por eso, como
-          agradecimiento por confiar en nuestros servicios, te invitamos a
-          participar en nuestra beca exclusiva para clientes. Podrias ser el
-          proximo beneficiario.
+          En INTTELGO, creemos en el poder de la educación. Por eso, como
+          agradecimiento por confiar en nuestros servicios; te invitamos a
+          participar en nuestra beca exclusiva para clientes. Podrías ser el
+          próximo beneficiario.
           <br />
-          No te quedes fuera, esta es tu oportunidad de crecer.
+          No te quedes fuera; esta es tu oportunidad de crecer.
           <br />
-          Siguenos en nuestras redes sociales para estar al tanto de las
-          proximas becas y mas beneficios.
+          Síguenos en nuestras redes sociales para estar al tanto de las
+          próximas becas y más beneficios.
         </p>
 
         <div className="flex flex-wrap items-center gap-6">
@@ -175,10 +175,10 @@ export default function Beca() {
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <span className="order-1 text-3xl font-semibold leading-tight text-white md:order-2">
                     Te presentamos a Laura Restrepo, nuestra primera profesional
-                    graduada gracias al programa de becas inttelgo como un
-                    tecnico en Contabilidad en tesoreria y finanzas en la
-                    universidad de la Salle, si quieres mas sobre su historia
-                    visita el enlace de tiktok en la parte inferior.
+                    graduada gracias al programa de becas Inttelgo como un
+                    técnico en contabilidad en tesorería y finanzas en la
+                    universidad de la Salle, si quieres más sobre su historia
+                    visita el enlace de TikTok en la parte inferior.
                   </span>
                   {ganadores2024.map((ganador) => (
                     <div key={ganador.id} className="order-2 md:order-1">
@@ -211,18 +211,18 @@ export default function Beca() {
                   <p className="text-lg">
                     Pronto anunciaremos la convocatoria para las becas de
                     estudio INTTELGO 2026, te invitamos a estar pendiente en
-                    nuestras redes sociales. Asegurate de cumplir con los
+                    nuestras redes sociales. Asegúrate de cumplir con los
                     requisitos para participar.
                   </p>
                   <ul className="list-disc list-inside">
-                    <li>Ser cliente de o vivir con el titular del servicio</li>
-                    <li>Tener titulo de bachiller</li>
+                    <li>Ser cliente de o vivir con el titular del servicio.</li>
+                    <li>Tener título de bachiller.</li>
                     <li>
-                      Presentarte en las fechas establecidas de la convocatoria
+                      Presentarte en las fechas establecidas de la convocatoria.
                     </li>
                   </ul>
                   <h2 className="text-center text-3xl font-semibold leading-tight text-white">
-                    Siguenos en nuestro Instagram para enterarte primero <br />
+                    Síguenos en nuestro Instagram para enterarte primero <br />
                     de nuestras convocatorias
                   </h2>
                   <div className="flex justify-center">

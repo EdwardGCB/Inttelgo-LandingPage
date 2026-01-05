@@ -7,6 +7,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Check, Search } from "lucide-react";
 import { Button } from "../ui/button";
+import { useCallback } from "react";
 
 interface Plan {
   title: string | null;
@@ -22,6 +23,12 @@ interface SecondaryPlanProps {
 }
 
 function SecondaryPlan({ plan }: SecondaryPlanProps) {
+  const phone = "573002698767";
+
+  const handleWhatsAppClick = useCallback(() => {
+    window.open(`https://wa.me/${phone}`, "_blank");
+  }, [phone]);
+
   return (
     <div className="relative w-full flex flex-col items-center transition-transform duration-300 hover:scale-105">
       {plan.extras.map((extra, index) => (
@@ -78,7 +85,10 @@ function SecondaryPlan({ plan }: SecondaryPlanProps) {
         </CardContent>
 
         <CardFooter>
-          <Button className="w-full py-6 flex rounded-xl ">
+          <Button
+            onClick={() => handleWhatsAppClick()}
+            className="w-full py-6 flex rounded-xl "
+          >
             <Search />
             <span className="text-lg font-semibold">Saber más</span>
           </Button>

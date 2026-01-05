@@ -44,7 +44,7 @@ export default function BannerAbboutUs({
           <div className="lg:hidden absolute inset-0">
             <img
               src={image}
-              alt="Banner Background"
+              alt="Banner Inttelgo - Internet de alta velocidad para tu hogar"
               className="w-full h-full object-cover"
             />
             {/* Gradiente de arriba hacia abajo en móvil */}
@@ -58,7 +58,7 @@ export default function BannerAbboutUs({
               <div className="w-1/2 h-full relative">
                 <img
                   src={image}
-                  alt="Banner Background"
+                  alt="Banner Inttelgo - Internet de alta velocidad para tu hogar"
                   className="w-full h-full object-cover"
                 />
                 {/* Gradiente de derecha a izquierda en desktop */}
@@ -74,12 +74,19 @@ export default function BannerAbboutUs({
         className={cn(
           "relative z-10 flex items-center px-4 sm:px-6 md:px-12 lg:px-20 py-8 sm:py-12 md:py-16 lg:py-20 min-h-[400px] lg:min-h-[500px]",
           children
-            ? "flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8 lg:justify-start"
+            ? image
+              ? "flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8 lg:justify-start"
+              : "justify-center"
             : "justify-center"
         )}
       >
         {children && (
-          <div className="w-full lg:w-1/2 flex items-center justify-center lg:justify-start">
+          <div
+            className={cn(
+              "flex items-center justify-center",
+              image ? "w-full lg:w-1/2 lg:justify-start" : "w-full"
+            )}
+          >
             {children}
           </div>
         )}

@@ -124,17 +124,17 @@ export default function ExperienceCenters() {
         </Suspense>
         <div className="col-span-1 md:col-span-2 space-y-4 px-4 md:px-0">
           <h2 className="text-3xl md:text-4xl font-bold text-secondary-foreground">
-            CONOCE NUESTROS CENTROS DE EXPERIENCIA
+            CONOCE NUESTROS CENTROS DE EXPERIENCIA.
           </h2>
           <p className="text-base md:text-lg text-[#EC5406] font-bold">
-            Vive la tecnologia, siente la diferencia.
+            Vive la tecnología, siente la diferencia.
           </p>
           <p className="text-base md:text-lg text-secondary-foreground/80">
-            En nuestros Centros de Experiencia podras conocer de cerca todos
+            En nuestros Centros de Experiencia podrás conocer de cerca todos
             nuestros servicios de conectividad. Te brindamos atencion
             personalizada para ayudarte a elegir el plan ideal, resolver
-            inquietudes tecnicas, administrativas y gestionar tus servicios de
-            forma rapida y eficiente.
+            inquietudes técnicas, administrativas y gestionar tus servicios de
+            forma rápida y eficiente.
           </p>
         </div>
       </div>
@@ -179,9 +179,6 @@ export default function ExperienceCenters() {
             </div>
           </div>
         </div>
-        <Suspense fallback={<LoadingSpinner size="md" />}>
-          <AnimatedLines />
-        </Suspense>
       </div>
 
       <div className="w-full bg-white py-12 px-4 sm:px-6 md:px-10 lg:px-20 space-y-6">

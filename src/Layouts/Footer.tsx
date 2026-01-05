@@ -57,6 +57,7 @@ const menuItems: MenuItem[] = [
   { titulo: "Contacto", ruta: "/contacto" },
   { titulo: "Beca", ruta: "/beca" },
   { titulo: "PSE", ruta: "/pse" },
+  { titulo: "Prueba tu velocidad", ruta: "/planes/internet/speedtest" },
 ];
 
 const legalItems: MenuItem[] = [
@@ -87,32 +88,6 @@ export default function Footer() {
     <footer className="bg-black">
       <div className="container mx-auto px-6 py-8 space-y-4">
         <AnimatedLines />
-        <h2 className="text-2xl font-bold text-primary-foreground">
-          CONOCE COMO PUEDES REALIZAR EL PAGO DE TU FACTURA
-        </h2>
-        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-16 items-center justify-center">
-          <div className="w-full h-full aspect-video rounded-lg overflow-hidden ">
-            <iframe
-              src="https://www.youtube.com/embed/QLpGbtd_xtE"
-              title="YouTube video player"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerPolicy="strict-origin-when-cross-origin"
-              allowFullScreen
-              className="w-full h-full"
-            ></iframe>
-          </div>
-          <a
-            href="https://combopay.co/invoices/inttel-go-sas"
-            target="_blank"
-            className="flex justify-center items-center"
-          >
-            <img
-              src="/pse.svg"
-              alt="pse"
-              className="w-full object-cover hover:scale-105 transition-transform cursor-pointer"
-            />
-          </a>
-        </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mx-5 lg:mx-20">
           <div className="flex flex-col space-y-2">
             <h3 className=" text-xl font-bold text-primary-foreground">

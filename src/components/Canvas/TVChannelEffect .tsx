@@ -5,38 +5,63 @@ const TVChannelEffect = () => {
     () => [
       {
         id: 1,
-        image:
-          "https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?w=800&h=600&fit=crop",
+        image: "/banners/plan/television/canales-television-01.webp",
         channel: "Deportes HD",
         program: "Fútbol en Vivo",
       },
       {
         id: 2,
-        image:
-          "https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=800&h=600&fit=crop",
+        image: "/banners/plan/television/canales-television-02.webp",
         channel: "Películas Plus",
         program: "Cine de Acción",
       },
       {
         id: 3,
-        image:
-          "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&h=600&fit=crop",
+        image: "/banners/plan/television/canales-television-03.webp",
         channel: "Noticias 24h",
         program: "Últimas Noticias",
       },
       {
         id: 4,
-        image:
-          "https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=800&h=600&fit=crop",
+        image: "/banners/plan/television/canales-television-04.webp",
         channel: "Discovery Channel",
         program: "Naturaleza Salvaje",
       },
       {
         id: 5,
-        image:
-          "https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=800&h=600&fit=crop",
+        image: "/banners/plan/television/canales-television-05.webp",
         channel: "Kids TV",
         program: "Animación Infantil",
+      },
+      {
+        id: 6,
+        image: "/banners/plan/television/canales-television-06.webp",
+        channel: "Cultura",
+        program: "Documentales",
+      },
+      {
+        id: 7,
+        image: "/banners/plan/television/canales-television-07.webp",
+        channel: "Cultura",
+        program: "Documentales",
+      },
+      {
+        id: 8,
+        image: "/banners/plan/television/canales-television-08.webp",
+        channel: "Cultura",
+        program: "Documentales",
+      },
+      {
+        id: 9,
+        image: "/banners/plan/television/canales-television-09.webp",
+        channel: "Cultura",
+        program: "Documentales",
+      },
+      {
+        id: 10,
+        image: "/banners/plan/television/canales-television-10.webp",
+        channel: "Cultura",
+        program: "Documentales",
       },
     ],
     []

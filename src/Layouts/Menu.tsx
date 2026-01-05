@@ -68,19 +68,19 @@ const menuData: Record<string, MenuSection> = {
         title: "Internet",
         href: "/planes/internet",
         description:
-          "Planes de internet para tu hogar y negocios 100% fibra optica.",
+          "Planes de internet por fibra óptica con alta velocidad y estabilidad para hogares y negocios.",
       },
       {
-        title: "Television",
+        title: "Televisión",
         href: "/planes/television",
         description:
-          "Planes de television para tu hogar y negocios 100% fibra optica.",
+          "Planes de televisión digital con excelente calidad de imagen y señal estable para tu hogar o negocio.",
       },
       {
-        title: "Telefonia",
+        title: "Telefonía",
         href: "/planes/telefonia",
         description:
-          "Planes de telefonia para tu hogar y negocios 100% fibra optica.",
+          "Planes de telefonía confiables con comunicación clara y cobertura estable para hogares y negocios.",
       },
     ],
   },

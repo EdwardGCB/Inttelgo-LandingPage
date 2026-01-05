@@ -52,12 +52,9 @@ const PublicLayout = () => {
     }
 
     try {
-      const response = await axios.post(
-        `${getApiUrl()}/contact/call`,
-        {
-          phone: leadPhone.trim(),
-        }
-      );
+      const response = await axios.post(`${getApiUrl()}/contact/call`, {
+        phone: leadPhone.trim(),
+      });
       if (response.status === 200) {
         MessageToast.success({
           title: "Llamada solicitada correctamente",
@@ -108,9 +105,9 @@ const PublicLayout = () => {
             <div className="flex flex-col gap-4  bg-black p-4 text-primary-foreground shadow-lg md:flex-row md:items-center md:justify-center">
               <p className="text-sm font-medium md:text-base text-center md:text-left ">
                 <span className="font-bold text-[#FF9900]">
-                  ¡En casa necesitas Internet Fibra!
+                  ¿En casa necesitas Internet Fibra?
                 </span>{" "}
-                Déjanos tus datos y te llamamos ahora
+                ¡Déjanos tus datos y te llamaremos en breve!
               </p>
               <form
                 onSubmit={handleLeadSubmit}

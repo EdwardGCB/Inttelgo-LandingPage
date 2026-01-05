@@ -25,6 +25,14 @@ export function getApiUrl(): string {
     console.warn("VITE_API_URL is not defined");
     return "";
   }
-  // Si la URL comienza con http://, reemplazarla por https://
-  return apiUrl.replace(/^http:\/\//, "https://");
+  return apiUrl;
+}
+
+export function getBaseUrl(): string {
+  const apiUrl = import.meta.env.VITE_API_URL || "";
+  if (!apiUrl) {
+    console.warn("VITE_API_URL is not defined");
+    return "";
+  }
+  return apiUrl.replace(/\/api\/?$/, "");
 }
