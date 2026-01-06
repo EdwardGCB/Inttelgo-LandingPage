@@ -165,7 +165,7 @@ export default function Planes() {
           <Button
             onClick={() => navigate("/planes/internet")}
             size="lg"
-            className="relative overflow-hidden bg-gradient-to-r from-[#FF9900] to-[#EC5406] text-white font-bold px-8 py-6 text-lg rounded-full shadow-lg hover:shadow-2xl hover:shadow-orange-500/50 transition-all duration-300 hover:scale-110 group"
+            className="relative overflow-hidden bg-gradient-to-r from-[#FF9900] to-[#EC5406] text-white font-bold px-8 py-6 text-lg rounded-full shadow-lg hover:shadow-2xl hover:shadow-orange-500/50 transition-all duration-300 hover:scale-110 group min-h-[44px]"
             style={{
               animation: "pulse 2s ease-in-out infinite",
             }}

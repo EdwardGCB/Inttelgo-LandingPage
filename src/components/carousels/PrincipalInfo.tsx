@@ -1,6 +1,6 @@
-import { lazy, useEffect, useState, useMemo } from "react";
+import { lazy, Suspense, useEffect, useState, useMemo } from "react";
 import Menu from "@/Layouts/Menu";
-import Stars from "@/components/Canvas/Stars";
+const Stars = lazy(() => import("@/components/Canvas/Stars"));
 const Router3DViewer = lazy(() => import("@/components/Canvas/Router3DViewer"));
 import {
   Carousel,
@@ -156,23 +156,28 @@ function PrincipalInfo() {
         fetchPriority="high"
         loading="eager"
         decoding="async"
+        width={1920}
+        height={1080}
+        style={{ aspectRatio: "16 / 9" }}
         aria-hidden="true"
       />
       {/* Contenido sobre la imagen */}
       <div className="relative z-10">
-        <Stars
-          starCount={30}
-          colors={[
-            "#FFFFFF",
-            "#F8F9FA",
-            "#E9ECEF",
-            "#DEE2E6",
-            "#CED4DA",
-            "#ADB5BD",
-            "#6C757D",
-            "#495057",
-          ]}
-        />
+        <Suspense fallback={null}>
+          <Stars
+            starCount={30}
+            colors={[
+              "#FFFFFF",
+              "#F8F9FA",
+              "#E9ECEF",
+              "#DEE2E6",
+              "#CED4DA",
+              "#ADB5BD",
+              "#6C757D",
+              "#495057",
+            ]}
+          />
+        </Suspense>
         <Menu
           className="text-white bg-transparent"
           logo="logo-blanco.svg"

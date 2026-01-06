@@ -1,7 +1,9 @@
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
-import Graph from "../Canvas/Graph";
+import { lazy, Suspense } from "react";
 import Menu from "@/Layouts/Menu";
+
+const Graph = lazy(() => import("../Canvas/Graph"));
 
 interface BannerAbboutUsProps {
   image?: string;
@@ -23,7 +25,9 @@ export default function BannerAbboutUs({
     >
       {/* Graph - z-0 (más atrás) */}
       <div className="absolute inset-0 z-10">
-        <Graph />
+        <Suspense fallback={null}>
+          <Graph />
+        </Suspense>
       </div>
 
       {/* Menu - z-50 (encima de todo) */}
@@ -46,6 +50,11 @@ export default function BannerAbboutUs({
               src={image}
               alt="Banner Inttelgo - Internet de alta velocidad para tu hogar"
               className="w-full h-full object-cover"
+              width={1920}
+              height={1080}
+              style={{ aspectRatio: "16 / 9" }}
+              loading="lazy"
+              decoding="async"
             />
             {/* Gradiente de arriba hacia abajo en móvil */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/50 to-black/90" />
@@ -60,6 +69,11 @@ export default function BannerAbboutUs({
                   src={image}
                   alt="Banner Inttelgo - Internet de alta velocidad para tu hogar"
                   className="w-full h-full object-cover"
+                  width={1920}
+                  height={1080}
+                  style={{ aspectRatio: "16 / 9" }}
+                  loading="lazy"
+                  decoding="async"
                 />
                 {/* Gradiente de derecha a izquierda en desktop */}
                 <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/30 to-black" />

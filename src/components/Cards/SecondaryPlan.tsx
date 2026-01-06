@@ -87,7 +87,7 @@ function SecondaryPlan({ plan }: SecondaryPlanProps) {
         <CardFooter>
           <Button
             onClick={() => handleWhatsAppClick()}
-            className="w-full py-6 flex rounded-xl "
+            className="w-full min-h-[44px] py-6 flex rounded-xl"
           >
             <Search />
             <span className="text-lg font-semibold">Saber más</span>

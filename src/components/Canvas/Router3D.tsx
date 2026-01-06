@@ -104,16 +104,8 @@ function Router3D({
     };
   }, [scene]);
 
-  // Precargar el modelo cuando el componente se monte
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      try {
-        useGLTF.preload("/models/router.glb");
-      } catch (error) {
-        console.warn("Error preloading router model:", error);
-      }
-    }
-  }, []);
+  // NO precargar el modelo - se cargará solo cuando el componente sea visible
+  // Esto reduce la carga inicial de red (router.glb es ~3.9MB)
 
   // Rotación automática
   useFrame((_state, delta) => {

@@ -171,6 +171,9 @@ export default function Menu({
             src={`/${logo}`}
             alt="Logo izquierdo"
             className={cn("w-32 filter drop-shadow-lg", detailsColor)}
+            width={128}
+            height={128}
+            style={{ aspectRatio: "1 / 1" }}
           />
         </Link>
       </div>
@@ -287,6 +290,9 @@ export default function Menu({
                 src="/pse.svg"
                 alt="PSE"
                 className="h-15 hover:scale-105 transition-transform cursor-pointer drop-shadow-lg"
+                width={120}
+                height={60}
+                style={{ aspectRatio: "1 / 1" }}
               />
             </a>
           </div>

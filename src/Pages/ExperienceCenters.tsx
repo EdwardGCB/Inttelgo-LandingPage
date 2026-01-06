@@ -1,12 +1,13 @@
+import { lazy, Suspense } from "react";
 import AnimatedLines from "@/components/Canvas/AnimatedLines";
-import Box3DViewer from "@/components/Canvas/Box3DViewer";
+
+const Box3DViewer = lazy(() => import("@/components/Canvas/Box3DViewer"));
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import Menu from "@/Layouts/Menu";
 import clsx from "clsx";
-import { Suspense } from "react";
 
 type Priority = "primary" | "secondary" | "third";
 

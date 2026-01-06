@@ -1,7 +1,9 @@
+import { lazy, Suspense } from "react";
 import Menu from "@/Layouts/Menu";
-import Graph from "@/components/Canvas/Graph";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
+
+const Graph = lazy(() => import("@/components/Canvas/Graph"));
 
 interface BannerPlanesProps {
   image: string;
@@ -16,7 +18,9 @@ const BannerPlanes = ({
 }: BannerPlanesProps) => {
   return (
     <div className={cn("relative overflow-hidden mb-12", className)}>
-      <Graph />
+      <Suspense fallback={null}>
+        <Graph />
+      </Suspense>
       <Menu
         className={"text-white hover:text-white/80 bg-transparent"}
         logo="logo-monocromatico.svg"

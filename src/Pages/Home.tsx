@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,13 +11,106 @@ import {
 import { Link } from "react-router-dom";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import SEO from "@/components/SEO";
-import { MousePointerClick } from "lucide-react";
+import { MousePointerClick, Play } from "lucide-react";
 
 // Lazy loading de componentes pesados
 const AnimatedLines = lazy(() => import("@/components/Canvas/AnimatedLines"));
 const CarouselChannels = lazy(() => import("@/components/carousels/Chanels"));
 // BannerHome no es lazy porque es el elemento LCP y debe cargarse inmediatamente
 import BannerHome from "@/components/carousels/PrincipalInfo";
+
+// Componente para lazy loading del iframe de YouTube
+function LazyYouTubeEmbed({ videoId }: { videoId: string }) {
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Si el usuario ya hizo clic, cargar inmediatamente
+    if (isClicked) {
+      setShouldLoad(true);
+      return;
+    }
+
+    // Usar IntersectionObserver para cargar cuando sea visible
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // Cargar cuando esté cerca de ser visible (200px antes)
+            setShouldLoad(true);
+            observer.disconnect();
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+        rootMargin: "200px", // Cargar 200px antes de que sea visible
+      }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [isClicked]);
+
+  // Placeholder con thumbnail de YouTube
+  const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+
+  if (!shouldLoad) {
+    return (
+      <div
+        ref={containerRef}
+        className="w-[90%] h-[90%] rounded-lg shadow-lg overflow-hidden relative cursor-pointer group/placeholder"
+        onClick={() => setIsClicked(true)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setIsClicked(true);
+          }
+        }}
+        aria-label="Cargar video de YouTube"
+      >
+        {/* Thumbnail de YouTube */}
+        <img
+          src={thumbnailUrl}
+          alt="Video thumbnail"
+          className="w-full h-full object-cover"
+          width={1280}
+          height={720}
+          style={{ aspectRatio: "16 / 9" }}
+          loading="lazy"
+          decoding="async"
+        />
+        {/* Overlay con botón de play */}
+        <div className="absolute inset-0 bg-black/40 group-hover/placeholder:bg-black/50 transition-colors flex items-center justify-center">
+          <div className="bg-white/90 rounded-full p-4 group-hover/placeholder:scale-110 transition-transform">
+            <Play className="w-12 h-12 text-orange-500 fill-orange-500" />
+          </div>
+        </div>
+        {/* Texto indicador */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm font-medium bg-black/60 px-4 py-2 rounded-full">
+          Haz clic para cargar el video
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <iframe
+      src={`https://www.youtube.com/embed/${videoId}`}
+      title="YouTube video player"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerPolicy="strict-origin-when-cross-origin"
+      allowFullScreen
+      className="w-[90%] h-[90%] rounded-lg shadow-lg group-hover/iframe:shadow-orange-500/50 transition-all duration-500 group-hover/iframe:scale-105"
+    />
+  );
+}
 
 interface CardInfo {
   title: string;
@@ -122,8 +215,14 @@ function HomePage() {
                     </p>
                   </CardContent>
                   <CardFooter className="flex justify-center">
-                    <Button variant="outline">
-                      <Link to={card.path}>
+                    <Button
+                      variant="outline"
+                      className="min-h-[44px] min-w-[120px]"
+                    >
+                      <Link
+                        to={card.path}
+                        className="flex items-center justify-center w-full h-full min-h-[44px]"
+                      >
                         <span className="text-lg font-bold">Saber más</span>
                       </Link>
                     </Button>
@@ -184,14 +283,7 @@ function HomePage() {
                   animation: `scale-in 0.6s ease-out 0.5s both`,
                 }}
               >
-                <iframe
-                  src="https://www.youtube.com/embed/QLpGbtd_xtE"
-                  title="YouTube video player"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  allowFullScreen
-                  className="w-[90%] h-[90%] rounded-lg shadow-lg group-hover/iframe:shadow-orange-500/50 transition-all duration-500 group-hover/iframe:scale-105"
-                ></iframe>
+                <LazyYouTubeEmbed videoId="QLpGbtd_xtE" />
               </div>
               <a
                 href="https://combopay.co/invoices/inttel-go-sas"

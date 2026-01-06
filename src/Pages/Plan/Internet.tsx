@@ -163,6 +163,15 @@ function PlanInternetPage() {
                   src="/banners/plan/internet/internet-alta-velocidad-hogar.webp"
                   alt="Internet de alta velocidad para hogar con fibra óptica Inttelgo"
                   className="size-full rounded-2xl"
+                  width={800}
+                  height={600}
+                  style={{
+                    aspectRatio: "4 / 3",
+                    maxWidth: "100%",
+                    height: "auto",
+                  }}
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
               <div className="col-span-1 md:col-span-2 space-y-4 px-4 md:px-0">

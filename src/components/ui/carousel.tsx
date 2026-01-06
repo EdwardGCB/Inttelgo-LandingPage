@@ -59,10 +59,14 @@ function Carousel({
   const [canScrollPrev, setCanScrollPrev] = React.useState(false);
   const [canScrollNext, setCanScrollNext] = React.useState(false);
 
+  // Usar requestAnimationFrame para agrupar lecturas y evitar reflows forzados
   const onSelect = React.useCallback((api: CarouselApi) => {
     if (!api) return;
-    setCanScrollPrev(api.canScrollPrev());
-    setCanScrollNext(api.canScrollNext());
+    // Agrupar las lecturas de propiedades geométricas en un requestAnimationFrame
+    requestAnimationFrame(() => {
+      setCanScrollPrev(api.canScrollPrev());
+      setCanScrollNext(api.canScrollNext());
+    });
   }, []);
 
   const scrollPrev = React.useCallback(() => {

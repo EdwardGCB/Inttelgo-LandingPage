@@ -8,6 +8,7 @@ interface Star {
   speed: number;
   opacity: number;
   twinkleSpeed: number;
+  color: string; // Cachear color para evitar Math.random() en cada frame
 }
 
 interface StarsProps {
@@ -27,7 +28,12 @@ const Stars: React.FC<StarsProps> = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
+    // Optimizar contexto del canvas para mejor rendimiento
+    const ctx = canvas.getContext("2d", {
+      alpha: true,
+      desynchronized: false,
+      willReadFrequently: false, // Optimización: no leeremos frecuentemente
+    });
     if (!ctx) return;
 
     let rafId: number | null = null;
@@ -95,6 +101,8 @@ const Stars: React.FC<StarsProps> = ({
     const createStars = (count: number, w: number, h: number) => {
       const stars: Star[] = [];
       for (let i = 0; i < count; i++) {
+        // Asignar color una sola vez al crear la estrella
+        const colorIndex = Math.floor(Math.random() * colors.length);
         stars.push({
           x: Math.random() * w,
           y: Math.random() * h,
@@ -102,6 +110,7 @@ const Stars: React.FC<StarsProps> = ({
           speed: Math.random() * 0.3 + 0.1,
           opacity: Math.random() * 0.7 + 0.3,
           twinkleSpeed: Math.random() * 0.03 + 0.01,
+          color: colors[colorIndex], // Cachear color
         });
       }
       return stars;
@@ -110,14 +119,50 @@ const Stars: React.FC<StarsProps> = ({
     // Inicializar estrellas con dimensiones actuales
     starsRef.current = createStars(starCount, canvasWidth, canvasHeight);
 
-    // Función de animación
-    const animate = () => {
+    // Control de visibilidad para pausar animación cuando no es visible
+    let isVisible = true;
+    let lastFrameTime = 0;
+    const targetFPS = 30; // Reducir a 30fps para ahorrar CPU
+    const frameInterval = 1000 / targetFPS;
+
+    // IntersectionObserver para pausar cuando no es visible
+    const visibilityObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          isVisible = entry.isIntersecting;
+        });
+      },
+      { threshold: 0 }
+    );
+
+    if (canvas) {
+      visibilityObserver.observe(canvas);
+    }
+
+    // Función de animación optimizada
+    const animate = (currentTime: number) => {
+      // Throttle a 30fps y solo animar si es visible
+      if (!isVisible) {
+        animationRef.current = requestAnimationFrame(animate);
+        return;
+      }
+
+      const elapsed = currentTime - lastFrameTime;
+      if (elapsed < frameInterval) {
+        animationRef.current = requestAnimationFrame(animate);
+        return;
+      }
+      lastFrameTime = currentTime - (elapsed % frameInterval);
+
       // Obtener dimensiones actuales sin forzar reflow
       const currentWidth = canvas.width || width;
       const currentHeight = canvas.height || height;
 
       // Limpiar canvas con fondo transparente
       ctx.clearRect(0, 0, currentWidth, currentHeight);
+
+      // Optimización: agrupar operaciones de canvas
+      ctx.save();
 
       starsRef.current.forEach((star) => {
         // Actualizar posición
@@ -135,27 +180,24 @@ const Stars: React.FC<StarsProps> = ({
           star.twinkleSpeed = -star.twinkleSpeed;
         }
 
-        // Dibujar estrella
+        // Dibujar estrella (usar color cacheado)
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-
-        // Colores morados para el card
-        const purpleShades = colors;
-        const colorIndex = Math.floor(Math.random() * purpleShades.length);
-        ctx.fillStyle = purpleShades[colorIndex];
+        ctx.fillStyle = star.color; // Usar color cacheado
         ctx.globalAlpha = star.opacity;
         ctx.fill();
       });
 
-      ctx.globalAlpha = 1;
+      ctx.restore();
       animationRef.current = requestAnimationFrame(animate);
     };
 
-    animate();
+    animate(0);
 
     // Cleanup
     return () => {
       resizeObserver.disconnect();
+      visibilityObserver.disconnect();
       if (rafId) {
         cancelAnimationFrame(rafId);
       }

@@ -27,6 +27,11 @@ function Translucent({ data }: DataProps) {
               src={data.image}
               alt={data.title || ""}
               className="object-contain max-w-30"
+              width={120}
+              height={120}
+              style={{ aspectRatio: "1 / 1", maxWidth: "100%", height: "auto" }}
+              loading="lazy"
+              decoding="async"
             />
           </div>
         )}

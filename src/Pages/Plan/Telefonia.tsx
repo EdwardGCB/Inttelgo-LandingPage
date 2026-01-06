@@ -123,6 +123,11 @@ export default function Telefonia() {
               src="/banners/plan/telefonia/triple-play-internet-tv-telefonia.webp"
               alt="Triple play Inttelgo: Internet, TV y Telefonía en un solo plan"
               className="size-full rounded-2xl"
+              width={800}
+              height={600}
+              style={{ aspectRatio: "4 / 3", maxWidth: "100%", height: "auto" }}
+              loading="lazy"
+              decoding="async"
             />
           </div>
           <div className="col-span-1 space-y-4 px-4 md:px-0">

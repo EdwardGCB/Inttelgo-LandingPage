@@ -13,10 +13,25 @@ export const initGA = () => {
     return;
   }
 
+  // Cargar Google Analytics de forma diferida para no bloquear el renderizado
   const script1 = document.createElement("script");
   script1.async = true;
+  script1.defer = true; // Agregar defer para cargar después del parse
   script1.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
-  document.head.appendChild(script1);
+  // Usar requestIdleCallback si está disponible para cargar en tiempo libre
+  if ("requestIdleCallback" in window) {
+    requestIdleCallback(
+      () => {
+        document.head.appendChild(script1);
+      },
+      { timeout: 2000 }
+    );
+  } else {
+    // Fallback: cargar después de un pequeño delay
+    setTimeout(() => {
+      document.head.appendChild(script1);
+    }, 100);
+  }
 
   window.dataLayer = window.dataLayer || [];
   window.gtag = function () {

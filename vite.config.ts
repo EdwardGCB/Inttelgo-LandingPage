@@ -81,7 +81,7 @@ function preloadCriticalAssets() {
         cssFiles.sort();
         jsFiles.sort();
 
-        // Agregar preloads para CSS (más crítico - bloquea renderizado)
+        // Agregar preloads para CSS (descarga temprana)
         cssFiles.forEach((file: string) => {
           const preloadTag = `    <link rel="preload" href="/${file}" as="style" />\n`;
           // Insertar después del viewport meta tag
@@ -92,6 +92,29 @@ function preloadCriticalAssets() {
             );
           }
         });
+
+        // Modificar los links de stylesheet inyectados por Vite para que no bloqueen
+        // Usar técnica preload as style con polyfill para carga asíncrona
+        html = html.replace(
+          /<link[^>]*rel=["']stylesheet["'][^>]*href=["'][^"']+\.css["'][^>]*>/g,
+          (match) => {
+            // Si ya tiene onload o media (excepto print), no modificar
+            if (
+              match.includes("onload=") ||
+              (match.includes("media=") && !match.includes('media="print"'))
+            ) {
+              return match;
+            }
+            // Convertir a carga asíncrona usando media="print" onload
+            // Esta técnica es más compatible y no requiere polyfill
+            const asyncMatch = match.replace(
+              /rel=["']stylesheet["']/,
+              'rel="stylesheet" media="print" onload="this.media=\'all\';this.onload=null"'
+            );
+            // Agregar fallback para navegadores sin JS
+            return `${asyncMatch}\n    <noscript>${match}</noscript>`;
+          }
+        );
 
         // Agregar modulepreload para JS crítico (solo el primero)
         if (jsFiles.length > 0) {
@@ -121,6 +144,12 @@ export default defineConfig({
   esbuild: {
     // Optimización: eliminar console.log en producción
     drop: ["console", "debugger"],
+    // Optimización: minificación más agresiva
+    legalComments: "none", // Eliminar comentarios legales
+    minifyIdentifiers: true, // Minificar identificadores
+    minifySyntax: true, // Minificar sintaxis
+    minifyWhitespace: true, // Minificar espacios en blanco
+    treeShaking: true, // Tree-shaking activado
   },
   resolve: {
     alias: {
@@ -129,6 +158,12 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
+      // Optimización: mejorar tree-shaking
+      treeshake: {
+        moduleSideEffects: "no-external", // Tree-shaking agresivo
+        propertyReadSideEffects: false,
+        tryCatchDeoptimization: false,
+      },
       output: {
         manualChunks: (id) => {
           // React y dependencias core
@@ -140,17 +175,42 @@ export default defineConfig({
             return "react-vendor";
           }
 
-          // Three.js - separado porque es muy grande
+          // Three.js core - separado de helpers
           if (
-            id.includes("node_modules/three") ||
-            id.includes("node_modules/@react-three")
+            id.includes("node_modules/three") &&
+            !id.includes("@react-three")
           ) {
-            return "three-vendor";
+            return "three-core";
           }
 
-          // Radix UI components
+          // React Three Fiber - separado de drei
+          if (id.includes("node_modules/@react-three/fiber")) {
+            return "r3f-core";
+          }
+
+          // React Three Drei - separado porque tiene muchos helpers
+          if (id.includes("node_modules/@react-three/drei")) {
+            return "r3f-drei";
+          }
+
+          // Dividir Radix UI por componente para mejor tree-shaking
           if (id.includes("node_modules/@radix-ui")) {
-            return "ui-vendor";
+            // Extraer el nombre del componente del path
+            const match = id.match(/@radix-ui\/([^/]+)/);
+            if (match) {
+              const componentName = match[1];
+              // Agrupar componentes pequeños juntos
+              if (
+                ["react-slot", "react-label", "react-separator"].includes(
+                  componentName
+                )
+              ) {
+                return "radix-base";
+              }
+              // Componentes más grandes en chunks separados
+              return `radix-${componentName}`;
+            }
+            return "radix-other";
           }
 
           // Formularios y validación
@@ -199,16 +259,25 @@ export default defineConfig({
           }
           return `assets/[name]-[hash][extname]`;
         },
+        // Compactar código generado
+        compact: true,
+        // Generar código más compacto
+        generatedCode: {
+          constBindings: true, // Usar const en lugar de var
+          objectShorthand: true, // Usar shorthand de objetos
+        },
       },
     },
     chunkSizeWarningLimit: 1000,
     sourcemap: false, // Desactivar sourcemaps en producción para reducir tamaño
-    minify: "esbuild", // Usar esbuild para minificación más rápida
+    minify: "esbuild", // Usar esbuild para minificación más rápida y eficiente
     cssCodeSplit: true, // Dividir CSS en chunks separados
     reportCompressedSize: true, // Reportar tamaños comprimidos
     // Optimización: mejorar la compresión
     target: "es2015", // Compatibilidad con navegadores modernos
     assetsInlineLimit: 4096, // Inlinear assets pequeños (<4KB) para reducir requests
+    // Optimización: reducir tamaño del CSS
+    cssMinify: "esbuild", // Usar esbuild para minificar CSS (más agresivo)
   },
   server: {
     host: "0.0.0.0",

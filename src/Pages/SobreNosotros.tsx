@@ -1,7 +1,9 @@
+import { Suspense, useEffect, useRef, useState, lazy } from "react";
 import BannerAbboutUs from "@/components/Banners/BannerAbboutUs";
 import { FundationsMarquee } from "@/components/blocks/FundationsMarquee";
 import AnimatedLines from "@/components/Canvas/AnimatedLines";
-import Box3DViewer from "@/components/Canvas/Box3DViewer";
+
+const Box3DViewer = lazy(() => import("@/components/Canvas/Box3DViewer"));
 import Timeline from "@/components/Timeline/Timeline";
 import {
   Accordion,
@@ -13,7 +15,6 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Separator } from "@/components/ui/separator";
 import CarrouselWinner from "@/components/carousels/TravelWinners";
 import { Check } from "lucide-react";
-import { Suspense, useEffect, useRef, useState } from "react";
 import {
   lotteryWinners,
   travelWinners2024,

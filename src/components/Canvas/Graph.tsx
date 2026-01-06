@@ -46,30 +46,76 @@ function Graph(): React.JSX.Element {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Ajustar tamaño del canvas
-    const resizeCanvas = (): void => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-
-    resizeCanvas();
-    window.addEventListener("resize", resizeCanvas);
+    let rafId: number | null = null;
+    let width = 0;
+    let height = 0;
 
     // Configuración de los nodos del grafo
     const nodes: Node[] = [];
     const nodeCount = isMobile ? 30 : 100;
     const connectionDistance = isMobile ? 100 : 150;
 
-    // Crear nodos
-    for (let i = 0; i < nodeCount; i++) {
-      nodes.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        radius: Math.random() * 2 + 1,
+    // Función para inicializar nodos con dimensiones actuales
+    const initializeNodes = (w: number, h: number) => {
+      nodes.length = 0; // Limpiar nodos existentes
+      for (let i = 0; i < nodeCount; i++) {
+        nodes.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: (Math.random() - 0.5) * 0.5,
+          radius: Math.random() * 2 + 1,
+        });
+      }
+    };
+
+    // Ajustar tamaño del canvas usando ResizeObserver y requestAnimationFrame
+    // para evitar reflows forzados - usar el contenedor padre en lugar de window
+    const resizeCanvas = (): void => {
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
+
+      rafId = requestAnimationFrame(() => {
+        // Obtener dimensiones del contenedor padre en lugar de window
+        const parent = canvas.parentElement;
+        if (parent) {
+          const rect = parent.getBoundingClientRect();
+          const newWidth = rect.width;
+          const newHeight = rect.height;
+
+          // Solo actualizar si cambió el tamaño
+          if (canvas.width !== newWidth || canvas.height !== newHeight) {
+            width = newWidth;
+            height = newHeight;
+            canvas.width = width;
+            canvas.height = height;
+            // Reinicializar nodos cuando cambia el tamaño
+            initializeNodes(width, height);
+          }
+        }
+        rafId = null;
       });
+    };
+
+    // Usar ResizeObserver para detectar cambios de tamaño del contenedor padre
+    const resizeObserver = new ResizeObserver(() => {
+      resizeCanvas();
+    });
+
+    // Observar el contenedor padre en lugar de document.body
+    const parent = canvas.parentElement;
+    if (parent) {
+      resizeObserver.observe(parent);
+      // Inicializar dimensiones inmediatamente
+      resizeCanvas();
     }
+
+    // Fallback para navegadores antiguos (solo si es necesario)
+    const handleWindowResize = () => {
+      resizeCanvas();
+    };
+    window.addEventListener("resize", handleWindowResize, { passive: true });
 
     // Variables para el efecto de interacción con el mouse
     let mouseX = -100;
@@ -158,15 +204,19 @@ function Graph(): React.JSX.Element {
 
     // Limpieza
     return () => {
-      window.removeEventListener("resize", resizeCanvas);
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", handleWindowResize);
       window.removeEventListener("mousemove", handleMouseMove);
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
     };
   }, [isMobile, isDarkMode]); // Se recalcula cuando cambia el modo o el tamaño
 
   return (
     <canvas
       ref={canvasRef}
-      className="absolute top-0 left-0 w-full z-0 pointer-events-none"
+      className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none"
     />
   );
 }
