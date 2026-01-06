@@ -19,7 +19,7 @@ const infoData = [
   {
     id: 2,
     title: "Megas simetricas",
-    description: "megas simétricas",
+    description: "Megas simétricas",
     image: "/cards/up-down.svg",
   },
   {
@@ -37,12 +37,27 @@ function Router3DViewer({ className = "" }: Router3DViewerProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
+    // Usar media query en lugar de window.innerWidth para evitar reflows
+    const mediaQuery = window.matchMedia("(max-width: 1023px)");
+
+    // Función para actualizar estado sin forzar reflow
+    const updateIsMobile = (e: MediaQueryList | MediaQueryListEvent) => {
+      setIsMobile(e.matches);
     };
 
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
+    // Verificar al cargar
+    updateIsMobile(mediaQuery);
+
+    // Usar addEventListener en lugar de addListener para mejor compatibilidad
+    let cleanup: (() => void) | undefined;
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener("change", updateIsMobile);
+      cleanup = () => mediaQuery.removeEventListener("change", updateIsMobile);
+    } else {
+      // Fallback para navegadores antiguos
+      mediaQuery.addListener(updateIsMobile);
+      cleanup = () => mediaQuery.removeListener(updateIsMobile);
+    }
 
     // Manejar contexto perdido
     const handleContextLost = (event: Event) => {
@@ -63,6 +78,9 @@ function Router3DViewer({ className = "" }: Router3DViewerProps) {
     }
 
     return () => {
+      if (cleanup) {
+        cleanup();
+      }
       if (canvas) {
         canvas.removeEventListener("webglcontextlost", handleContextLost);
         canvas.removeEventListener(
@@ -89,7 +107,7 @@ function Router3DViewer({ className = "" }: Router3DViewerProps) {
             Disfruta del internet mas veloz
           </h1>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl text-white font-extrabold leading-tight tracking-wide text-center">
-            con nuestro modem wifi 6
+            con nuestro módem WiFi 6
           </h1>
         </div>
 

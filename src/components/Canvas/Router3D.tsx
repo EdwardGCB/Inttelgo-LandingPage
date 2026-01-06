@@ -104,6 +104,17 @@ function Router3D({
     };
   }, [scene]);
 
+  // Precargar el modelo cuando el componente se monte
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        useGLTF.preload("/models/router.glb");
+      } catch (error) {
+        console.warn("Error preloading router model:", error);
+      }
+    }
+  }, []);
+
   // Rotación automática
   useFrame((_state, delta) => {
     if (groupRef.current && autoRotate) {
@@ -120,8 +131,5 @@ function Router3D({
     </group>
   );
 }
-
-// Precargar el modelo
-useGLTF.preload("/models/router.glb");
 
 export default Router3D;

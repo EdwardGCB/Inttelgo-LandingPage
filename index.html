@@ -5,6 +5,40 @@
     <link rel="icon" type="image/svg+xml" href="/mano-inttelgo-50px.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <!-- DNS Prefetch para recursos externos -->
+    <link rel="dns-prefetch" href="https://www.youtube.com" />
+    <link rel="dns-prefetch" href="https://combopay.co" />
+    <link rel="dns-prefetch" href="https://www.crcom.gov.co" />
+
+    <!-- Preconnect para conexiones críticas -->
+    <link rel="preconnect" href="https://www.youtube.com" crossorigin />
+    <link rel="preconnect" href="https://combopay.co" crossorigin />
+    <!-- Preconnect para Google Fonts (si se usan) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Preload de recursos críticos para LCP -->
+    <link
+      rel="preload"
+      href="/banners/home/banner-home-galaxia-espacial.webp"
+      as="image"
+      type="image/webp"
+      fetchpriority="high"
+    />
+    <link
+      rel="preload"
+      href="/banners/home/banner-home-nave-espacial.webp"
+      as="image"
+      type="image/webp"
+    />
+    <link
+      rel="preload"
+      href="/logo-blanco.svg"
+      as="image"
+      type="image/svg+xml"
+      fetchpriority="high"
+    />
+
     <!-- Primary Meta Tags -->
     <title>Inttelgo - Internet Hogar 100% Fibra Óptica</title>
     <meta

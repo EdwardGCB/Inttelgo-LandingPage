@@ -191,10 +191,11 @@ function CarouselPrevious({
       )}
       disabled={!canScrollPrev}
       onClick={scrollPrev}
+      aria-label="Slide anterior"
       {...props}
     >
-      <ArrowLeft className="size-8" />
-      <span className="sr-only">Previous slide</span>
+      <ArrowLeft className="size-8" aria-hidden="true" />
+      <span className="sr-only">Slide anterior</span>
     </Button>
   );
 }
@@ -221,10 +222,11 @@ function CarouselNext({
       )}
       disabled={!canScrollNext}
       onClick={scrollNext}
+      aria-label="Slide siguiente"
       {...props}
     >
-      <ArrowRight className="size-8" />
-      <span className="sr-only">Next slide</span>
+      <ArrowRight className="size-8" aria-hidden="true" />
+      <span className="sr-only">Slide siguiente</span>
     </Button>
   );
 }

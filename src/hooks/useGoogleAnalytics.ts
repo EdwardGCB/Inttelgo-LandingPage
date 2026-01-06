@@ -54,23 +54,40 @@ export const useScrollTracking = () => {
     const trackedDepths = new Set<number>();
     const scrollThresholds = [25, 50, 75, 90, 100];
 
-    const handleScroll = () => {
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      const scrollPercentage = Math.round(
-        (scrollTop / (documentHeight - windowHeight)) * 100
-      );
+    let rafId: number | null = null;
 
-      scrollThresholds.forEach((threshold) => {
-        if (scrollPercentage >= threshold && !trackedDepths.has(threshold)) {
-          trackedDepths.add(threshold);
-          trackScrollDepth(threshold, location.pathname);
-        }
+    const handleScroll = () => {
+      // Usar requestAnimationFrame para agrupar lecturas y evitar reflows forzados
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
+
+      rafId = requestAnimationFrame(() => {
+        // Agrupar todas las lecturas de propiedades geométricas
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const scrollPercentage = Math.round(
+          (scrollTop / (documentHeight - windowHeight)) * 100
+        );
+
+        scrollThresholds.forEach((threshold) => {
+          if (scrollPercentage >= threshold && !trackedDepths.has(threshold)) {
+            trackedDepths.add(threshold);
+            trackScrollDepth(threshold, location.pathname);
+          }
+        });
+
+        rafId = null;
       });
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
+    };
   }, [location.pathname]);
 };

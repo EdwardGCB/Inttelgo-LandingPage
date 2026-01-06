@@ -134,7 +134,7 @@ export default function SpeedTest() {
         lineColor="bg-black/50"
       />
 
-      <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 py-8 md:py-12">
+      <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 py-8 md:py-12 space-y-8">
         {/* Header Section */}
         <div className="max-w-7xl mx-auto mb-8 md:mb-12 text-center space-y-4">
           <div className="flex items-center justify-center gap-3 mb-4">
@@ -148,7 +148,59 @@ export default function SpeedTest() {
             precisa
           </p>
         </div>
-
+        {/* Info Section */}
+        <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-6 md:p-8 border border-orange-200">
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-4">
+              ¿Cómo funciona?
+            </h2>
+            <ul className="space-y-2 text-gray-700 text-sm md:text-base">
+              <li className="flex items-start gap-2">
+                <span className="text-orange-500 font-bold">•</span>
+                <span>
+                  Haz clic en "Iniciar prueba" para comenzar la medición
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-orange-500 font-bold">•</span>
+                <span>La prueba medirá tu velocidad de descarga y subida</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-orange-500 font-bold">•</span>
+                <span>Los resultados se mostrarán al finalizar la prueba</span>
+              </li>
+            </ul>
+          </div>
+          <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6 md:p-8 border border-blue-200">
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-4">
+              Antes de empezar ten en cuenta las siguientes recomendaciones:
+            </h2>
+            <ul className="space-y-2 text-gray-700 text-sm md:text-base">
+              <li className="flex items-start gap-2">
+                <span className="text-blue-500 font-bold">•</span>
+                <span>
+                  Conecta el computador directamente al puerto de datos 1 de la
+                  ONT/CPE/Módem.
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-blue-500 font-bold">•</span>
+                <span>
+                  Evita hacer la medicion conectado a la red wifi, pueden haber
+                  interferencias de otras redes, teléfonos inalámbricos, etc.
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-blue-500 font-bold">•</span>
+                <span>
+                  Cierra todas las aplicaciones que estes utilizando en el
+                  momento con internet, solo deja activa la pantalla (ventana)
+                  para que realices la respectiva medición.
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
         {/* User Info Section */}
         <div className="max-w-7xl mx-auto mb-6">
           <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4 md:p-6">
@@ -245,31 +297,6 @@ export default function SpeedTest() {
                 allowFullScreen
               ></iframe>
             </div>
-          </div>
-        </div>
-
-        {/* Info Section */}
-        <div className="max-w-4xl mx-auto mt-8 md:mt-12">
-          <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-6 md:p-8 border border-orange-200">
-            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-4">
-              ¿Cómo funciona?
-            </h2>
-            <ul className="space-y-2 text-gray-700 text-sm md:text-base">
-              <li className="flex items-start gap-2">
-                <span className="text-orange-500 font-bold">•</span>
-                <span>
-                  Haz clic en "Iniciar prueba" para comenzar la medición
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-orange-500 font-bold">•</span>
-                <span>La prueba medirá tu velocidad de descarga y subida</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-orange-500 font-bold">•</span>
-                <span>Los resultados se mostrarán al finalizar la prueba</span>
-              </li>
-            </ul>
           </div>
         </div>
       </div>

@@ -106,6 +106,18 @@ function Box3D({
     };
   }, [scene]);
 
+  // Preload common models cuando el componente se monte
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        useGLTF.preload("/models/wifi-cromo.glb");
+        useGLTF.preload("/models/box.glb");
+      } catch (error) {
+        console.warn("Error preloading models:", error);
+      }
+    }
+  }, []);
+
   // Rotación automática
   useFrame((_state, delta) => {
     if (groupRef.current && autoRotate) {
@@ -122,9 +134,5 @@ function Box3D({
     </group>
   );
 }
-
-// Preload common models
-useGLTF.preload("/models/wifi-cromo.glb");
-useGLTF.preload("/models/box.glb");
 
 export default Box3D;

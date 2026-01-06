@@ -16,7 +16,8 @@ import { MousePointerClick } from "lucide-react";
 // Lazy loading de componentes pesados
 const AnimatedLines = lazy(() => import("@/components/Canvas/AnimatedLines"));
 const CarouselChannels = lazy(() => import("@/components/carousels/Chanels"));
-const BannerHome = lazy(() => import("@/components/carousels/PrincipalInfo"));
+// BannerHome no es lazy porque es el elemento LCP y debe cargarse inmediatamente
+import BannerHome from "@/components/carousels/PrincipalInfo";
 
 interface CardInfo {
   title: string;
@@ -63,9 +64,8 @@ function HomePage() {
       />
       <div className="w-full overflow-x-hidden">
         <div className="bg-black flex flex-col items-center justify-center pb-10 mb-10">
-          <Suspense fallback={<LoadingSpinner fullScreen size="lg" />}>
-            <BannerHome />
-          </Suspense>
+          {/* BannerHome se carga directamente (no lazy) porque es el elemento LCP */}
+          <BannerHome />
           <h2 className="text-5xl text-primary-foreground text-center px-4">
             La mejor parrilla de{" "}
             <span className="font-extrabold">canales de Bogotá y Soacha</span>
@@ -76,17 +76,17 @@ function HomePage() {
             </Suspense>
           </div>
         </div>
-        <div className=" mx-10 sm:mx-4 md:mx-10 lg:mx-20 xl:mx-40 space-y-10 mb-20 flex flex-col items-center justify-center">
-          <Suspense fallback={<LoadingSpinner size="md" />}>
+        <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-4 md:px-10 lg:px-20 xl:px-40 space-y-10 mb-20 flex flex-col items-center justify-center min-h-[200px]">
+          <Suspense fallback={<div className="w-full h-16" />}>
             <AnimatedLines className="justify-start w-full" />
           </Suspense>
-          <div className="text-secondary-foreground w-full ">
-            <h3 className="text-4xl font-bold ">
+          <div className="text-secondary-foreground w-full min-h-[120px]">
+            <h3 className="text-4xl font-bold">
               ¡Entregamos un servicio de calidad!
             </h3>
-            <p className="">
+            <p className="mt-2">
               Disfruta de nuestro servicio de internet 100% de fibra óptica,
-              telefonía y televisíon; con lo último en tecnología que te conecta
+              telefonía y televisión; con lo último en tecnología que te conecta
               con el mundo.
             </p>
           </div>
@@ -147,6 +147,16 @@ function HomePage() {
                 src="/banners/conoce-tus-derechos-y-deberes-como-usuario.jpg"
                 alt="Conoce tus derechos y deberes como usuario de servicios de telecomunicaciones - CRC"
                 className="w-full h-full object-contain"
+                loading="lazy"
+                decoding="async"
+                width={313}
+                height={107}
+                sizes="(max-width: 768px) 95vw, 50vw"
+                style={{
+                  aspectRatio: "313 / 107",
+                  maxWidth: "100%",
+                  height: "auto",
+                }}
               />
             </CardContent>
           </Card>
@@ -223,6 +233,9 @@ function HomePage() {
                     alt="pse"
                     className="w-[70%] max-w-md min-w-[200px] object-contain transition-all duration-500 cursor-pointer relative z-10 animate-float group-hover/pse:scale-110 group-hover/pse:drop-shadow-[0_0_20px_rgba(255,153,0,0.8)]"
                     loading="lazy"
+                    decoding="async"
+                    width={300}
+                    height={300}
                   />
                 </div>
               </a>

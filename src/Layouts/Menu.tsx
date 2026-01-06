@@ -135,18 +135,26 @@ export default function Menu({
   };
 
   useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 1280);
+    // Usar media query en lugar de window.innerWidth para evitar reflows
+    const mediaQuery = window.matchMedia("(max-width: 1279px)");
+
+    // Función para actualizar estado sin forzar reflow
+    const updateIsMobile = (e: MediaQueryList | MediaQueryListEvent) => {
+      setIsMobile(e.matches);
     };
 
     // Verificar al cargar
-    checkIsMobile();
+    updateIsMobile(mediaQuery);
 
-    // Escuchar cambios de tamaño
-    window.addEventListener("resize", checkIsMobile);
-
-    // Limpiar listener
-    return () => window.removeEventListener("resize", checkIsMobile);
+    // Usar addEventListener en lugar de addListener para mejor compatibilidad
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener("change", updateIsMobile);
+      return () => mediaQuery.removeEventListener("change", updateIsMobile);
+    } else {
+      // Fallback para navegadores antiguos
+      mediaQuery.addListener(updateIsMobile);
+      return () => mediaQuery.removeListener(updateIsMobile);
+    }
   }, []);
 
   return (
@@ -287,8 +295,13 @@ export default function Menu({
         <div className="flex items-center gap-4">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className={cn(textColor)}>
-                <MenuIcon className="h-10 w-10" />
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(textColor)}
+                aria-label="Abrir menú de navegación"
+              >
+                <MenuIcon className="h-10 w-10" aria-hidden="true" />
               </Button>
             </SheetTrigger>
             <SheetContent

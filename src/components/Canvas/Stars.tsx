@@ -30,28 +30,74 @@ const Stars: React.FC<StarsProps> = ({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    let rafId: number | null = null;
+    let width = 0;
+    let height = 0;
+
     // Configurar tamaño del canvas basado en el contenedor padre
+    // Usar ResizeObserver para evitar reflows forzados
     const resizeCanvas = () => {
-      const parent = canvas.parentElement;
-      if (parent) {
-        canvas.width = parent.offsetWidth;
-        canvas.height = parent.offsetHeight;
+      if (rafId) {
+        cancelAnimationFrame(rafId);
       }
+
+      rafId = requestAnimationFrame(() => {
+        const parent = canvas.parentElement;
+        if (parent) {
+          // Usar getBoundingClientRect una sola vez y cachear
+          const rect = parent.getBoundingClientRect();
+          width = rect.width;
+          height = rect.height;
+
+          // Solo actualizar si cambió el tamaño
+          if (canvas.width !== width || canvas.height !== height) {
+            canvas.width = width;
+            canvas.height = height;
+          }
+        }
+        rafId = null;
+      });
     };
 
-    resizeCanvas();
-    window.addEventListener("resize", resizeCanvas);
+    // Usar ResizeObserver en lugar de window resize para mejor rendimiento
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.target === canvas.parentElement) {
+          resizeCanvas();
+        }
+      }
+    });
 
-    const width = canvas.width;
-    const height = canvas.height;
+    const parent = canvas.parentElement;
+    if (parent) {
+      resizeObserver.observe(parent);
+      resizeCanvas(); // Inicializar
+    }
 
-    // Crear estrellas
-    const createStars = (count: number) => {
+    // Usar las dimensiones cacheadas
+    const getDimensions = () => {
+      if (width === 0 || height === 0) {
+        const parent = canvas.parentElement;
+        if (parent) {
+          const rect = parent.getBoundingClientRect();
+          width = rect.width;
+          height = rect.height;
+          canvas.width = width;
+          canvas.height = height;
+        }
+      }
+      return { width, height };
+    };
+
+    const { width: canvasWidth, height: canvasHeight } = getDimensions();
+
+    // Crear estrellas con dimensiones actuales
+    const createStars = (count: number, w: number, h: number) => {
       const stars: Star[] = [];
       for (let i = 0; i < count; i++) {
         stars.push({
-          x: Math.random() * width,
-          y: Math.random() * height,
+          x: Math.random() * w,
+          y: Math.random() * h,
           size: Math.random() * 1.5 + 1.5,
           speed: Math.random() * 0.3 + 0.1,
           opacity: Math.random() * 0.7 + 0.3,
@@ -61,22 +107,26 @@ const Stars: React.FC<StarsProps> = ({
       return stars;
     };
 
-    // Inicializar estrellas
-    starsRef.current = createStars(starCount);
+    // Inicializar estrellas con dimensiones actuales
+    starsRef.current = createStars(starCount, canvasWidth, canvasHeight);
 
     // Función de animación
     const animate = () => {
+      // Obtener dimensiones actuales sin forzar reflow
+      const currentWidth = canvas.width || width;
+      const currentHeight = canvas.height || height;
+
       // Limpiar canvas con fondo transparente
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, currentWidth, currentHeight);
 
       starsRef.current.forEach((star) => {
         // Actualizar posición
         star.y += star.speed;
 
         // Reiniciar posición si sale del card
-        if (star.y > canvas.height) {
+        if (star.y > currentHeight) {
           star.y = 0;
-          star.x = Math.random() * canvas.width;
+          star.x = Math.random() * currentWidth;
         }
 
         // Efecto de parpadeo
@@ -105,7 +155,10 @@ const Stars: React.FC<StarsProps> = ({
 
     // Cleanup
     return () => {
-      window.removeEventListener("resize", resizeCanvas);
+      resizeObserver.disconnect();
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }

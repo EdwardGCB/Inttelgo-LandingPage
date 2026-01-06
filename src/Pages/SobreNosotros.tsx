@@ -212,7 +212,7 @@ export default function SobreNosotros() {
             </h2>
             <p className="text-lg md:text-xl text-secondary-foreground/70 max-w-3xl mx-auto px-4">
               Un recorrido por los momentos clave que han marcado nuestro
-              compromiso con la comunidad
+              compromiso con la comunidad.
             </p>
           </div>
           <Timeline events={timelineEvents} />
@@ -244,7 +244,7 @@ export default function SobreNosotros() {
                       tecnologías de la información y comunicaciones,
                       contribuirá al logro de la equidad social, al acceso a
                       oportunidades y a la reducción de las brechas digitales
-                      del país
+                      del país.
                     </p>
                   </AccordionContent>
                 </AccordionItem>
@@ -263,7 +263,7 @@ export default function SobreNosotros() {
                     <ul className="list-disc list-inside space-y-2 text-base lg:text-lg text-secondary-foreground/80">
                       <li>
                         Ser la empresa con mayor cantidad de clientes sobre sus
-                        competidores en la comuna 4 de cazuca y alrededores.
+                        competidores en la comuna 4 de Cazucá y alrededores.
                       </li>
                       <li>
                         Mantener altos los niveles en la satisfacción de sus
@@ -275,7 +275,7 @@ export default function SobreNosotros() {
                       </li>
                       <li>
                         Ser referente como lugar ideal para trabajar en el sur
-                        de la ciudad.
+                        de Bogotá.
                       </li>
                     </ul>
                   </AccordionContent>

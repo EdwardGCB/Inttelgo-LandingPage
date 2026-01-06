@@ -1,4 +1,4 @@
-import { lazy, useEffect, useState } from "react";
+import { lazy, useEffect, useState, useMemo } from "react";
 import Menu from "@/Layouts/Menu";
 import Stars from "@/components/Canvas/Stars";
 const Router3DViewer = lazy(() => import("@/components/Canvas/Router3DViewer"));
@@ -114,6 +114,16 @@ function PrincipalInfo() {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
 
+  // Precargar todas las imágenes del carousel para mejorar LCP
+  useEffect(() => {
+    carouselData.forEach((slide, index) => {
+      const img = new Image();
+      // La primera imagen tiene prioridad alta (elemento LCP)
+      img.fetchPriority = index === 0 ? "high" : "auto";
+      img.src = slide.backgroundImage;
+    });
+  }, []);
+
   useEffect(() => {
     if (!api) return;
 
@@ -123,16 +133,31 @@ function PrincipalInfo() {
     });
   }, [api]);
 
+  const currentImage = useMemo(
+    () => carouselData[current].backgroundImage,
+    [current]
+  );
+
   return (
     <div
-      className="relative w-full overflow-hidden mb-12 transition-all duration-700"
+      className="relative w-full overflow-hidden mb-12 transition-all duration-700 min-h-[550px] md:min-h-[900px]"
       style={{
-        backgroundImage: `url(${carouselData[current].backgroundImage})`,
+        backgroundImage: `url(${currentImage})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
       }}
     >
+      {/* Imagen precargada invisible para forzar carga temprana */}
+      <img
+        src={carouselData[0].backgroundImage}
+        alt=""
+        className="hidden"
+        fetchPriority="high"
+        loading="eager"
+        decoding="async"
+        aria-hidden="true"
+      />
       {/* Contenido sobre la imagen */}
       <div className="relative z-10">
         <Stars
@@ -157,7 +182,7 @@ function PrincipalInfo() {
         {/* Carousel */}
         <Carousel
           setApi={setApi}
-          className={`w-full transition-all duration-700 ${carouselData[current].height}`}
+          className="w-full transition-all duration-700 min-h-[550px] md:min-h-[900px]"
           opts={{ loop: true }}
         >
           <CarouselContent className="h-full">
@@ -170,7 +195,11 @@ function PrincipalInfo() {
           <CarouselPrevious className="left-4 top-1/2 text-orange-400 size-12" />
           <CarouselNext className="right-4 top-1/2 text-orange-400 size-12" />
           {/* Indicadores de slide */}
-          <div className="flex justify-center gap-2 pb-4">
+          <div
+            className="flex justify-center gap-2 pb-4"
+            role="tablist"
+            aria-label="Indicadores de slides del carousel"
+          >
             {carouselData.map((_, index) => (
               <button
                 key={index}
@@ -178,6 +207,12 @@ function PrincipalInfo() {
                   current === index ? "w-8 bg-orange-400" : "w-2 bg-white/50"
                 }`}
                 onClick={() => api?.scrollTo(index)}
+                aria-label={`Ir al slide ${index + 1} de ${
+                  carouselData.length
+                }`}
+                aria-selected={current === index}
+                role="tab"
+                tabIndex={current === index ? 0 : -1}
               />
             ))}
           </div>
