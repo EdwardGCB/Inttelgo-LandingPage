@@ -197,12 +197,16 @@ export default function Beca() {
           ))}
         </div>
 
-        <Tabs defaultValue="2026" className="space-y-8">
-          <TabsList className="mx-auto flex w-full max-w-3xl items-center justify-center gap-3 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200/80 p-2 shadow-xl shadow-black/10 backdrop-blur-md border border-white/50">
+        <Tabs
+          defaultValue={becasTabs[becasTabs.length - 1].value}
+          className="space-y-8"
+        >
+          <TabsList className="mx-auto flex w-full max-w-3xl flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2 sm:gap-3 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200/80 p-2 sm:p-2 shadow-xl shadow-black/10 backdrop-blur-md border border-white/50">
             {becasTabs.map((beca) => (
               <TabsTrigger
+                key={beca.value}
                 value={beca.value}
-                className="flex-1 rounded-xl px-6 py-4 text-sm font-bold uppercase tracking-wider text-gray-600 transition-all duration-300 hover:text-gray-900 hover:bg-white/60 hover:scale-105 data-[state=active]:bg-gradient-to-br data-[state=active]:from-orange-500 data-[state=active]:to-orange-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-orange-500/50 data-[state=active]:scale-105"
+                className="flex-1 rounded-xl px-3 py-2.5 sm:px-6 sm:py-4 text-xs sm:text-sm font-bold uppercase tracking-wide sm:tracking-wider text-gray-600 transition-all duration-300 hover:text-gray-900 hover:bg-white/60 hover:scale-[1.02] sm:hover:scale-105 data-[state=active]:bg-gradient-to-br data-[state=active]:from-orange-500 data-[state=active]:to-orange-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-orange-500/50 data-[state=active]:scale-[1.02] sm:data-[state=active]:scale-105"
               >
                 {beca.title}
               </TabsTrigger>
