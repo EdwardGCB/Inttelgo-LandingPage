@@ -100,7 +100,7 @@ const menuData: Record<string, MenuSection> = {
     href: "/contacto",
   },
   withIcon: {
-    title: "BECA 2025",
+    title: "BECA 2026",
     type: "link",
     href: "/beca",
   },

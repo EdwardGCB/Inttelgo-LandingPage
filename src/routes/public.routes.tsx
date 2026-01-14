@@ -1,3 +1,4 @@
+import TerminosBecaPage from "@/Pages/Legal&Regulatorio/TerminosBecaPage";
 import { lazy } from "react";
 import type { RouteObject } from "react-router-dom";
 
@@ -105,6 +106,10 @@ export const publicRoutes: RouteObject[] = [
       {
         path: "regulacion-tic",
         element: <RegulacionTicPage />,
+      },
+      {
+        path: "beca/terminos",
+        element: <TerminosBecaPage />,
       },
     ],
   },

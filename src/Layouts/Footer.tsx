@@ -68,6 +68,7 @@ const legalItems: MenuItem[] = [
   { titulo: "Términos y Condiciones", ruta: "/terminos" },
   { titulo: "Seguridad", ruta: "/seguridad" },
   { titulo: "Regulación sector TIC", ruta: "/regulacion-tic" },
+  { titulo: "Terminos de la Beca 2026", ruta: "/beca/terminos" },
 ];
 
 const contactInfo: ContactInfo[] = [
