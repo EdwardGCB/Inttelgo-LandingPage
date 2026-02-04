@@ -139,7 +139,6 @@ const becasTabs = [
   {
     value: "2026",
     title: "Beca 2026",
-    winners: [],
   },
 ];
 export default function Beca() {

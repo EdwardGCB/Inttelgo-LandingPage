@@ -95,11 +95,10 @@ const PublicLayout = () => {
       <ScrollToTop />
       <div className="sticky top-0 z-50 md:border-b bg-white/95 shadow-sm backdrop-blur-md">
         <div
-          className={`block transition-all duration-500 ${
-            showLeadCapture
-              ? "max-h-33 md:max-h-20 opacity-100"
-              : "max-h-0 opacity-0"
-          } overflow-hidden`}
+          className={`block transition-all duration-500 ${showLeadCapture
+            ? "max-h-33 md:max-h-20 opacity-100"
+            : "max-h-0 opacity-0"
+            } overflow-hidden`}
         >
           <div className="w-full pb-4">
             <div className="flex flex-col gap-4  bg-black p-4 text-primary-foreground shadow-lg md:flex-row md:items-center md:justify-center">

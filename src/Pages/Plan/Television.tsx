@@ -1,17 +1,16 @@
-import BannerPlanes from "@/components/Banners/BannerPlanes";
-import TVChannelEffect from "@/components/Canvas/TVChannelEffect ";
+import VideoBanner from "@/components/Banners/VideoBanner";
+import { Card } from "@/components/ui/card";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import InternetPlans from "@/Layouts/InternetPlans";
 import { Check } from "lucide-react";
 import { Suspense } from "react";
 
 const planFeatures = [
-  "Internet ilimitado sin restricciones.",
-  "Soporte 24/7.",
-  "Módem con WIFI de alta velocidad incluido.",
-  "Estabilidad en conexión.",
-  "Garantía de soporte.",
-  "Velocidad simétrica.",
+  "Más de 150 canales en alta definición.",
+  "Señal digital estable y sin cortes.",
+  "Canales nacionales e internacionales.",
+  "Soporte técnico 24/7.",
+  "Compatible con TV + Internet en un solo plan.",
 ];
 
 const plansData = [
@@ -103,102 +102,72 @@ export default function Television() {
     <div className="w-full flex flex-col">
       {/* Navbar + Fondo con grafo */}
       <Suspense fallback={<LoadingSpinner fullScreen size="xl" />}>
-        <BannerPlanes
-          image="television/television-digital-banner.webp"
-          className="bg-gradient-to-b from-orange-400 via-orange-600 to-[#903B67]"
-        />
+        <VideoBanner />
       </Suspense>
 
       {/* Sección de planes */}
-      <div className="w-full flex justify-center items-center">
+      <div id="planes" className="mt-20 w-full flex justify-center items-center">
         <Suspense fallback={<LoadingSpinner size="lg" />}>
           <InternetPlans plansData={plansData} />
         </Suspense>
       </div>
 
       {/* Sección de beneficios */}
-      <div className="w-full">
-        {/* Versión móvil: imagen arriba, beneficios abajo con fondo negro */}
-        <div className="block lg:hidden">
-          {/* Imagen de fondo para móvil */}
-          <div
-            className="w-full h-250 bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage:
-                "url('/banners/plan/television/television-canales-hd-movil.webp')",
-            }}
-          >
-            <div className="relative w-full justify-center">
-              <div className="transform translate-y-34 md:translate-y-[50%]  transition-transform duration-300">
-                <TVChannelEffect />
-              </div>
+      <div className="sm:w-[90%] md:w-full lg:w-[80%] mx-auto mb-10">
+        <div className="space-y-6 px-4 md:px-0">
+          <div className="space-y-4">
+            <div className="inline-block">
+              <span className="inline-block px-4 py-1.5 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm font-semibold uppercase tracking-wide shadow-lg shadow-orange-500/30 mb-4">
+                Televisión de alta calidad
+              </span>
             </div>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight">
+              <span className="text-gray-900">
+                TELEVISIÓN HD Y CANALES PARA TODA LA FAMILIA
+              </span>
+            </h2>
+            <div className="w-20 h-1 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full" />
+            <p className="text-base md:text-lg text-gray-700 leading-relaxed max-w-2xl">
+              Disfruta de la mejor programación con señal digital en alta
+              definición, canales nacionales e internacionales y{" "}
+              <span className="font-semibold text-orange-600">
+                paquetes que combinan TV + Internet
+              </span>
+              .
+            </p>
           </div>
 
-          {/* Beneficios con fondo negro en móvil */}
-          <div className="w-full bg-black py-12 px-4 sm:px-6 text-white">
-            <div className="space-y-4">
-              <h2 className="text-3xl font-bold">
-                INTERNET RÁPIDO Y ESTABLE PARA TU HOGAR
-              </h2>
-              <p className="text-base">
-                Optimiza tu experiencia digital con planes de fibra óptica
-                diseñados para ofrecer el mejor desempeño y latencias bajas.
-              </p>
-              <h2 className="text-2xl font-bold pt-4">
-                Nuestros planes incluyen todo lo que necesitas:
-              </h2>
-              <ul className="space-y-3">
+          <div className="pt-6 space-y-5">
+            <div className="flex items-center gap-3">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/30">
+                <Check className="h-5 w-5 text-white" />
+              </div>
+              <h3 className="text-2xl md:text-3xl font-bold text-gray-900">
+                Tu plan de TV incluye:
+              </h3>
+            </div>
+
+            <Card className="p-6 md:p-8">
+              <ul className="space-y-4">
                 {planFeatures.map((feature, index) => (
-                  <li key={index} className="flex items-start gap-3">
-                    <Check className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-base">{feature}</span>
+                  <li
+                    key={index}
+                    className="flex items-start gap-4 group hover:translate-x-1 transition-transform duration-300"
+                  >
+                    <div className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-md shadow-orange-500/30 group-hover:shadow-lg group-hover:shadow-orange-500/50 transition-all duration-300 group-hover:scale-110">
+                      <Check className="h-4 w-4 text-white" />
+                    </div>
+                    <span className="text-gray-800 text-base md:text-lg font-medium leading-relaxed pt-0.5 group-hover:text-gray-900 transition-colors">
+                      {feature}
+                    </span>
                   </li>
                 ))}
               </ul>
-            </div>
-          </div>
-        </div>
-
-        {/* Versión desktop: diseño original */}
-        <div
-          className="hidden lg:block w-full xl:h-150 2xl:h-200 bg-white py-12 px-4 sm:px-6 md:px-10 lg:px-20 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage:
-              "url('/banners/plan/television/television-canales-hd-desktop.webp')",
-          }}
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 text-primary-foreground">
-            <div className="flex items-center justify-center md:justify-start lg:justify-center">
-              <div className="relative w-full max-w-sm md:max-w-md lg:max-w-lg">
-                <div className="transform lg:-translate-x-[27%] lg:-translate-y-[80%] xl:-translate-x-[5%] xl:-translate-y-[65%] 2xl:-translate-x-[1.5%] 2xl:-translate-y-[17%] transition-transform duration-300">
-                  <TVChannelEffect />
-                </div>
-              </div>
-            </div>
-            <div className="col-span-1 space-y-4 px-4 md:px-0">
-              <h2 className="text-3xl md:text-4xl font-bold">
-                INTERNET RÁPIDO Y ESTABLE PARA TU HOGAR
-              </h2>
-              <p className="text-base md:text-lg">
-                Optimiza tu experiencia digital con planes de fibra óptica
-                diseñados para ofrecer el mejor desempeño y latencias bajas.
-              </p>
-              <h2 className="text-2xl md:text-3xl font-bold pt-4">
-                Nuestros planes incluyen todo lo que necesitas:
-              </h2>
-              <ul className="space-y-3">
-                {planFeatures.map((feature, index) => (
-                  <li key={index} className="flex items-start gap-3">
-                    <Check className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-base">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            </Card>
           </div>
         </div>
       </div>
+
     </div>
   );
 }

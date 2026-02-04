@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import { Group, Box3, Vector3 } from "three";
@@ -18,110 +18,115 @@ function Router3D({
 }: Router3DProps) {
   const { scene } = useGLTF("/models/router.glb");
   const groupRef = useRef<Group>(null);
-  const [centerOffset, setCenterOffset] = useState<Vector3>(new Vector3());
+  const [isReady, setIsReady] = useState(false);
 
-  // Calcular el centro del modelo y configurar texturas
+  // Memoizar el offset del centro para calcularlo solo una vez
+  const centerOffset = useMemo(() => {
+    if (!scene) return new Vector3();
+
+    const box = new Box3().setFromObject(scene);
+    const center = new Vector3();
+    box.getCenter(center);
+    return center;
+  }, [scene]);
+
+  // Optimizar texturas una sola vez
   useEffect(() => {
-    if (scene) {
-      const box = new Box3().setFromObject(scene);
-      const center = new Vector3();
-      box.getCenter(center);
+    if (!scene) return;
 
-      setCenterOffset(center);
-
-      // Configurar texturas para evitar warnings de WebGL
+    const processScene = () => {
       scene.traverse((child: any) => {
-        if (child.isMesh && child.material) {
-          const materials = Array.isArray(child.material)
-            ? child.material
-            : [child.material];
+        if (child.isMesh) {
+          child.castShadow = false;
+          child.receiveShadow = false;
 
-          materials.forEach((material: any) => {
-            // Configurar todas las texturas del material
-            const textureTypes = [
-              "map",
-              "lightMap",
-              "bumpMap",
-              "normalMap",
-              "specularMap",
-              "envMap",
-              "alphaMap",
-              "aoMap",
-              "displacementMap",
-              "emissiveMap",
-              "roughnessMap",
-              "metalnessMap",
-            ];
+          if (child.material) {
+            const materials = Array.isArray(child.material)
+              ? child.material
+              : [child.material];
 
-            textureTypes.forEach((type) => {
-              if (material[type]) {
-                material[type].flipY = false;
-                material[type].premultiplyAlpha = false;
-                material[type].needsUpdate = true;
-              }
+            materials.forEach((material: any) => {
+              const textureTypes = [
+                "map",
+                "normalMap",
+                "roughnessMap",
+                "metalnessMap",
+                "aoMap",
+                "emissiveMap",
+              ];
+
+              textureTypes.forEach((type) => {
+                if (material[type]) {
+                  material[type].flipY = false;
+                  material[type].premultiplyAlpha = false;
+                }
+              });
+
+              material.precision = "mediump";
             });
-          });
+          }
         }
       });
-    }
 
-    // Limpieza al desmontar
+      setIsReady(true);
+    };
+
+    if ('requestIdleCallback' in window) {
+      const handle = requestIdleCallback(processScene, { timeout: 100 });
+      return () => cancelIdleCallback(handle);
+    } else {
+      const timeout = setTimeout(processScene, 0);
+      return () => clearTimeout(timeout);
+    }
+  }, [scene]);
+
+  // Limpieza optimizada
+  useEffect(() => {
     return () => {
       if (scene) {
         scene.traverse((child: any) => {
           if (child.isMesh) {
-            // Limpiar geometría
-            if (child.geometry) {
-              child.geometry.dispose();
-            }
-            // Limpiar materiales
-            if (child.material) {
-              if (Array.isArray(child.material)) {
-                child.material.forEach((material: any) => {
-                  if (material.map) material.map.dispose();
-                  if (material.lightMap) material.lightMap.dispose();
-                  if (material.bumpMap) material.bumpMap.dispose();
-                  if (material.normalMap) material.normalMap.dispose();
-                  if (material.specularMap) material.specularMap.dispose();
-                  if (material.envMap) material.envMap.dispose();
-                  material.dispose();
-                });
-              } else {
-                if (child.material.map) child.material.map.dispose();
-                if (child.material.lightMap) child.material.lightMap.dispose();
-                if (child.material.bumpMap) child.material.bumpMap.dispose();
-                if (child.material.normalMap)
-                  child.material.normalMap.dispose();
-                if (child.material.specularMap)
-                  child.material.specularMap.dispose();
-                if (child.material.envMap) child.material.envMap.dispose();
-                child.material.dispose();
-              }
-            }
+            child.geometry?.dispose();
+
+            const materials = Array.isArray(child.material)
+              ? child.material
+              : [child.material];
+
+            materials.forEach((material: any) => {
+              Object.keys(material).forEach((key) => {
+                if (material[key]?.isTexture) {
+                  material[key].dispose();
+                }
+              });
+              material.dispose();
+            });
           }
         });
       }
     };
   }, [scene]);
 
-  // NO precargar el modelo - se cargará solo cuando el componente sea visible
-  // Esto reduce la carga inicial de red (router.glb es ~3.9MB)
-
-  // Rotación automática
+  // Rotación automática - SIEMPRE activa cuando isReady
   useFrame((_state, delta) => {
-    if (groupRef.current && autoRotate) {
+    if (groupRef.current && autoRotate && isReady) {
       groupRef.current.rotation.y += delta * 0.5;
     }
   });
 
+  if (!isReady) {
+    return null;
+  }
+
   return (
     <group ref={groupRef} position={position} rotation={rotation} scale={scale}>
       <primitive
-        object={scene.clone()}
+        object={scene}
         position={[-centerOffset.x, -centerOffset.y, -centerOffset.z]}
       />
     </group>
   );
 }
+
+useGLTF.preload("/models/router.glb");
 
 export default Router3D;

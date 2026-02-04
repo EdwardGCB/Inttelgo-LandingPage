@@ -1,15 +1,10 @@
 import Menu from "@/Layouts/Menu";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { FileText, ArrowRight } from "lucide-react";
+import { PageHeader } from "@/components/PageHeader";
 
 const terms = [
   "El contenido de las páginas de este sitio web es solo para su información y uso general. Está sujeto a cambios sin previo aviso.",
@@ -35,37 +30,42 @@ export default function Terminos() {
         detailsColor=""
         lineColor="bg-black/50"
       />
-      <main className="mx-auto flex w-full max-w-5xl flex-col gap-10 px-4 py-12 sm:px-6 md:px-10 lg:px-0">
+      <main className="mx-auto flex w-full max-w-5xl flex-col gap-10 px-4 sm:px-6 md:px-10 lg:px-0">
         <Card className="border-black/10 shadow-lg shadow-black/5">
-          <CardHeader className="flex flex-col items-center gap-4 text-center">
-            <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-black text-white">
-              <FileText className="h-10 w-10" />
-            </div>
-            <CardTitle className="text-4xl font-extrabold uppercase tracking-tight text-black sm:text-5xl">
-              Términos y condiciones
-            </CardTitle>
-            <CardDescription className="max-w-3xl text-base text-muted-foreground">
-              Bienvenido a{" "}
-              <span className="font-semibold text-[#ff6400]">
-                INTTELGO S.A.S.
-              </span>{" "}
-              Si continúa navegando y utilizando este sitio web, acepta cumplir
-              con los siguientes términos y condiciones de uso, que junto con
-              nuestra política de privacidad regulan la relación de{" "}
-              <span className="font-semibold text-[#ff6400]">
-                INTTELGO S.A.S.
-              </span>{" "}
-              con usted en relación a este sitio web.
-            </CardDescription>
-          </CardHeader>
+          <PageHeader
+            title="Términos y condiciones"
+            subtitle={
+              <>
+                Bienvenido a
+                <span className="font-semibold text-[#ff6400]">
+                  INTTELGO S.A.S.
+                </span>{" "}
+                Si continúa navegando y utilizando este sitio web, acepta
+                cumplir con los siguientes términos y condiciones de uso, que
+                junto con nuestra política de privacidad regulan la relación de{" "}
+                <span className="font-semibold text-[#ff6400]">
+                  INTTELGO S.A.S.
+                </span>
+                con usted en relación a este sitio web. Si continúa navegando y
+                utilizando este sitio web, acepta cumplir con los siguientes
+                términos y condiciones de uso, que junto con nuestra política de
+                privacidad regulan la relación de
+                <span className="font-semibold text-[#ff6400]">
+                  INTTELGO S.A.S.
+                </span>{" "}
+                con usted en relación a este sitio web.
+              </>
+            }
+            icon={<FileText className="h-10 w-10" />}
+          />
         </Card>
 
         <Card className="border-black/10 shadow-lg shadow-black/5">
-          <CardHeader>
-            <CardTitle className="text-2xl font-semibold text-black">
-              Definiciones
-            </CardTitle>
-          </CardHeader>
+          <PageHeader
+            title="Definiciones"
+            className="flex flex-col items-start gap-4 text-left"
+            titleClassName="text-2xl font-semibold text-black"
+          />
           <CardContent className="space-y-4 text-base text-muted-foreground">
             <p>
               El término{" "}
@@ -81,17 +81,21 @@ export default function Terminos() {
         </Card>
 
         <Card className="border-black/10 shadow-lg shadow-black/5">
-          <CardHeader className="flex flex-wrap items-center gap-3">
-            <CardTitle className="text-2xl font-semibold text-black">
-              Condiciones de uso
-            </CardTitle>
-            <Badge
-              variant="secondary"
-              className="rounded-full bg-[#fff4ec] px-4 py-1 text-sm font-semibold text-[#ff6400]"
-            >
-              Obligatorio para usuarios
-            </Badge>
-          </CardHeader>
+          <PageHeader
+            title={
+              <div className="flex flex-wrap items-center gap-4">
+                <span>Condiciones de uso</span>
+                <Badge
+                  variant="secondary"
+                  className="rounded-full bg-[#fff4ec] px-4 py-1 text-sm font-semibold text-[#ff6400]"
+                >
+                  Obligatorio para usuarios
+                </Badge>
+              </div>
+            }
+            className="flex flex-wrap items-center gap-4"
+            titleClassName="text-2xl font-semibold text-black text-left"
+          />
           <CardContent className="space-y-3 text-base text-muted-foreground">
             {terms.map((term, index) => (
               <div key={`term-${index}`} className="flex items-start gap-3">

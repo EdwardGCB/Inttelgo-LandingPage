@@ -109,7 +109,7 @@ export default function Footer() {
                 >
                   <Card
                     className={cn(
-                      "size-15 p-0 hover:shadow-orange-500/50 hover:scale-105 hover:bg-gradient-to-b hover:from-[#FF9900] hover:to-[#EC5406] border-none  rounded-full not-last:",
+                      "size-15 sm:size-10 md:size-10 lg:size-13 p-0 hover:shadow-orange-500/50 hover:scale-105 hover:bg-gradient-to-b hover:from-[#FF9900] hover:to-[#EC5406] border-none  rounded-full not-last:",
                       red.classname
                     )}
                   >

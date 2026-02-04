@@ -13,6 +13,29 @@ import {
 import Planes from "./Planes";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { ChevronsUp, DollarSign, Star } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
+
+// Componente de loading para el modelo 3D
+const Router3DLoader = () => (
+  <div className="w-full h-full flex items-center justify-center">
+    <div className="relative w-full h-full flex flex-col items-center justify-center gap-4">
+      <Spinner size="xl" variant="white" label="Cargando modelo 3D" />
+    </div>
+  </div>
+);
+
+// Componente wrapper que solo carga el Router3DViewer cuando está activo y listo
+const LazyRouter3DViewer = ({ isActive, shouldLoad }: { isActive: boolean; shouldLoad: boolean }) => {
+  if (!isActive || !shouldLoad) {
+    return <Router3DLoader />;
+  }
+
+  return (
+    <Suspense fallback={<Router3DLoader />}>
+      <Router3DViewer className="w-full h-full" />
+    </Suspense>
+  );
+};
 
 // Datos de los slides del carousel
 const carouselData = [
@@ -21,7 +44,7 @@ const carouselData = [
     backgroundImage: "/banners/home/banner-home-galaxia-espacial.webp",
     height:
       "h-[550px] md:h-[900px]  bg-gradient-to-b from-transparent via-black/40 to-black",
-    component: <Router3DViewer className="w-full h-full" />,
+    has3DModel: true, // Flag para identificar slides con modelo 3D
   },
   {
     id: 2,
@@ -29,11 +52,13 @@ const carouselData = [
     height:
       "h-[550px] md:h-[900px]  bg-gradient-to-b from-transparent via-black/40 to-black",
     component: <Planes />,
+    has3DModel: false,
   },
   {
     id: 3,
     backgroundImage: "/banners/home/banner-home-nave-espacial.webp",
     height: "h-[550px] md:h-[900px] ",
+    has3DModel: false,
     component: (
       <div className="w-full h-full px-4 sm:px-6 md:px-8 lg:px-16">
         {/* Título */}
@@ -113,6 +138,7 @@ const carouselData = [
 function PrincipalInfo() {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
+  const [shouldLoad3D, setShouldLoad3D] = useState(false);
 
   // Precargar todas las imágenes del carousel para mejorar LCP
   useEffect(() => {
@@ -127,11 +153,52 @@ function PrincipalInfo() {
   useEffect(() => {
     if (!api) return;
 
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
     // Actualizar el índice actual cuando cambia el slide
-    api.on("select", () => {
-      setCurrent(api.selectedScrollSnap());
-    });
+    const handleSelect = () => {
+      const newIndex = api.selectedScrollSnap();
+      setCurrent(newIndex);
+
+      // Limpiar timer anterior si existe
+      if (timer) {
+        clearTimeout(timer);
+      }
+
+      // Precargar el modelo 3D cuando el slide está activo o cuando el usuario está cerca
+      // Agregar un pequeño delay para no bloquear el render inicial
+      if (carouselData[newIndex]?.has3DModel) {
+        // Delay para permitir que la página se renderice primero
+        timer = setTimeout(() => {
+          setShouldLoad3D(true);
+        }, 300); // 300ms de delay para no bloquear el render inicial
+      } else {
+        setShouldLoad3D(false);
+      }
+    };
+
+    api.on("select", handleSelect);
+
+    // Cleanup
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+      api.off("select", handleSelect);
+    };
   }, [api]);
+
+  // Precargar el modelo 3D cuando la página está lista (después del render inicial)
+  useEffect(() => {
+    // Solo precargar si el primer slide tiene el modelo 3D y después de un delay
+    if (carouselData[0]?.has3DModel && current === 0) {
+      const timer = setTimeout(() => {
+        setShouldLoad3D(true);
+      }, 500); // Delay inicial para no bloquear el LCP
+
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   const currentImage = useMemo(
     () => carouselData[current].backgroundImage,
@@ -191,9 +258,16 @@ function PrincipalInfo() {
           opts={{ loop: true }}
         >
           <CarouselContent className="h-full">
-            {carouselData.map((slide) => (
+            {carouselData.map((slide, index) => (
               <CarouselItem key={slide.id} className="h-full">
-                {slide.component}
+                {slide.has3DModel ? (
+                  <LazyRouter3DViewer
+                    isActive={current === index}
+                    shouldLoad={shouldLoad3D}
+                  />
+                ) : (
+                  slide.component
+                )}
               </CarouselItem>
             ))}
           </CarouselContent>
@@ -208,13 +282,11 @@ function PrincipalInfo() {
             {carouselData.map((_, index) => (
               <button
                 key={index}
-                className={`h-2 rounded-full transition-all ${
-                  current === index ? "w-8 bg-orange-400" : "w-2 bg-white/50"
-                }`}
+                className={`h-2 rounded-full transition-all ${current === index ? "w-8 bg-orange-400" : "w-2 bg-white/50"
+                  }`}
                 onClick={() => api?.scrollTo(index)}
-                aria-label={`Ir al slide ${index + 1} de ${
-                  carouselData.length
-                }`}
+                aria-label={`Ir al slide ${index + 1} de ${carouselData.length
+                  }`}
                 aria-selected={current === index}
                 role="tab"
                 tabIndex={current === index ? 0 : -1}

@@ -156,7 +156,7 @@ function HomePage() {
         canonical="https://inttelgo.com/"
       />
       <div className="w-full overflow-x-hidden">
-        <div className="bg-black flex flex-col items-center justify-center pb-10 mb-10">
+        <div className="bg-black flex flex-col items-center justify-center mb-10">
           {/* BannerHome se carga directamente (no lazy) porque es el elemento LCP */}
           <BannerHome />
           <h2 className="text-5xl text-primary-foreground text-center px-4">
@@ -350,6 +350,7 @@ function HomePage() {
           <div className="flex justify-center items-center">
             <CollaboratorsMarquee />
           </div>*/}
+
         </div>
       </div>
     </>

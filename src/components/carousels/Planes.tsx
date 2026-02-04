@@ -60,7 +60,7 @@ const planes: Plan[] = [
     ],
   },
   {
-    speed: "950",
+    speed: "920",
     price: "55,000",
     category: "Básico",
     caracteristicas: [
