@@ -4,6 +4,13 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useRef } from "react";
 
 export default function CarrouselWinner({
@@ -24,15 +31,16 @@ export default function CarrouselWinner({
   );
 
   return (
-    <div className="w-full px-4 sm:px-6 md:px-10 lg:px-20">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-secondary-foreground mb-2">
-            {title}
-          </h2>
-          <p className="text-lg text-secondary-foreground/70">{description}</p>
-        </div>
-
+    <Card className="w-full border rounded-xl overflow-hidden bg-muted/30">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-xl md:text-2xl font-semibold text-foreground">
+          {title}
+        </CardTitle>
+        <CardDescription className="text-base">
+          {description}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="pt-0">
         <Carousel
           className="w-full"
           plugins={[plugin.current]}
@@ -48,7 +56,7 @@ export default function CarrouselWinner({
                 key={index}
                 className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3"
               >
-                <div className="relative aspect-[4/3] rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <div className="relative aspect-[4/3] rounded-xl overflow-hidden border bg-card shadow-sm hover:shadow-md transition-all duration-300 hover:ring-2 hover:ring-primary/20">
                   <img
                     src={image}
                     alt={`Ganador del sorteo ${index + 1}`}
@@ -60,7 +68,7 @@ export default function CarrouselWinner({
             ))}
           </CarouselContent>
         </Carousel>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

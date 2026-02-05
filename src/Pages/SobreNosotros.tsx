@@ -4,24 +4,27 @@ import { FundationsMarquee } from "@/components/blocks/FundationsMarquee";
 import AnimatedLines from "@/components/Canvas/AnimatedLines";
 
 const Box3DViewer = lazy(() => import("@/components/Canvas/Box3DViewer"));
-import Timeline from "@/components/Timeline/Timeline";
+import ScrollStack, { ScrollStackItem } from "@/components/Cards/ScrollStack";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Separator } from "@/components/ui/separator";
-import CarrouselWinner from "@/components/carousels/TravelWinners";
 import { Check } from "lucide-react";
-import {
-  lotteryWinners,
-  travelWinners2024,
-  travelWinners2025,
-  tvWinners,
-} from "@/lib/winners";
 import SEO from "@/components/SEO";
+import { accordionPurposeItems, type AccordionPurposeItem } from "@/data/abboutusAccordion";
+import { timelineEvents } from "@/data/timelineEvents";
 
 const aboutUsContent = [
   "Somos una empresa de telecomunicaciones con origen en Soacha, especializada en ofrecer soluciones de conectividad de alta calidad para los estratos 0, 1 y 2. Nuestra red es 100% fibra óptica hasta el hogar (FTTH), lo que garantiza una conexión estable, de alta velocidad y con el mejor rendimiento del mercado.",
@@ -37,44 +40,6 @@ const benefits = [
   "Tecnología de punta",
 ];
 
-const timelineEvents = [
-  {
-    year: "2015",
-    title: "Fundación de Inttelgo",
-    description:
-      "Nace Inttelgo en Soacha con la misión de llevar internet de alta calidad a los estratos más vulnerables, iniciando nuestra red de fibra óptica hasta el hogar.",
-  },
-  {
-    year: "2017",
-    title: "Expansión a Ciudad Bolívar",
-    description:
-      "Ampliamos nuestra cobertura llegando a Ciudad Bolívar, consolidando nuestra presencia en comunidades que más necesitan conectividad de calidad.",
-  },
-  {
-    year: "2019",
-    title: "Red 100% Fibra Óptica",
-    description:
-      "Completamos la migración total a fibra óptica FTTH, garantizando la mejor velocidad y estabilidad del mercado para nuestros usuarios.",
-  },
-  {
-    year: "2021",
-    title: "Plan GAMER",
-    description:
-      "Lanzamos nuestro revolucionario Plan GAMER con latencia ultra-baja, posicionándonos como líderes en conectividad para gaming y streaming.",
-  },
-  {
-    year: "2023",
-    title: "Compromiso Social",
-    description:
-      "Implementamos programas de inclusión laboral y fidelización, fortaleciendo nuestro vínculo con la comunidad y el talento local.",
-  },
-  {
-    year: "2024",
-    title: "Líderes en Innovación",
-    description:
-      "Nos consolidamos como referente en telecomunicaciones, ofreciendo tecnología de punta con atención 100% personalizada y soporte técnico ágil 24/7.",
-  },
-];
 
 function VideoLazyLoad() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -104,8 +69,8 @@ function VideoLazyLoad() {
   }, []);
 
   return (
-    <div className="relative w-full mx-auto lg:mx-0 max-w-md lg:max-w-none lg:sticky lg:top-24 flex justify-center items-center">
-      <div className="relative rounded-3xl overflow-hidden w-full max-w-full">
+    <Card className="relative w-full mx-auto lg:mx-0 max-w-md lg:max-w-none lg:sticky lg:top-24 overflow-hidden border-0 shadow-lg p-0">
+      <div className="relative rounded-xl overflow-hidden w-full max-w-full">
         <video
           ref={videoRef}
           className="w-full h-full object-cover"
@@ -114,11 +79,11 @@ function VideoLazyLoad() {
           playsInline
           preload="metadata"
         >
-          {shouldLoad && <source src="/historia.mp4" type="video/mp4" />}
+          {shouldLoad && <source src="/media/historia.mp4" type="video/mp4" />}
           Tu navegador no soporta el video.
         </video>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -134,253 +99,185 @@ export default function SobreNosotros() {
         ogUrl="https://inttelgo.com/sobre-nosotros"
         canonical="https://inttelgo.com/sobre-nosotros"
       />
-      <div className="w-full flex flex-col">
+      <div className="w-full flex flex-col space-y-12 bg-muted/30">
         <Suspense fallback={<LoadingSpinner fullScreen size="xl" />}>
-          <BannerAbboutUs className="bg-black">
-            <section className="relative text-center">
-              <h2 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl text-orange-50 leading-tight tracking-wide drop-shadow-lg">
-                Un <span className="font-bold text-[#ec5406]">internet</span>{" "}
-                para <br />
-                la <span className="font-bold text-[#ec5406]">comunidad</span>.
+          <BannerAbboutUs className="bg-black" image="/banners/banner-sobre-nosotros.webp">
+            <section className="relative text-center px-4">
+              <p className="text-sm sm:text-base font-medium tracking-[0.2em] uppercase text-white/80 mb-4 sm:mb-6">
+                Sobre nosotros
+              </p>
+              <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extrabold leading-[1.1] tracking-tight">
+                <span className="text-white/95 drop-shadow-[0_2px_20px_rgba(0,0,0,0.4)]">
+                  Un{" "}
+                  <span className="bg-gradient-to-r from-orange-400 via-[#ec5406] to-orange-600 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(236,84,6,0.5)]">
+                    internet
+                  </span>{" "}
+                  para
+                </span>
+                <br />
+                <span className="text-white/95 drop-shadow-[0_2px_20px_rgba(0,0,0,0.4)]">
+                  la{" "}
+                  <span className="bg-gradient-to-r from-orange-400 via-[#ec5406] to-orange-600 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(236,84,6,0.5)]">
+                    comunidad
+                  </span>
+                  .
+                </span>
               </h2>
             </section>
           </BannerAbboutUs>
         </Suspense>
-        <div className="w-full bg-white py-12 px-4 sm:px-6 md:px-10 lg:px-20 space-y-5">
+        <div className="w-full px-4 sm:px-6 md:px-10 lg:px-20 space-y-6">
           <Suspense fallback={<LoadingSpinner size="md" />}>
             <AnimatedLines />
           </Suspense>
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-8 md:gap-10 items-start">
-            <div className="space-y-4 px-4 md:px-0">
-              <h2 className="text-3xl md:text-4xl font-bold text-secondary-foreground">
-                ACERCA DE NOSOTROS
-              </h2>
-              {aboutUsContent.map((paragraph, index) => (
-                <p
-                  key={index}
-                  className="text-base md:text-lg text-secondary-foreground/80"
-                >
-                  {paragraph}
-                </p>
-              ))}
-            </div>
+            <Card className="border shadow-sm bg-card">
+              <CardHeader>
+                <Badge variant="orange" className="w-fit text-xs uppercase tracking-wider">
+                  Acerca de nosotros
+                </Badge>
+                <CardTitle className="text-2xl md:text-3xl font-bold text-secondary-foreground pt-2">
+                  Nuestra historia y compromiso
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {aboutUsContent.map((paragraph, index) => (
+                  <p
+                    key={index}
+                    className="text-base md:text-lg text-muted-foreground leading-relaxed"
+                  >
+                    {paragraph}
+                  </p>
+                ))}
+              </CardContent>
+            </Card>
 
             <div className="hidden lg:flex justify-center items-center h-full py-8">
-              <Separator orientation="vertical" className="h-full" />
+              <Separator orientation="vertical" className="h-full bg-border" />
             </div>
 
-            <div className="relative space-y-6 px-4 sm:px-0">
-              <h2 className="text-3xl sm:text-4xl font-bold text-secondary-foreground">
-                BENEFICIOS
-              </h2>
-              <div className="flex flex-col sm:flex-row gap-6 items-start">
-                <ul className="space-y-4 flex-1">
-                  {benefits.map((benefit, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <Check className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
-                      <span className="text-base sm:text-lg text-secondary-foreground/80">
-                        {benefit}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="relative flex justify-center sm:justify-end w-full h-1/2 sm:w-64 sm:h-45 md:w-72 md:h-55 lg:w-80 lg:h-65">
+            <Card className="border shadow-sm bg-card">
+              <CardHeader>
+                <Badge variant="secondary" className="w-fit text-xs uppercase tracking-wider">
+                  Beneficios
+                </Badge>
+                <CardTitle className="text-2xl md:text-3xl font-bold text-secondary-foreground pt-2">
+                  Lo que nos diferencia
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col sm:flex-row gap-6 items-start">
+                  <ul className="space-y-3 flex-1">
+                    {benefits.map((benefit, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <span className="rounded-full bg-primary/10 p-1 mt-0.5">
+                          <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                        </span>
+                        <span className="text-base sm:text-lg text-muted-foreground">
+                          {benefit}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="relative flex justify-center sm:justify-end w-full h-1/2 sm:w-64 sm:h-45 md:w-72 md:h-55 lg:w-80 lg:h-65">
+                    <Suspense fallback={<LoadingSpinner size="md" />}>
+                      <Box3DViewer
+                        modelPath="wifi-cromo.glb"
+                        hdrPath="hdri2.hdr"
+                        distance={20}
+                        scale={1}
+                      />
+                    </Suspense>
+                  </div>
+                </div>
+                <div className="flex justify-end mt-8">
                   <Suspense fallback={<LoadingSpinner size="md" />}>
-                    <Box3DViewer
-                      modelPath="wifi-cromo.glb"
-                      hdrPath="hdri2.hdr"
-                      distance={20}
-                      scale={1}
-                    />
+                    <AnimatedLines className="w-full justify-end" />
                   </Suspense>
                 </div>
-              </div>
-              <div className="flex justify-end mt-8">
-                <Suspense fallback={<LoadingSpinner size="md" />}>
-                  <AnimatedLines className="w-full justify-end" />
-                </Suspense>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
-        {/* Sección de Historia - Timeline */}
-        <div className="w-full bg-gradient-to-b from-white to-gray-50 py-12">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold text-secondary-foreground mb-4">
-              Nuestra Historia
-            </h2>
-            <p className="text-lg md:text-xl text-secondary-foreground/70 max-w-3xl mx-auto px-4">
-              Un recorrido por los momentos clave que han marcado nuestro
-              compromiso con la comunidad.
-            </p>
+        {/* Sección de Historia - ScrollStack */}
+        <div className="w-full bg-muted/20">
+          <Card className="max-w-3xl mx-auto border-0 shadow-none bg-transparent text-center">
+            <CardHeader className="space-y-2">
+              <Badge variant="outline" className="w-fit mx-auto text-xs uppercase tracking-wider">
+                Línea de tiempo
+              </Badge>
+              <CardTitle className="text-3xl md:text-4xl lg:text-5xl font-bold text-secondary-foreground">
+                Nuestra Historia
+              </CardTitle>
+              <CardDescription className="text-base md:text-lg max-w-2xl mx-auto px-4">
+                Un recorrido por los momentos clave que han marcado nuestro
+                compromiso con la comunidad.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+          <div className="w-full max-w-4xl mx-auto px-4 sm:px-6">
+            <ScrollStack
+              useWindowScroll
+              className="w-full !h-auto overflow-visible"
+            >
+              {timelineEvents.map((event, index) => (
+                <ScrollStackItem
+                  key={index}
+                  image={event.image}
+                  imageAlt={event.imageAlt ?? event.title}
+                  itemClassName="border border-border bg-card p-0"
+                >
+                  <span className="text-sm font-semibold text-primary">
+                    {event.year}
+                  </span>
+                  <h3 className="text-xl md:text-2xl font-bold text-foreground mt-1 mb-3">
+                    {event.title}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {event.description}
+                  </p>
+                </ScrollStackItem>
+              ))}
+            </ScrollStack>
           </div>
-          <Timeline events={timelineEvents} />
         </div>
 
-        <div className="w-full bg-white py-12 px-4 sm:px-6 md:px-10 lg:px-20">
+        <div className="w-full bg-muted/20 px-4 sm:px-6 md:px-10 lg:px-20">
           <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] xl:grid-cols-[500px_1fr] gap-8 lg:gap-12 items-start">
             <VideoLazyLoad />
 
             {/* Acordeones - derecha */}
-            <div className="w-full">
+            <div className="w-full space-y-6">
+              <div>
+                <h2 className="text-2xl font-bold text-secondary-foreground">
+                  Conoce nuestro propósito
+                </h2>
+              </div>
               <Accordion
                 type="multiple"
-                className="w-full space-y-4"
-                defaultValue={["item-4"]}
+                className="w-full space-y-3"
+                defaultValue={accordionPurposeItems.filter((i: AccordionPurposeItem) => i.defaultOpen).map((i: AccordionPurposeItem) => i.value)}
               >
-                <AccordionItem
-                  value="item-1"
-                  className="border rounded-lg px-6"
-                >
-                  <AccordionTrigger className="text-xl lg:text-2xl font-bold text-secondary-foreground hover:no-underline py-6">
-                    MISIÓN
-                  </AccordionTrigger>
-                  <AccordionContent className="flex flex-col gap-4 text-balance pb-6">
-                    <p className="text-base lg:text-lg text-secondary-foreground/80 leading-relaxed">
-                      Mejorar la conectividad de la sociedad, en especial, de la
-                      población más vulnerable, de bajos recursos y condición de
-                      desplazamiento forzado. Nuestra oferta, basada en las
-                      tecnologías de la información y comunicaciones,
-                      contribuirá al logro de la equidad social, al acceso a
-                      oportunidades y a la reducción de las brechas digitales
-                      del país.
-                    </p>
-                  </AccordionContent>
-                </AccordionItem>
-
-                <AccordionItem
-                  value="item-2"
-                  className="border rounded-lg px-6"
-                >
-                  <AccordionTrigger className="text-xl lg:text-2xl font-bold text-secondary-foreground hover:no-underline py-6">
-                    VISIÓN
-                  </AccordionTrigger>
-                  <AccordionContent className="flex flex-col gap-4 text-balance pb-6">
-                    <p className="text-base lg:text-lg text-secondary-foreground/80 leading-relaxed">
-                      La visión de INTTELGO en el 2025 es:
-                    </p>
-                    <ul className="list-disc list-inside space-y-2 text-base lg:text-lg text-secondary-foreground/80">
-                      <li>
-                        Ser la empresa con mayor cantidad de clientes sobre sus
-                        competidores en la comuna 4 de Cazucá y alrededores.
-                      </li>
-                      <li>
-                        Mantener altos los niveles en la satisfacción de sus
-                        clientes y el cumplimiento de la propuesta de valor.
-                      </li>
-                      <li>
-                        Estar catalogados con la atención más rápida y oportuna
-                        ante sus clientes.
-                      </li>
-                      <li>
-                        Ser referente como lugar ideal para trabajar en el sur
-                        de Bogotá.
-                      </li>
-                    </ul>
-                  </AccordionContent>
-                </AccordionItem>
-
-                <AccordionItem
-                  value="item-3"
-                  className="border rounded-lg px-6"
-                >
-                  <AccordionTrigger className="text-xl lg:text-2xl font-bold text-secondary-foreground hover:no-underline py-6">
-                    CONECTIVIDAD COMO PROPÓSITO SOCIAL
-                  </AccordionTrigger>
-                  <AccordionContent className="flex flex-col gap-4 text-balance pb-6">
-                    <p className="text-base lg:text-lg text-secondary-foreground/80 leading-relaxed">
-                      Como parte de nuestro compromiso con el desarrollo social
-                      y la inclusión digital, hemos implementado un programa de
-                      responsabilidad corporativa enfocado en brindar acceso
-                      gratuito a internet a comunidades vulnerables.
-                      Actualmente,{" "}
-                      <span className="font-bold">
-                        más de 32 fundaciones y organizaciones sin ánimo de
-                        lucro
-                      </span>{" "}
-                      se benefician de nuestro servicio de conectividad sin
-                      costo, permitiéndoles fortalecer sus procesos educativos,
-                      sociales y comunitarios. Esta iniciativa busca reducir la
-                      brecha tecnológica en poblaciones en situación de
-                      vulnerabilidad, facilitando el acceso a herramientas
-                      digitales, plataformas educativas y servicios esenciales
-                      en línea. Nuestro servicio donado es{" "}
-                      <span className="font-bold">
-                        100% fibra óptica hasta el hogar (FTTH)
-                      </span>
-                      , lo que garantiza una conexión de alta velocidad, estable
-                      y con baja latencia, adaptada a las necesidades operativas
-                      de estas entidades.
-                    </p>
-                    <p className="text-base lg:text-lg text-secondary-foreground/80 leading-relaxed">
-                      Conectamos a quienes trabajan por un mejor futuro, porque
-                      creemos que la transformación social también se construye
-                      desde la tecnología.
-                    </p>
-                  </AccordionContent>
-                </AccordionItem>
-
-                <AccordionItem
-                  value="item-4"
-                  className="border rounded-lg px-6"
-                >
-                  <AccordionTrigger className="text-xl lg:text-2xl font-bold text-secondary-foreground hover:no-underline py-6">
-                    BENEFICIOS EXCLUSIVOS PARA NUESTROS CLIENTES.
-                  </AccordionTrigger>
-                  <AccordionContent className="flex flex-col gap-4 text-balance pb-6">
-                    <p className="text-base lg:text-lg text-secondary-foreground/80 leading-relaxed">
-                      En nuestra empresa, valoramos la fidelidad y el compromiso
-                      de nuestros usuarios. Por eso hemos implementado un
-                      programa de incentivos exclusivos, diseñado para reconocer
-                      a quienes mantienen sus obligaciones al día y eligen
-                      canales digitales eficientes. Nuestros clientes que
-                      realizan el pago anticipado de su servicio o que utilizan
-                      medios electrónicos como PSE (Pago Seguro en Línea),
-                      acceden automáticamente a un sistema de recompensas que
-                      incluye:
-                    </p>
-                    <ul className="list-disc list-inside space-y-2 text-base lg:text-lg text-secondary-foreground/80">
-                      <li>
-                        Participación en sorteos de viajes nacionales y
-                        experiencias especiales, como parte de nuestras campañas
-                        de fidelización.
-                      </li>
-                      <li>
-                        Bonificaciones en su servicio por cumplimiento y
-                        recurrencia de pago anticipado.
-                      </li>
-                      <li>
-                        Evita filas, ahorra tiempo y accede a premios exclusivos
-                        solo por pagar en línea. Con PSE, tu pago es inmediato y
-                        totalmente confiable.
-                      </li>
-                    </ul>
-                    <div className="space-y-4">
-                      <CarrouselWinner
-                        images={[...travelWinners2024, ...travelWinners2025]}
-                        title="Sorteo Viaje Santa Marta Anual"
-                        description="Conoce a nuestros ganadores de años anteriores"
-                      />
-                      <CarrouselWinner
-                        images={tvWinners}
-                        title="Sorteo TV'S por pago oportuno en PSE"
-                        description="Conoce a nuestros ganadores"
-                      />
-                      <CarrouselWinner
-                        images={lotteryWinners}
-                        title="Eventos y sorteos especiales"
-                        description="Conoce a nuestros ganadores de eventos y sorteos especiales"
-                      />
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
+                {accordionPurposeItems.map((item) => (
+                  <AccordionItem
+                    key={item.value}
+                    value={item.value}
+                    className={item.itemClassName}
+                  >
+                    <AccordionTrigger className="text-lg lg:text-xl font-semibold text-secondary-foreground hover:no-underline py-5 hover:text-primary">
+                      {item.title}
+                    </AccordionTrigger>
+                    <AccordionContent className="flex flex-col gap-4 text-balance pb-5 text-muted-foreground">
+                      {item.content}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
               </Accordion>
             </div>
           </div>
         </div>
-        <div className="w-full bg-white py-12 px-4 sm:px-6 md:px-10 lg:px-20">
+        <div className="w-full bg-muted/30 py-12 px-4 sm:px-6 md:px-10 lg:px-20">
           <FundationsMarquee />
         </div>
       </div>

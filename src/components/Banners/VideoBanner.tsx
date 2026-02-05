@@ -160,13 +160,13 @@ export default function VideoBanner() {
     const videos = [
         {
             id: 1,
-            src: "/media/interestellar.mp4",
+            src: "/media/The Beauty Of Avatar - The Way Of Water.mp4",
             title: "TELEVISIÓN HD",
             description: "Más de 150 canales en alta definición"
         },
         {
             id: 2,
-            src: "/media/blade runner.mp4",
+            src: "/media/THE BEAUTY OF THE LORD OF THE RINGS THE HOBBIT.webm",
             title: "INTERNET RÁPIDO",
             description: "Hasta 920 Mbps de velocidad"
         },

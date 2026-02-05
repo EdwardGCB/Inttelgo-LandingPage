@@ -93,44 +93,42 @@ const PublicLayout = () => {
   return (
     <div className="relative flex min-h-screen flex-col bg-white">
       <ScrollToTop />
-      <div className="sticky top-0 z-50 md:border-b bg-white/95 shadow-sm backdrop-blur-md">
-        <div
-          className={`block transition-all duration-500 ${showLeadCapture
-            ? "max-h-33 md:max-h-20 opacity-100"
-            : "max-h-0 opacity-0"
-            } overflow-hidden`}
-        >
-          <div className="w-full pb-4">
-            <div className="flex flex-col gap-4  bg-black p-4 text-primary-foreground shadow-lg md:flex-row md:items-center md:justify-center">
-              <p className="text-sm font-medium md:text-base text-center md:text-left ">
-                <span className="font-bold text-[#FF9900]">
-                  ¿En casa necesitas Internet Fibra?
-                </span>{" "}
-                ¡Déjanos tus datos y te llamaremos en breve!
-              </p>
-              <form
-                onSubmit={handleLeadSubmit}
-                className="flex w-full md:w-1/2 lg:w-1/3 items-center overflow-hidden rounded-2xl bg-white shadow-inner focus-within:ring-2 focus-within:ring-[#EC5406]/60"
+      <div
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${showLeadCapture
+          ? "translate-y-0 opacity-100"
+          : "-translate-y-full opacity-0"
+          }`}
+      >
+        <div className="w-full">
+          <div className="flex flex-col gap-4 bg-black p-4 text-primary-foreground shadow-lg md:flex-row md:items-center md:justify-center">
+            <p className="text-sm font-medium md:text-base text-center md:text-left">
+              <span className="font-bold text-[#FF9900]">
+                ¿En casa necesitas Internet Fibra?
+              </span>{" "}
+              ¡Déjanos tus datos y te llamaremos en breve!
+            </p>
+            <form
+              onSubmit={handleLeadSubmit}
+              className="flex w-full md:w-1/2 lg:w-1/3 items-center overflow-hidden rounded-2xl bg-white shadow-inner focus-within:ring-2 focus-within:ring-[#EC5406]/60"
+            >
+              <input
+                type="tel"
+                inputMode="tel"
+                name="lead-phone"
+                placeholder="Ingresa tu número de celular"
+                className="h-10 flex-1 border-none px-5 text-sm text-slate-900 outline-none md:text-base"
+                value={leadPhone}
+                onChange={(event) => setLeadPhone(event.target.value)}
+              />
+              <Button
+                type="submit"
+                variant="orange"
+                className="h-12 px-5 rounded-l-none"
+                aria-label="Enviar formulario"
               >
-                <input
-                  type="tel"
-                  inputMode="tel"
-                  name="lead-phone"
-                  placeholder="Ingresa tu número de celular"
-                  className="h-10 flex-1 border-none px-5 text-sm text-slate-900 outline-none md:text-base"
-                  value={leadPhone}
-                  onChange={(event) => setLeadPhone(event.target.value)}
-                />
-                <Button
-                  type="submit"
-                  variant="orange"
-                  className="h-12 px-5 rounded-l-none"
-                  aria-label="Enviar formulario"
-                >
-                  <ArrowRight className="size-5" />
-                </Button>
-              </form>
-            </div>
+                <ArrowRight className="size-5" />
+              </Button>
+            </form>
           </div>
         </div>
       </div>

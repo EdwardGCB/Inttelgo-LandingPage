@@ -3,72 +3,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ganadores2024, ganadores2025, ganadores2026 } from "@/data/BecaWinner";
+import { redesSociales } from "@/data/SocialNetwork";
+import type { SocialNetwork } from "@/interfaces/SocialNetwork";
+import type { GanadorBECA } from "@/interfaces/Winner";
 import Menu from "@/Layouts/Menu";
 import { cn } from "@/lib/utils";
 import { TabsContent } from "@radix-ui/react-tabs";
-import { CheckCheck } from "lucide-react";
+//import { InscripcionTabContent } from "@/components/Beca/InscripcionTabContent";
 import { Suspense } from "react";
 
-interface SocialNetwork {
-  descripcion: string;
-  imagen: string;
-  link: string;
-  classname: string;
-  iconProps: string;
-}
-
-interface Ganador {
-  id: number;
-  nombre: string;
-  imagen: string;
-  link: string;
-  carrera: string;
-}
-const redesSociales: SocialNetwork[] = [
-  {
-    descripcion: "TikTok",
-    imagen: "/social/tiktok.svg",
-    link: "https://www.tiktok.com/@inttelgo?is_from_webapp=1&sender_device=pc",
-    classname: "bg-primary",
-    iconProps: "p-0 group-hover:brightness-0 group-hover:invert transition-all",
-  },
-  {
-    descripcion: "Instagram",
-    imagen: "/social/instagram.svg",
-    link: "https://www.instagram.com/inttelgo/",
-    classname: "bg-gradient-to-b from-pink-500 to-yellow-500",
-    iconProps: "p-0 brightness-0 invert",
-  },
-];
-
-const ganadores2024: Ganador[] = [
-  {
-    id: 1,
-    nombre: "Laura Restrepo",
-    imagen: "/winners/BECA/laura-restrepo.jpg",
-    link: "https://www.tiktok.com/@inttelgo/video/7578177892207578388?is_from_webapp=1&sender_device=pc&web_id=7534737410782791174",
-    carrera: "Técnico Laboral: Contaduria Pública",
-  },
-];
-
-const ganadores2025: Ganador[] = [
-  {
-    id: 1,
-    nombre: "Jummalay Neira",
-    imagen: "/winners/BECA/jummalay-neira.jpg",
-    link: "https://www.tiktok.com/@inttelgo/video/7468424282901712133?is_from_webapp=1&web_id=7534737410782791174",
-    carrera: "Técnico Laboral: Auxiliar en Comercio Exterior",
-  },
-  {
-    id: 2,
-    nombre: "Diego Sierra",
-    imagen: "/winners/BECA/diego-sierra.jpg",
-    link: "https://www.tiktok.com/@inttelgo/video/7469084362588392710?is_from_webapp=1&sender_device=pc&web_id=7534737410782791174",
-    carrera: "Técnico Laboral: Entrenamiento Deportivo",
-  },
-];
-
-function WinnerFlipCard({ ganador }: { ganador: Ganador }) {
+function WinnerFlipCard({ ganador }: { ganador: GanadorBECA }) {
   return (
     <div className="group relative mx-auto aspect-[9/16] w-full max-w-[360px] overflow-hidden rounded-[32px] bg-gradient-to-br from-gray-900 to-black shadow-2xl shadow-black/60 border-2 border-white/20 hover:border-orange-500/50 transition-all duration-500 hover:shadow-orange-500/30 hover:scale-[1.02]">
       {/* Imagen con overlay mejorado */}
@@ -170,7 +115,7 @@ export default function Beca() {
         </p>
 
         <div className="flex flex-wrap items-center gap-6">
-          {redesSociales.map((red, index) => (
+          {redesSociales.map((red: SocialNetwork, index: number) => (
             <a
               key={index}
               href={red.link}
@@ -225,7 +170,7 @@ export default function Beca() {
               >
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2 items-center">
                   <div className="order-2 md:order-1 space-y-4">
-                    {ganadores2024.map((ganador) => (
+                    {ganadores2024.map((ganador: GanadorBECA) => (
                       <div key={ganador.id}>
                         <WinnerFlipCard ganador={ganador} />
                       </div>
@@ -268,7 +213,7 @@ export default function Beca() {
                     </p>
                   </CardHeader>
                   <div className="grid grid-cols-1 gap-6 md:gap-8 md:grid-cols-2">
-                    {ganadores2025.map((ganador) => (
+                    {ganadores2025.map((ganador: GanadorBECA) => (
                       <WinnerFlipCard key={ganador.id} ganador={ganador} />
                     ))}
                   </div>
@@ -277,75 +222,29 @@ export default function Beca() {
 
               <TabsContent
                 value="2026"
-                className="text-white/90 animate-in fade-in-50 duration-500"
+                className="animate-in fade-in-50 duration-500"
               >
-                <div className="space-y-10 max-w-4xl mx-auto">
-                  <div className="text-center space-y-6">
-                    <div className="inline-block px-6 py-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm font-bold uppercase tracking-wider shadow-lg shadow-orange-500/50 animate-pulse">
-                      ¡Nuevo!
-                    </div>
-                    <h2 className="text-5xl md:text-7xl lg:text-8xl font-extrabold leading-tight bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600 bg-clip-text text-transparent drop-shadow-2xl">
-                      ¡INSCRIPCIONES ABIERTAS!
-                    </h2>
-                    <div className="w-32 h-1 bg-gradient-to-r from-transparent via-orange-500 to-transparent mx-auto rounded-full" />
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 items-center">
+                  <div className="order-2 md:order-1 space-y-4">
+                    {ganadores2026.map((ganador: GanadorBECA) => (
+                      <WinnerFlipCard key={ganador.id} ganador={ganador} />
+                    ))}
                   </div>
-
-                  <div className="space-y-6 bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
-                    <p className="text-xl md:text-2xl font-medium leading-relaxed text-white/90 text-center">
-                      Ya están abiertas las inscripciones para las becas de
-                      estudio{" "}
+                  <div className="order-1 md:order-2 space-y-4">
+                    <h3 className="text-4xl md:text-5xl font-bold leading-tight bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
+                      Nuestra Ganadora BECA 2026
+                    </h3>
+                    <p className="text-xl md:text-2xl font-medium leading-relaxed text-white/90">
+                      Te presentamos a{" "}
                       <span className="font-bold text-orange-400">
-                        INTTELGO 2026
+                        Yudi Tatiana Malagón
                       </span>
-                      . Asegúrate de cumplir con los requisitos para participar.
+                      , nuestra ganadora de la BECA Inttel Go 2026, que seguira impulsando su carrera profesional con un Técnico laboral en atención integral a la primera infancia
                     </p>
-
-                    <div className="space-y-4 pt-4">
-                      <h3 className="text-2xl font-bold text-white mb-4">
-                        Requisitos:
-                      </h3>
-                      <ul className="space-y-3 list-none">
-                        <li className="flex items-start gap-4 text-lg text-white/90">
-                          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white font-bold text-sm mt-1">
-                            <CheckCheck className="w-4 h-4" />
-                          </span>
-                          <span>
-                            Ser cliente de o vivir con el titular del servicio.
-                          </span>
-                        </li>
-                        <li className="flex items-start gap-4 text-lg text-white/90">
-                          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white font-bold text-sm mt-1">
-                            <CheckCheck className="w-4 h-4" />
-                          </span>
-                          <span>Tener título de bachiller.</span>
-                        </li>
-                        <li className="flex items-start gap-4 text-lg text-white/90">
-                          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white font-bold text-sm mt-1">
-                            <CheckCheck className="w-4 h-4" />
-                          </span>
-                          <span>
-                            Presentarte en las fechas establecidas de la
-                            convocatoria.
-                          </span>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-center pt-4">
-                    <a
-                      href="https://forms.gle/53BmVwVVSA7TXgb67/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group"
-                    >
-                      <Button
-                        variant={"orange"}
-                        className="flex items-center gap-4 py-7 px-12 text-xl md:text-2xl font-bold text-white shadow-2xl shadow-orange-500/50 hover:shadow-orange-500/70 transition-all duration-300 hover:scale-110 hover:bg-gradient-to-r hover:from-orange-500 hover:to-orange-600"
-                      >
-                        <span>¡Postularme!</span>
-                      </Button>
-                    </a>
+                    <p className="text-lg text-white/70">
+                      Si quieres conocer más sobre su historia, visita el enlace
+                      de Instagram en la parte inferior.
+                    </p>
                   </div>
                 </div>
               </TabsContent>

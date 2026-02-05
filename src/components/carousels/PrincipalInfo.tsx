@@ -1,4 +1,5 @@
-import { lazy, Suspense, useEffect, useState, useMemo } from "react";
+import { lazy, Suspense, useEffect, useState, useMemo, useRef } from "react";
+import { Link } from "react-router-dom";
 import Menu from "@/Layouts/Menu";
 const Stars = lazy(() => import("@/components/Canvas/Stars"));
 const Router3DViewer = lazy(() => import("@/components/Canvas/Router3DViewer"));
@@ -11,123 +12,305 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 import Planes from "./Planes";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { ChevronsUp, DollarSign, Star } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
+import { RouterSlideContent } from "./RouterSlideContent";
+import Galaxy from "../Canvas/Galaxy";
+import { Card, CardContent, CardTitle, CardHeader, CardDescription, CardFooter } from "../ui/card";
+import { ChevronsUp, DollarSign, Star, Zap } from "lucide-react";
+import { Badge } from "../ui/badge";
+import { Separator } from "../ui/separator";
+import { Button } from "../ui/button";
+import GeminiStar from "../logos/GeminiStar";
 
 // Componente de loading para el modelo 3D
 const Router3DLoader = () => (
-  <div className="w-full h-full flex items-center justify-center">
+  <div className="w-full h-full min-h-[300px] md:min-h-[500px] flex items-center justify-center">
     <div className="relative w-full h-full flex flex-col items-center justify-center gap-4">
       <Spinner size="xl" variant="white" label="Cargando modelo 3D" />
     </div>
   </div>
 );
 
-// Componente wrapper que solo carga el Router3DViewer cuando está activo y listo
-const LazyRouter3DViewer = ({ isActive, shouldLoad }: { isActive: boolean; shouldLoad: boolean }) => {
-  if (!isActive || !shouldLoad) {
+// Imagen del modem para vista móvil (fallback del modelo 3D)
+const RouterMobileImage = () => (
+  <div className="relative w-full mt-10 h-[300px] md:h-[500px] lg:h-[600px] flex items-center justify-center">
+    <img
+      src={ROUTER_MOBILE_IMAGE}
+      alt="Modem Inttelgo"
+      className="w-auto h-[80%] max-h-[400px] object-contain"
+      loading="eager"
+      decoding="async"
+    />
+  </div>
+);
+
+/** Renderiza el media: imagen (móvil) o modelo 3D (desktop).
+ * El 3D se monta una sola vez y solo se oculta con CSS al cambiar de slide. */
+const RouterSlideMedia = ({
+  isActive,
+  shouldLoad,
+  isMobile,
+}: {
+  isActive: boolean;
+  shouldLoad: boolean;
+  isMobile: boolean;
+}) => {
+  if (isMobile) {
+    return <RouterMobileImage />;
+  }
+  if (!shouldLoad) {
     return <Router3DLoader />;
   }
-
   return (
-    <Suspense fallback={<Router3DLoader />}>
-      <Router3DViewer className="w-full h-full" />
-    </Suspense>
+    <div
+      className={`w-full h-full min-h-[300px] md:min-h-[500px] lg:min-h-[600px] ${!isActive ? "invisible pointer-events-none" : ""}`}
+      aria-hidden={!isActive}
+    >
+      <Suspense fallback={<Router3DLoader />}>
+        <Router3DViewer className="w-full h-full" contentOnly />
+      </Suspense>
+    </div>
   );
 };
+
+// Ruta de la imagen del modem para vista móvil (fallback del modelo 3D)
+const ROUTER_MOBILE_IMAGE = "/models/ROUTER .png";
 
 // Datos de los slides del carousel
 const carouselData = [
   {
     id: 1,
     backgroundImage: "/banners/home/banner-home-galaxia-espacial.webp",
-    height:
-      "h-[550px] md:h-[900px]  bg-gradient-to-b from-transparent via-black/40 to-black",
+    className:
+      "bg-gradient-to-b from-transparent via-black/40 to-black",
     has3DModel: true, // Flag para identificar slides con modelo 3D
+    hasGalaxyBackground: false,
+    mobileHeight: "h-[550px]"
   },
   {
     id: 2,
     backgroundImage: "/banners/home/banner-home-galaxia-espacial.webp",
-    height:
-      "h-[550px] md:h-[900px]  bg-gradient-to-b from-transparent via-black/40 to-black",
+    class:
+      "bg-gradient-to-b from-transparent via-black/40 to-black",
     component: <Planes />,
     has3DModel: false,
+    hasGalaxyBackground: false,
+    mobileHeight: "h-[550px]"
   },
   {
     id: 3,
-    backgroundImage: "/banners/home/banner-home-nave-espacial.webp",
-    height: "h-[550px] md:h-[900px] ",
+    backgroundImage: "",
+    className: "",
     has3DModel: false,
+    hasGalaxyBackground: true, // Nuevo flag para identificar el slide con galaxia
+    mobileHeight: "h-[1350px]",
     component: (
-      <div className="w-full h-full px-4 sm:px-6 md:px-8 lg:px-16">
-        {/* Título */}
-        <div className="flex flex-col items-center justify-center mb-6 sm:mb-8 md:mb-12">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl font-bold text-white text-center px-2">
-            Llega a la estratosfera digital
-            <br />
-            con nuestro <span className="text-orange-400">plan gamer</span>
-          </h1>
-        </div>
+      <div className="w-full h-full px-4 sm:px-6 md:px-8 lg:px-16 flex items-center justify-center py-12">
+        <div className="relative w-full max-w-7xl">
+          {/* Título principal */}
+          <div className="text-center mb-12 md:mb-16 space-y-4">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold">
+              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(147,51,234,0.5)]">
+                Llega a la estratosfera digital
+              </span>
+            </h1>
+            <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
+              con nuestro{" "}
+              <span className="relative inline-block">
+                <span className="bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
+                  plan gamer
+                </span>
+              </span>
+            </p>
+          </div>
 
-        {/* Container de cards con layout responsivo */}
-        <div className="w-full h-[350px] md:h-[450px] lg:h-[200px] flex flex-col items-center justify-center">
-          <div className="relative flex flex-col items-center w-full">
-            {/* Card flotante superior - ChevronsUp */}
-            <Card className="p-1.5 sm:p-2 absolute -top-[8%] sm:-top-[5%] md:-top-[10%] right-[20%] sm:right-[32%] md:right-[31%] lg:right-[25%] xl:right-[27%] 2xl:right-[36%] z-30 shadow-lg hover:shadow-xl transition-all backdrop-blur-md bg-gradient-to-b from-white/60 to-transparent border-white shadow-2sx shadow-orange-500/50 ring-4 ring-orange-400/20 rounded-full">
-              <CardContent className="p-0">
-                <ChevronsUp className="size-10 sm:size-6 md:size-8 lg:size-10 text-white" />
-              </CardContent>
-            </Card>
+          {/* Grid principal */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+            {/* Columna izquierda - Características */}
+            <div className="lg:col-span-4 space-y-4">
+              <Card className="backdrop-blur-md bg-white/10 border-white/20 hover:bg-white/15 transition-all duration-300 hover:scale-120 group">
+                <CardHeader >
+                  <div className="flex items-center gap-3">
+                    <GeminiStar size={24} className="text-white" />
+                    <div>
+                      <CardTitle className="text-xl md:text-2xl text-white">
+                        Bajas latencias
+                      </CardTitle>
+                      <CardDescription className="text-white/70 text-base">
+                        Ping ultra bajo para gaming competitivo
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+              </Card>
 
-            {/* Texto de características (solo desktop) */}
-            <div className="hidden lg:block absolute lg:top-[40px] md:left-30 lg:left-[20%] xl:left-[20%] 2xl:left-[30%] z-30 text-base md:text-xl lg:text-2xl font-bold text-white drop-shadow-md text-right">
-              <div className="flex flex-col items-end gap-1 text-4xl">
-                <span className="flex items-center gap-2">
-                  Bajas latencias{" "}
-                  <Star className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" />
-                </span>
-                <span className="flex items-center gap-2">
-                  NAT abierta{" "}
-                  <Star className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" />
-                </span>
-                <span className="flex items-center gap-2">
-                  IPV6 <Star className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" />
-                </span>
+              <Card className="backdrop-blur-md bg-white/10 border-white/20 hover:bg-white/15 transition-all duration-300 hover:scale-120 group">
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <GeminiStar size={24} className="text-white" />
+                    <div>
+
+                      <CardTitle className="text-xl md:text-2xl text-white">
+                        NAT abierta
+                      </CardTitle>
+                      <CardDescription className="text-white/70 text-base">
+                        Conexión directa sin restricciones
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+              </Card>
+
+              <Card className="backdrop-blur-md bg-white/10 border-white/20 hover:bg-white/15 transition-all duration-300 hover:scale-120 group">
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <GeminiStar size={24} className="text-white" />
+                    <div>
+
+                      <CardTitle className="text-xl md:text-2xl text-white">
+                        IPV6
+                      </CardTitle>
+                      <CardDescription className="text-white/70 text-base">
+                        Tecnología de próxima generación
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+              </Card>
+            </div>
+
+            {/* Columna central - Card principal */}
+            <div className="lg:col-span-4 flex justify-center">
+              <div className="relative">
+                {/* Efectos de órbita */}
+                <div className="absolute inset-0 rounded-2xl border-2 border-orange-400/30 animate-ping" style={{ animationDuration: "3s" }}></div>
+                <div className="absolute inset-4 rounded-2xl border-2 border-purple-400/30 animate-ping" style={{ animationDuration: "4s", animationDelay: "0.5s" }}></div>
+
+                <Card className="relative z-10 w-[280px] md:w-[320px] backdrop-blur-xl bg-gradient-to-br from-white/20 to-white/5 border-2 border-white/30 shadow-2xl hover:shadow-orange-500/50 transition-all duration-500 hover:scale-130">
+                  <CardHeader className="pb-4">
+                    <div className="flex justify-center items-center gap-2 mb-2">
+                      <Badge variant="secondary" className="bg-orange-500/20 text-orange-300 border-orange-400/50">
+                        PLAN GAMER
+                      </Badge>
+                    </div>
+                    <CardTitle className="text-center">
+                      <div className="text-8xl md:text-9xl font-black">
+                        <span className="bg-gradient-to-b from-orange-300 via-orange-400 to-orange-600 bg-clip-text text-transparent drop-shadow-[0_0_40px_rgba(251,146,60,0.8)]">
+                          500
+                        </span>
+                      </div>
+                    </CardTitle>
+                  </CardHeader>
+
+                  <Separator className="bg-white/30" />
+
+                  <CardContent className="pt-6">
+                    <h3 className="text-3xl md:text-4xl font-bold text-white uppercase text-center leading-tight tracking-wide">
+                      Megas
+                      <br />
+                      <span className="bg-gradient-to-r from-orange-300 to-orange-500 bg-clip-text text-transparent">
+                        Simétricas
+                      </span>
+                    </h3>
+                  </CardContent>
+
+                  <CardFooter className="flex justify-center pt-2">
+                    <div className="flex gap-1">
+                      <Star className="w-4 h-4 text-orange-400 fill-orange-400" />
+                      <Star className="w-4 h-4 text-orange-400 fill-orange-400" />
+                      <Star className="w-4 h-4 text-orange-400 fill-orange-400" />
+                      <Star className="w-4 h-4 text-orange-400 fill-orange-400" />
+                      <Star className="w-4 h-4 text-orange-400 fill-orange-400" />
+                    </div>
+                  </CardFooter>
+
+                  {/* Partículas decorativas */}
+                </Card>
               </div>
             </div>
 
-            {/* Card flotante - DollarSign */}
-            <Card className="p-1 sm:p-1.5 md:p-2 absolute top-[46%] sm:top-[44%] md:top-[43%] lg:top-[175px] right-[30%] sm:right-[39%] md:right-[40%] lg:right-[27%] xl:right-[31%] 2xl:right-[38%] z-31 shadow-lg hover:shadow-xl transition-all backdrop-blur-md bg-gradient-to-b from-white/60 to-transparent border-white shadow-2sx shadow-orange-500/50 ring-4 ring-orange-400/20 rounded-full">
-              <CardContent className="p-0">
-                <DollarSign className="size-6 sm:size-4 md:size-6 lg:size-7 text-orange-500" />
-              </CardContent>
-            </Card>
-
-            {/* Card con precio 100.000 */}
-            <Card className="absolute top-[45%] sm:top-[40%] md:top-[40%] lg:top-[160px] left-[69%] sm:left-[60%] md:left-auto md:right-[25%] lg:right-[15%] xl:right-[17%] 2xl:right-[29%] z-30 shadow-lg hover:shadow-xl transition-all backdrop-blur-md bg-gradient-to-b from-white/60 to-transparent border-white shadow-2sx shadow-orange-500/50 ring-4 ring-orange-400/20 p-1.5 sm:p-2 md:p-3 lg:p-4">
-              <CardContent className="p-0">
-                <div className="flex items-baseline text-orange-500">
-                  <span className="text-2xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-extrabold">
-                    100.000
-                  </span>
+            {/* Columna derecha - Precio y CTA */}
+            <div className="lg:col-span-4 space-y-6">
+              <Card className="group relative backdrop-blur-xl bg-gradient-to-br from-white/20 to-white/5 border-2 border-orange-400/30 shadow-2xl hover:shadow-orange-500/50 transition-all duration-300 hover:scale-120 overflow-visible">
+                {/* Ribbon de oferta especial en la esquina */}
+                <div className="absolute -top-2 -left-2 z-20 transition-all duration-300 group-hover:scale-110 group-hover:-translate-y-1 group-hover:-translate-x-1">
+                  <div className="relative">
+                    <div className="relative bg-gradient-to-br from-red-500 via-orange-500 to-yellow-500 text-white px-4 py-2 rounded-lg shadow-xl">
+                      <div className="flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-white fill-white" />
+                        <span className="font-bold text-sm uppercase tracking-wide">
+                          Fibra óptica 100% simétrica
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
+                <div className="absolute top-9 -left-2 z-20 transition-all duration-300 group-hover:scale-110 group-hover:-translate-y-1 group-hover:-translate-x-1">
+                  <div className="relative">
+                    {/* Badge principal */}
+                    <div className="relative bg-gradient-to-br from-red-500 via-orange-500 to-yellow-500 text-white px-4 py-2 rounded-lg shadow-xl">
+                      <div className="flex items-center gap-2">
 
-            {/* Card principal - 500 Megas */}
-            <Card className="lg:absolute lg:left-[47%] w-[260px] sm:w-[200px] md:w-[240px] lg:w-70 h-[260px] sm:h-[220px] md:h-65 lg:h-75 shadow-lg hover:shadow-xl transition-all  backdrop-blur-xs bg-gradient-to-b from-white/60 to-transparent border-white shadow-2sx shadow-orange-500/50 ring-4 ring-orange-400/20">
-              <CardHeader className="pb-1 sm:pb-2 border-b-2 border-white text-center">
-                <CardTitle className="text-8xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-extrabold text-orange-500 drop-shadow-lg">
-                  500
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-2 sm:pt-3 md:pt-4 lg:pt-0">
-                <h3 className="text-3xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white uppercase text-center leading-tight">
-                  Megas <br /> Simétricas
-                </h3>
-              </CardContent>
-            </Card>
+                        <Star className="w-4 h-4 text-white fill-white" />
+
+                        <span className="font-bold text-sm uppercase tracking-wide">
+                          Oferta
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <CardContent className="space-y-4">
+                  <CardHeader className="pt-16">
+                    <CardTitle className="text-white text-2xl">
+                      Precio mensual
+                    </CardTitle>
+                  </CardHeader>
+                  <div className="flex items-start gap-2">
+                    <DollarSign className="w-10 h-10 text-orange-400 drop-shadow-lg mt-1" />
+                    <div className="flex flex-col">
+                      <span className="text-5xl md:text-6xl font-black bg-gradient-to-r from-orange-300 to-orange-500 bg-clip-text text-transparent">
+                        100.000
+                      </span>
+                      <span className="text-lg text-white/80 font-semibold">
+                        pesos colombianos / mes
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+
+                <CardFooter className="flex flex-col gap-3">
+                  <Button
+                    size="lg"
+                    className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-lg shadow-lg hover:shadow-orange-500/50 transition-all duration-300 hover:scale-105"
+                    asChild
+                  >
+                    <Link to="/planes/internet">
+                      <ChevronsUp className="w-5 h-5 mr-2" />
+                      ¡Despega ahora!
+                    </Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
+
+            {/* Agrega este estilo en tu CSS global o en el componente */}
+            <style>{`
+              @keyframes shine {
+                0% {
+                  transform: translateX(-100%);
+                }
+                100% {
+                  transform: translateX(100%);
+                }
+              }
+              
+              .animate-shine {
+                animation: shine 3s ease-in-out infinite;
+              }
+            `}
+            </style>
           </div>
         </div>
       </div>
@@ -135,18 +318,31 @@ const carouselData = [
   },
 ];
 
+const MOBILE_BREAKPOINT = 768; // md breakpoint - debajo de esto se usa imagen en vez de 3D
+
 function PrincipalInfo() {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [shouldLoad3D, setShouldLoad3D] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
+    const updateIsMobile = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    setIsMobile(mediaQuery.matches);
+    mediaQuery.addEventListener("change", updateIsMobile);
+    return () => mediaQuery.removeEventListener("change", updateIsMobile);
+  }, []);
 
   // Precargar todas las imágenes del carousel para mejorar LCP
   useEffect(() => {
     carouselData.forEach((slide, index) => {
-      const img = new Image();
-      // La primera imagen tiene prioridad alta (elemento LCP)
-      img.fetchPriority = index === 0 ? "high" : "auto";
-      img.src = slide.backgroundImage;
+      if (slide.backgroundImage) {
+        const img = new Image();
+        // La primera imagen tiene prioridad alta (elemento LCP)
+        img.fetchPriority = index === 0 ? "high" : "auto";
+        img.src = slide.backgroundImage;
+      }
     });
   }, []);
 
@@ -165,16 +361,13 @@ function PrincipalInfo() {
         clearTimeout(timer);
       }
 
-      // Precargar el modelo 3D cuando el slide está activo o cuando el usuario está cerca
-      // Agregar un pequeño delay para no bloquear el render inicial
+      // Precargar el modelo 3D cuando el slide está activo (solo una vez, no se desmonta)
       if (carouselData[newIndex]?.has3DModel) {
-        // Delay para permitir que la página se renderice primero
         timer = setTimeout(() => {
           setShouldLoad3D(true);
-        }, 300); // 300ms de delay para no bloquear el render inicial
-      } else {
-        setShouldLoad3D(false);
+        }, 300);
       }
+      // No setear shouldLoad3D(false): mantener el 3D en memoria para evitar remontajes
     };
 
     api.on("select", handleSelect);
@@ -205,66 +398,117 @@ function PrincipalInfo() {
     [current]
   );
 
+  const isGalaxySlide = carouselData[current]?.hasGalaxyBackground;
+  const bannerRef = useRef<HTMLDivElement>(null);
+
+  const getCurrentHeight = () => {
+    const slide = carouselData[current];
+    if (isMobile && slide?.mobileHeight) {
+      return slide.mobileHeight;
+    }
+    return "";
+  };
+
   return (
     <div
-      className="relative w-full overflow-hidden mb-12 transition-all duration-700 min-h-[550px] md:min-h-[900px]"
-      style={{
-        backgroundImage: `url(${currentImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
+      ref={bannerRef}
+      className="relative w-full overflow-hidden mb-12 transition-all duration-700 min-h-0 h-auto"
     >
+      {/* Fondo de galaxia para el slide 3 */}
+      {isGalaxySlide && (
+        <div className="absolute inset-0 w-full h-full">
+          <Galaxy
+            trackingContainerRef={bannerRef}
+            mouseRepulsion
+            mouseInteraction
+            density={1}
+            glowIntensity={0.1}
+            saturation={0.5}
+            hueShift={100}
+            twinkleIntensity={0.3}
+            rotationSpeed={0.1}
+            repulsionStrength={2}
+            autoCenterRepulsion={0}
+            starSpeed={0.2}
+            speed={1}
+          />
+        </div>
+      )}
+
+      {/* Fondo de imagen para otros slides */}
+      {!isGalaxySlide && currentImage && (
+        <div
+          className="absolute inset-0 w-full h-full transition-all duration-700"
+          style={{
+            backgroundImage: `url(${currentImage})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+          }}
+        />
+      )}
+
       {/* Imagen precargada invisible para forzar carga temprana */}
-      <img
-        src={carouselData[0].backgroundImage}
-        alt=""
-        className="hidden"
-        fetchPriority="high"
-        loading="eager"
-        decoding="async"
-        width={1920}
-        height={1080}
-        style={{ aspectRatio: "16 / 9" }}
-        aria-hidden="true"
-      />
+      {carouselData[0].backgroundImage && (
+        <img
+          src={carouselData[0].backgroundImage}
+          alt=""
+          className="hidden"
+          fetchPriority="high"
+          loading="eager"
+          decoding="async"
+          width={1920}
+          height={1080}
+          style={{ aspectRatio: "16 / 9" }}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Contenido sobre la imagen */}
       <div className="relative z-10">
-        <Suspense fallback={null}>
-          <Stars
-            starCount={30}
-            colors={[
-              "#FFFFFF",
-              "#F8F9FA",
-              "#E9ECEF",
-              "#DEE2E6",
-              "#CED4DA",
-              "#ADB5BD",
-              "#6C757D",
-              "#495057",
-            ]}
-          />
-        </Suspense>
+        {/* Estrellas - solo se muestran cuando NO es el slide de galaxia */}
+        {!isGalaxySlide && (
+          <Suspense fallback={null}>
+            <Stars
+              starCount={30}
+              colors={[
+                "#FFFFFF",
+                "#F8F9FA",
+                "#E9ECEF",
+                "#DEE2E6",
+                "#CED4DA",
+                "#ADB5BD",
+                "#6C757D",
+                "#495057",
+              ]}
+            />
+          </Suspense>
+        )}
+
+        {/* Menú siempre visible encima */}
         <Menu
           className="text-white bg-transparent"
           logo="logo-blanco.svg"
           detailsColor=""
         />
 
-        {/* Carousel */}
+        {/* Carousel: altura 100% del contenido, sin mínimos que corten */}
         <Carousel
           setApi={setApi}
-          className="w-full transition-all duration-700 min-h-[550px] md:min-h-[900px]"
+          className="w-full transition-all duration-700 min-h-0 h-auto bg-gradient-to-b from-transparent via-black/20 to-black"
           opts={{ loop: true }}
         >
-          <CarouselContent className="h-full">
+          <CarouselContent className={`min-h-0 h-auto ${getCurrentHeight()}`}>
             {carouselData.map((slide, index) => (
-              <CarouselItem key={slide.id} className="h-full">
+              <CarouselItem key={slide.id} className="min-h-0 h-auto">
                 {slide.has3DModel ? (
-                  <LazyRouter3DViewer
-                    isActive={current === index}
-                    shouldLoad={shouldLoad3D}
-                  />
+                  <RouterSlideContent>
+                    <RouterSlideMedia
+                      isActive={current === index}
+                      shouldLoad={shouldLoad3D}
+                      isMobile={isMobile}
+                    />
+                  </RouterSlideContent>
                 ) : (
                   slide.component
                 )}
@@ -285,8 +529,7 @@ function PrincipalInfo() {
                 className={`h-2 rounded-full transition-all ${current === index ? "w-8 bg-orange-400" : "w-2 bg-white/50"
                   }`}
                 onClick={() => api?.scrollTo(index)}
-                aria-label={`Ir al slide ${index + 1} de ${carouselData.length
-                  }`}
+                aria-label={`Ir al slide ${index + 1} de ${carouselData.length}`}
                 aria-selected={current === index}
                 role="tab"
                 tabIndex={current === index ? 0 : -1}

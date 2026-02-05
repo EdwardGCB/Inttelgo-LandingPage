@@ -155,8 +155,8 @@ function HomePage() {
         ogUrl="https://inttelgo.com/"
         canonical="https://inttelgo.com/"
       />
-      <div className="w-full overflow-x-hidden">
-        <div className="bg-black flex flex-col items-center justify-center mb-10">
+      <div className="w-full overflow-x-hidden space-y-14 md:space-y-10 mb-10 md:mb-20">
+        <div className="bg-black flex flex-col items-center justify-center">
           {/* BannerHome se carga directamente (no lazy) porque es el elemento LCP */}
           <BannerHome />
           <h2 className="text-5xl text-primary-foreground text-center px-4">
@@ -169,61 +169,68 @@ function HomePage() {
             </Suspense>
           </div>
         </div>
-        <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-4 md:px-10 lg:px-20 xl:px-40 space-y-10 mb-20 flex flex-col items-center justify-center min-h-[200px]">
+        <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-10 lg:px-20 xl:px-40 space-y-14 md:space-y-10 flex flex-col items-center justify-center">
           <Suspense fallback={<div className="w-full h-16" />}>
             <AnimatedLines className="justify-start w-full" />
           </Suspense>
-          <div className="text-secondary-foreground w-full min-h-[120px]">
-            <h3 className="text-4xl font-bold">
+
+          {/* Header - Servicio de calidad */}
+          <div className="text-center w-full max-w-3xl mx-auto space-y-4">
+            <span className="inline-block text-orange-500 text-sm font-semibold tracking-widest uppercase">
+              Nuestros servicios
+            </span>
+            <h3 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-secondary-foreground tracking-tight">
               ¡Entregamos un servicio de calidad!
             </h3>
-            <p className="mt-2">
+            <p className="text-muted-foregrounda text-base sm:text-lg leading-relaxed">
               Disfruta de nuestro servicio de internet 100% de fibra óptica,
               telefonía y televisión; con lo último en tecnología que te conecta
               con el mundo.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Cards de servicios */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 w-full max-w-6xl">
             {cardsInfo.map((card, index) => (
               <div
                 key={card.title}
-                className="flex flex-col items-center justify-center group cursor-pointer"
+                className="flex flex-col items-center group cursor-pointer"
                 style={{
                   animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`,
                 }}
               >
-                <Card className=" sm:w-full lg:w-[90%] bg-black border-white/20 hover:border-transparent transition-all duration-600 ease-in-out hover:shadow-2xl hover:shadow-orange-500/50 hover:scale-105 hover:bg-gradient-to-b hover:from-[#FF9900] hover:to-[#EC5406]">
-                  <CardHeader className="text-center flex flex-col items-center justify-center">
-                    <div className="w-24 h-24 mb-4 transition-all duration-500 ease-in-out group-hover:scale-110 group-hover:rotate-6">
+                <Card className="w-full h-full bg-gradient-to-b from-black via-zinc-950 to-black hover:border-orange-500/40 rounded-2xl overflow-hidden transition-all duration-500 ease-out hover:shadow-2xl hover:shadow-orange-500/60 hover:scale-[1.02] hover:-translate-y-1">
+                  <CardHeader className="text-center flex flex-col items-center justify-center pb-2">
+                    <div className="w-20 h-20 mb-4 rounded-2xl bg-orange-500/20 flex items-center justify-center transition-all duration-500 ease-out group-hover:bg-orange-500 group-hover:scale-110">
                       <img
                         src={card.imagePath}
                         alt={card.title}
-                        className="w-full h-full object-contain brightness-0 invert"
+                        className="w-12 h-12 object-contain brightness-0 invert opacity-90 group-hover:opacity-100"
                         loading="lazy"
                         decoding="async"
-                        width={96}
-                        height={96}
+                        width={48}
+                        height={48}
                       />
                     </div>
-                    <CardTitle className="text-2xl font-bold text-primary-foreground transition-all duration-300">
+                    <CardTitle className="text-xl font-bold text-orange-500 transition-colors duration-300 group-hover:text-orange-200">
                       {card.title}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-base text-primary-foreground text-center transition-all duration-300">
+                  <CardContent className="flex-1">
+                    <p className="text-sm text-primary-foreground text-center leading-relaxed line-clamp-4">
                       {card.description}
                     </p>
                   </CardContent>
-                  <CardFooter className="flex justify-center">
+                  <CardFooter className="flex justify-center pt-4">
                     <Button
-                      variant="outline"
-                      className="min-h-[44px] min-w-[120px]"
+                      variant="orange"
+                      className="min-h-[44px] min-w-[130px] font-semibold"
                     >
                       <Link
                         to={card.path}
-                        className="flex items-center justify-center w-full h-full min-h-[44px]"
+                        className="flex items-center justify-center w-full h-full gap-2"
                       >
-                        <span className="text-lg font-bold">Saber más</span>
+                        Saber más
+                        <span>→</span>
                       </Link>
                     </Button>
                   </CardFooter>
@@ -231,99 +238,103 @@ function HomePage() {
               </div>
             ))}
           </div>
+
+          {/* Card CRC - Derechos del usuario */}
+          <div className="w-full flex justify-center">
+            <Card
+              className="p-0 w-full max-w-xl rounded-2xl overflow-hidden hover:border-orange-500/40 hover:shadow-2xl hover:shadow-orange-500/60 hover:scale-[1.02] hover:-translate-y-1 transition-all duration-500 cursor-pointer group/crc"
+              onClick={() =>
+                window.open(
+                  "https://www.crcom.gov.co/es/pagina/regimen-proteccion-usuario",
+                  "_blank",
+                  "noopener,noreferrer"
+                )
+              }
+            >
+              <CardContent className="p-0 relative">
+                <img
+                  src="/banners/conoce-tus-derechos-y-deberes-como-usuario.jpg"
+                  alt="Conoce tus derechos y deberes como usuario de servicios de telecomunicaciones - CRC"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover/crc:scale-105"
+                  loading="lazy"
+                  decoding="async"
+                  width={313}
+                  height={107}
+                  sizes="(max-width: 768px) 95vw, 50vw"
+                  style={{
+                    aspectRatio: "313 / 107",
+                    maxWidth: "100%",
+                    height: "auto",
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover/crc:opacity-100 transition-opacity duration-500" />
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Card PSE */}
           <Card
-            className="p-0 w-[95%] md:w-1/2 hover:shadow-orange-500/50 hover:scale-105 hover:bg-gradient-to-b hover:from-[#FF9900] hover:to-[#EC5406] transition-all duration-500 ease-in-out cursor-pointer"
-            onClick={() =>
-              window.open(
-                "https://www.crcom.gov.co/es/pagina/regimen-proteccion-usuario",
-                "_blank",
-                "noopener,noreferrer"
-              )
-            }
-          >
-            <CardContent className="p-0">
-              <img
-                src="/banners/conoce-tus-derechos-y-deberes-como-usuario.jpg"
-                alt="Conoce tus derechos y deberes como usuario de servicios de telecomunicaciones - CRC"
-                className="w-full h-full object-contain"
-                loading="lazy"
-                decoding="async"
-                width={313}
-                height={107}
-                sizes="(max-width: 768px) 95vw, 50vw"
-                style={{
-                  aspectRatio: "313 / 107",
-                  maxWidth: "100%",
-                  height: "auto",
-                }}
-              />
-            </CardContent>
-          </Card>
-          <Card
-            className="w-full bg-black border-white/20 hover:border-orange-500/50 transition-all duration-500 animate-pulse-glow relative overflow-hidden group"
+            className="group w-full h-full bg-gradient-to-b from-black via-zinc-950 to-black hover:border-orange-500/40 rounded-2xl overflow-hidden transition-all duration-500 ease-out hover:shadow-2xl hover:shadow-orange-500/60 hover:scale-[1.02] hover:-translate-y-1"
             style={{
               animation: `fadeInUp 0.8s ease-out 0.3s both`,
             }}
           >
-            {/* Efecto de brillo animado */}
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-shine pointer-events-none"></div>
 
-            <CardHeader className="relative z-10">
-              <CardTitle className="text-2xl font-bold text-primary-foreground group-hover:text-orange-500 transition-colors duration-300">
-                <h2>¿Sabías que contamos con PSE para pagar tu factura?</h2>
+            <CardHeader className="relative z-10 text-center md:text-left pb-4">
+              <CardTitle className="text-xl sm:text-2xl font-bold text-orange-500 group-hover:text-orange-200 transition-colors duration-300">
+                ¿Sabías que contamos con PSE para pagar tu factura?
               </CardTitle>
-              <CardDescription className="text-primary-foreground/70 group-hover:text-primary-foreground transition-colors duration-300">
-                CONOCE CÓMO PUEDES REALIZAR EL PAGO DE TU FACTURA.
+              <CardDescription className="text-primary-foreground text-sm sm:text-base">
+                Conoce cómo puedes realizar el pago de tu factura.
               </CardDescription>
             </CardHeader>
-            <CardContent className="w-full grid grid-cols-1 md:grid-cols-2 gap-16 items-center justify-center p-6 relative z-10">
+
+            <CardContent className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center p-6 lg:p-8 relative z-10">
               <div
-                className="w-full h-full aspect-video overflow-hidden flex justify-center items-center "
+                className="w-full aspect-video overflow-hidden flex justify-center items-center rounded-xl bg-zinc-800/30"
                 style={{
                   animation: `scale-in 0.6s ease-out 0.5s both`,
                 }}
               >
                 <LazyYouTubeEmbed videoId="QLpGbtd_xtE" />
               </div>
+
               <a
                 href="https://combopay.co/invoices/inttel-go-sas"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex justify-center items-center group/pse relative w-full min-h-[300px]"
+                className="flex justify-center items-center relative w-full min-h-[280px] rounded-xl transition-colors duration-500"
               >
                 <div
-                  className="relative w-full flex justify-center items-center"
+                  className="relative w-full flex justify-center items-center py-8"
                   style={{
                     animation: `fadeInUp 0.8s ease-out 0.7s both`,
                   }}
                 >
-                  {/* Efecto de resplandor al hover */}
-                  <div className="absolute inset-0 bg-orange-500/20 rounded-lg blur-xl opacity-0 group-hover/pse:opacity-100 transition-opacity duration-500 scale-110"></div>
+                  <div className="absolute inset-0 bg-orange-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                  {/* Cursor animado con efecto de clic */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none animate-cursor-click">
+                  <div className="absolute top-4 right-4 md:top-1/2 md:right-1/2 md:translate-x-16 md:-translate-y-1/2 z-20 pointer-events-none animate-cursor-click">
                     <div className="relative">
                       <MousePointerClick
-                        className="w-20 h-20 text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]"
+                        className="w-16 h-16 md:w-20 md:h-20 text-orange-500 drop-shadow-[0_0_10px_rgba(255,153,0,0.8)]"
                         fill="rgba(255, 153, 0, 0.3)"
                         stroke="currentColor"
                         strokeWidth={2}
                       />
-                      {/* Efecto de ondas al hacer clic */}
                       <div
                         className="absolute inset-0 rounded-full bg-orange-500/30 animate-ping"
                         style={{
                           animationDelay: "2s",
                           animationDuration: "1s",
                         }}
-                      ></div>
+                      />
                     </div>
                   </div>
 
                   <img
                     src="/pse.svg"
-                    alt="pse"
-                    className="w-[70%] max-w-md min-w-[200px] object-contain transition-all duration-500 cursor-pointer relative z-10 animate-float group-hover/pse:scale-110 group-hover/pse:drop-shadow-[0_0_20px_rgba(255,153,0,0.8)]"
+                    alt="Pagar con PSE - Inttelgo"
+                    className="w-[60%] max-w-[280px] min-w-[180px] object-contain relative z-10 animate-float group-hover:scale-110 group-hover:drop-shadow-[0_0_6px_rgba(255,153,0,0.5)] transition-all duration-300"
                     loading="lazy"
                     decoding="async"
                     width={300}
@@ -333,6 +344,7 @@ function HomePage() {
               </a>
             </CardContent>
           </Card>
+
           {/*<div>
             <h3 className="text-4xl font-bold text-secondary-foreground">
               ¡INTERNET ILIMITADO!
@@ -351,7 +363,7 @@ function HomePage() {
             <CollaboratorsMarquee />
           </div>*/}
 
-        </div>
+        </div >
       </div>
     </>
   );

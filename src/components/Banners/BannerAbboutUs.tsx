@@ -19,7 +19,7 @@ export default function BannerAbboutUs({
   return (
     <div
       className={cn(
-        "relative overflow-hidden mb-12 min-h-[400px] lg:min-h-[500px]",
+        "relative overflow-hidden min-h-[400px] lg:min-h-[500px]",
         className
       )}
     >

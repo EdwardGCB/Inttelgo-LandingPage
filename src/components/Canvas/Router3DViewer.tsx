@@ -7,6 +7,8 @@ import Translucent from "@/components/Cards/Translucent";
 
 interface Router3DViewerProps {
   className?: string;
+  /** Si true, solo renderiza el canvas 3D + slider, sin título ni cards (para usar dentro de RouterSlideLayout) */
+  contentOnly?: boolean;
 }
 
 const infoData = [
@@ -41,29 +43,11 @@ function LoadingFallback() {
   );
 }
 
-function Router3DViewer({ className = "" }: Router3DViewerProps) {
+function Router3DViewer({ className = "", contentOnly = false }: Router3DViewerProps) {
   const [rotationValue, setRotationValue] = useState([0]);
-  const [isMobile, setIsMobile] = useState(false);
   const [contextLost, setContextLost] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
   const webglCleanupRef = useRef<(() => void) | null>(null);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 1023px)");
-    const updateIsMobile = (e: MediaQueryList | MediaQueryListEvent) => {
-      setIsMobile(e.matches);
-    };
-
-    updateIsMobile(mediaQuery);
-
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener("change", updateIsMobile);
-      return () => mediaQuery.removeEventListener("change", updateIsMobile);
-    } else {
-      mediaQuery.addListener(updateIsMobile);
-      return () => mediaQuery.removeListener(updateIsMobile);
-    }
-  }, []);
 
   const rotation = (rotationValue[0] / 100) * Math.PI * 2;
   const angle = (30 * Math.PI) / 180;
@@ -108,10 +92,9 @@ function Router3DViewer({ className = "" }: Router3DViewerProps) {
     };
   }, []);
 
-  return (
-    <div className={`flex flex-col items-center ${className}`}>
-      <div className="relative w-full h-[300px] md:h-[500px] lg:h-[600px] flex items-center justify-center">
-        {/* Texto principal */}
+  const mediaContent = (
+    <div className="relative w-full h-[300px] md:h-[500px] lg:h-[600px] flex items-center justify-center">
+      {!contentOnly && (
         <div className="absolute flex flex-col items-center justify-center z-0 pointer-events-none px-4 -top-0">
           <h1 className="text-xl sm:text-2xl lg:text-4xl xl:text-5xl text-white font-bold leading-tight tracking-wide text-center mb-2">
             Disfruta del internet más veloz
@@ -120,92 +103,101 @@ function Router3DViewer({ className = "" }: Router3DViewerProps) {
             con nuestro módem WiFi 6
           </h1>
         </div>
-
-        {/* Canvas 3D */}
-        <div ref={canvasRef} className="relative w-full h-full z-10">
-          {contextLost ? (
-            <div className="w-full h-full flex items-center justify-center">
-              <div className="text-center p-8 bg-white/10 backdrop-blur-sm rounded-lg">
-                <p className="text-white text-lg font-medium mb-2">
-                  Reconectando visualización 3D...
-                </p>
-                <p className="text-white/70 text-sm">Por favor espera un momento</p>
-              </div>
+      )}
+      {/* Canvas 3D */}
+      <div ref={canvasRef} className="relative w-full h-full z-10">
+        {contextLost ? (
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="text-center p-8 bg-white/10 backdrop-blur-sm rounded-lg">
+              <p className="text-white text-lg font-medium mb-2">
+                Reconectando visualización 3D...
+              </p>
+              <p className="text-white/70 text-sm">Por favor espera un momento</p>
             </div>
-          ) : (
-            <Suspense fallback={<LoadingFallback />}>
-              <Canvas
-                camera={{
-                  position: [0, cameraY, cameraZ],
-                  fov: 60,
-                  near: 0.1,
-                  far: 1000
-                }}
-                gl={{
-                  powerPreference: "high-performance",
-                  antialias: window.devicePixelRatio < 2,
-                  alpha: true,
-                  stencil: false,
-                  depth: true,
-                  preserveDrawingBuffer: false,
-                }}
-                dpr={Math.min(window.devicePixelRatio, 2)}
-                performance={{ min: 0.5 }}
-                onCreated={({ gl }) => {
-                  gl.toneMapping = 0;
-                  gl.toneMappingExposure = 1;
-
-                  // Conectar eventos de contexto WebGL para actualizar contextLost
-                  if (webglCleanupRef.current) {
-                    webglCleanupRef.current();
-                    webglCleanupRef.current = null;
-                  }
-                  webglCleanupRef.current = attachWebglContextListeners(gl.domElement);
-                }}
-              >
-                {/* HDRI también en móvil, rotada para que la luz venga "desde arriba" */}
-                <Environment
-                  files="/models/hdri2.hdr"
-                  background={false}
-                  environmentIntensity={isMobile ? 0.7 : 0.7}
-                  environmentRotation={hdriRotation}
-                  backgroundRotation={hdriRotation}
-                />
-                <Router3D
-                  autoRotate={true}
-                  scale={1.5}
-                  rotation={[0, rotation, 0]}
-                  position={[0, 2, 0]}
-                />
-
-                <OrbitControls
-                  enableZoom={false}
-                  enablePan={false}
-                  enableRotate={false}
-                  minPolarAngle={Math.PI / 6}
-                  maxPolarAngle={Math.PI / 3}
-                  target={[0, 0, 0]}
-                />
-              </Canvas>
-            </Suspense>
-          )}
-        </div>
-
-        {/* Slider - Solo desktop */}
-        {!isMobile && (
-          <div className="absolute bottom-8 z-20 w-full flex justify-center px-8">
-            <Slider
-              variant="white"
-              value={rotationValue}
-              onValueChange={setRotationValue}
-              max={100}
-              step={1}
-              className="w-full max-w-md"
-            />
           </div>
+        ) : (
+          <Suspense fallback={<LoadingFallback />}>
+            <Canvas
+              camera={{
+                position: [0, cameraY, cameraZ],
+                fov: 60,
+                near: 0.1,
+                far: 1000
+              }}
+              gl={{
+                powerPreference: "high-performance",
+                antialias: window.devicePixelRatio < 2,
+                alpha: true,
+                stencil: true,
+                depth: true,
+              }}
+              dpr={Math.min(window.devicePixelRatio, 2)}
+              performance={{ min: 0.5 }}
+              onCreated={({ gl }) => {
+                gl.toneMapping = 0;
+                gl.toneMappingExposure = 1;
+
+                if (webglCleanupRef.current) {
+                  webglCleanupRef.current();
+                  webglCleanupRef.current = null;
+                }
+                webglCleanupRef.current = attachWebglContextListeners(gl.domElement);
+              }}
+            >
+              <Environment
+                files="/models/hdri2.hdr"
+                background={false}
+                environmentIntensity={0.7}
+                environmentRotation={hdriRotation}
+                backgroundRotation={hdriRotation}
+              />
+              <Router3D
+                autoRotate={true}
+                scale={1.5}
+                rotation={[0, rotation, 0]}
+                position={[0, 2, 0]}
+              />
+
+              {/* Punto de referencia del pivote de rotación */}
+              <mesh position={[0, 2, 0]}>
+                <sphereGeometry args={[0.06, 16, 16]} />
+                <meshBasicMaterial color="#ff9900" transparent opacity={0.9} />
+              </mesh>
+
+              <OrbitControls
+                enableZoom={false}
+                enablePan={false}
+                enableRotate={false}
+                minPolarAngle={Math.PI / 6}
+                maxPolarAngle={Math.PI / 3}
+                target={[0, 0, 0]}
+              />
+            </Canvas>
+          </Suspense>
         )}
       </div>
 
+      {/* Slider */}
+      <div className="absolute bottom-8 z-20 w-full flex justify-center px-8">
+        <Slider
+          variant="white"
+          value={rotationValue}
+          onValueChange={setRotationValue}
+          max={100}
+          step={1}
+          className="w-full max-w-md"
+        />
+      </div>
+    </div>
+  );
+
+  if (contentOnly) {
+    return <div className={className}>{mediaContent}</div>;
+  }
+
+  return (
+    <div className={`flex flex-col items-center ${className}`}>
+      {mediaContent}
       {/* Cards informativos */}
       <div className="w-full max-w-6xl px-4 mt-8 mb-12">
         <div className="grid grid-cols-3 gap-4 lg:gap-6">
