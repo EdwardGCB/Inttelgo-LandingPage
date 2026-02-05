@@ -158,7 +158,7 @@ export default function ExperienceCenters() {
         </Card>
       </div>
 
-      <div className="w-full bg-muted/20 px-4 sm:px-6 md:px-10 lg:px-40">
+      <div className="w-full px-4 sm:px-6 md:px-10 lg:px-40">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.2fr_1fr] lg:gap-12 items-center">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
@@ -202,7 +202,7 @@ export default function ExperienceCenters() {
         </div>
       </div>
 
-      <div className="w-full bg-muted/30 px-4 sm:px-6 md:px-10 lg:px-40">
+      {/*<div className="w-full bg-muted/30 px-4 sm:px-6 md:px-10 lg:px-40">
         <div className="mb-8">
           <Badge variant="outline" className="mb-2 text-xs uppercase tracking-wider">
             Ubicaciones
@@ -273,7 +273,7 @@ export default function ExperienceCenters() {
             </CardContent>
           </Card>
         )}
-      </div>
+      </div>*/}
     </div>
   );
 }

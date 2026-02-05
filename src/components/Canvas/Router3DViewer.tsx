@@ -158,11 +158,6 @@ function Router3DViewer({ className = "", contentOnly = false }: Router3DViewerP
                 position={[0, 2, 0]}
               />
 
-              {/* Punto de referencia del pivote de rotación */}
-              <mesh position={[0, 2, 0]}>
-                <sphereGeometry args={[0.06, 16, 16]} />
-                <meshBasicMaterial color="#ff9900" transparent opacity={0.9} />
-              </mesh>
 
               <OrbitControls
                 enableZoom={false}
