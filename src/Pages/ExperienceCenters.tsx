@@ -3,7 +3,7 @@ import AnimatedLines from "@/components/Canvas/AnimatedLines";
 
 const Box3DViewer = lazy(() => import("@/components/Canvas/Box3DViewer"));
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+//import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -13,11 +13,11 @@ import {
 } from "@/components/ui/card";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import Menu from "@/Layouts/Menu";
-import clsx from "clsx";
-import { Clock, MapPin } from "lucide-react";
+//import clsx from "clsx";
+import { Clock, /*MapPin*/ } from "lucide-react";
 import SEO from "@/components/SEO";
 
-type Priority = "primary" | "secondary" | "third";
+//type Priority = "primary" | "secondary" | "third";
 
 const horarios = [
   {
@@ -30,7 +30,7 @@ const horarios = [
   },
 ];
 
-const buildMapsLink = (query: string) =>
+/*const buildMapsLink = (query: string) =>
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     query
   )}`;
@@ -116,7 +116,7 @@ const priorityGridClasses: Record<Priority, string> = {
   primary: "sm:col-span-2 lg:col-span-2 lg:row-span-2",
   secondary: "sm:col-span-1 lg:col-span-2 lg:row-span-1 xl:row-span-2",
   third: "sm:col-span-1 lg:col-span-1",
-};
+};*/
 
 export default function ExperienceCenters() {
   return (

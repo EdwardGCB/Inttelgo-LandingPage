@@ -311,22 +311,14 @@ function HomePage() {
                     animation: `fadeInUp 0.8s ease-out 0.7s both`,
                   }}
                 >
-                  <div className="absolute inset-0 bg-orange-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                   <div className="absolute top-4 right-4 md:top-1/2 md:right-1/2 md:translate-x-16 md:-translate-y-1/2 z-20 pointer-events-none animate-cursor-click">
                     <div className="relative">
                       <MousePointerClick
-                        className="w-16 h-16 md:w-20 md:h-20 text-orange-500 drop-shadow-[0_0_10px_rgba(255,153,0,0.8)]"
+                        className="w-16 h-16 md:w-20 md:h-20 text-white drop-shadow-[0_0_10px_rgba(255,153,0,0.8)]"
                         fill="rgba(255, 153, 0, 0.3)"
                         stroke="currentColor"
                         strokeWidth={2}
-                      />
-                      <div
-                        className="absolute inset-0 rounded-full bg-orange-500/30 animate-ping"
-                        style={{
-                          animationDelay: "2s",
-                          animationDuration: "1s",
-                        }}
                       />
                     </div>
                   </div>
@@ -334,7 +326,7 @@ function HomePage() {
                   <img
                     src="/pse.svg"
                     alt="Pagar con PSE - Inttelgo"
-                    className="w-[60%] max-w-[280px] min-w-[180px] object-contain relative z-10 animate-float group-hover:scale-110 group-hover:drop-shadow-[0_0_6px_rgba(255,153,0,0.5)] transition-all duration-300"
+                    className="w-[80%]  object-contain relative z-10 animate-float group-hover:scale-110 group-hover:drop-shadow-[0_0_6px_rgba(255,153,0,0.5)] transition-all duration-300"
                     loading="lazy"
                     decoding="async"
                     width={300}
