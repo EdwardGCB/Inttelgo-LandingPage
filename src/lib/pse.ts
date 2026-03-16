@@ -36,6 +36,20 @@ export type PseFormValues = {
     additionalPayments?: Array<{ id: number; amount: number }>;
 };
 
+export type CuentaType = {
+    id: number;
+    nro_cuenta: string;
+    direccion?: string;
+    valor_internet?: number;
+    valor_telefonia?: number;
+    valor_television?: number;
+    valor_total?: number;
+    plan?: number;
+    tipo_servicio?: { id: number; descripcion: string };
+    tipo_plan?: { id: number; descripcion: string };
+    cupones?: Array<{ id: number; codigo: string }>;
+};
+
 export type PseServiceFormValues = {
     ticketId: string;
     amount: number;
@@ -53,9 +67,12 @@ export type PseServiceFormValues = {
     idUrlGenerated: number | null;
     accounts?: Array<{
         id: number;
-        amount: number;
+        internet_amount: number;
+        telephony_amount: number;
+        tv_amount: number;
+        total_amount: number;
         cupones?: Array<{ id: number; codigo: string }>;
-        description: string;
+        description?: string;
     }>;
     additionalPayments?: Array<{ id: number; amount: number, cuota: number, description: string }>;
 }

@@ -4,7 +4,6 @@ import { FundationsMarquee } from "@/components/blocks/FundationsMarquee";
 import AnimatedLines from "@/components/Canvas/AnimatedLines";
 
 const Box3DViewer = lazy(() => import("@/components/Canvas/Box3DViewer"));
-import ScrollStack, { ScrollStackItem } from "@/components/Cards/ScrollStack";
 import {
   Accordion,
   AccordionContent,
@@ -25,6 +24,60 @@ import { Check } from "lucide-react";
 import SEO from "@/components/SEO";
 import { accordionPurposeItems, type AccordionPurposeItem } from "@/data/abboutusAccordion";
 import { timelineEvents } from "@/data/timelineEvents";
+import ScrollStack, { ScrollStackItem, useScrollStackContext } from "@/components/Cards/ScrollStack";
+import { cn } from "@/lib/utils";
+
+function TimelineEventContent({
+  index,
+  event,
+}: {
+  index: number;
+  event: (typeof timelineEvents)[number];
+}) {
+  const { activeIndex } = useScrollStackContext();
+  const isVisible = activeIndex <= index;
+
+  return (
+    <div className="transition-all duration-1000 ease-out">
+      <div
+        className={cn(
+          "inline-block max-w-lg",
+          index % 2 === 0 ? "text-left" : "text-right"
+        )}
+      >
+        {/* Año - siempre visible */}
+        <div
+          className="text-7xl md:text-8xl font-black mb-4 bg-gradient-to-br from-orange-600 via-orange-500 to-orange-400 bg-clip-text text-transparent transition-opacity duration-300"
+          style={{
+            fontFamily: '"Space Grotesk", sans-serif',
+            letterSpacing: "-0.02em",
+          }}
+        >
+          {event.year}
+        </div>
+
+        {/* Título, descripción e imagen - solo cuando está visible (on top del stack) */}
+        <div
+          className={cn(
+            "timeline-details ease-out transition-all duration-300",
+            !isVisible &&
+            "opacity-0 pointer-events-none invisible translate-y-2 scale-[0.98] [transition:opacity_0.3s,transform_0.3s,visibility_0s_0.3s]"
+          )}
+        >
+          <h3
+            className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4 leading-tight"
+            style={{ fontFamily: '"Outfit", sans-serif' }}
+          >
+            {event.title}
+          </h3>
+          <p className="text-base md:text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
+            {event.description}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const aboutUsContent = [
   "Somos una empresa de telecomunicaciones con origen en Soacha, especializada en ofrecer soluciones de conectividad de alta calidad para los estratos 0, 1 y 2. Nuestra red es 100% fibra óptica hasta el hogar (FTTH), lo que garantiza una conexión estable, de alta velocidad y con el mejor rendimiento del mercado.",
@@ -216,27 +269,19 @@ export default function SobreNosotros() {
               </CardDescription>
             </CardHeader>
           </Card>
-          <div className="w-full max-w-4xl mx-auto px-4 sm:px-6">
+          <div className="w-full mx-auto px-4 sm:px-6">
             <ScrollStack
               useWindowScroll
               className="w-full !h-auto overflow-visible"
+              itemScale={0.0}
             >
               {timelineEvents.map((event, index) => (
                 <ScrollStackItem
                   key={index}
-                  image={event.image}
-                  imageAlt={event.imageAlt ?? event.title}
-                  itemClassName="border border-border bg-card p-0"
+                  index={index}
+                  align={index % 2 === 0 ? 'right' : 'left'}
                 >
-                  <span className="text-sm font-semibold text-primary">
-                    {event.year}
-                  </span>
-                  <h3 className="text-xl md:text-2xl font-bold text-foreground mt-1 mb-3">
-                    {event.title}
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {event.description}
-                  </p>
+                  <TimelineEventContent event={event} index={index} />
                 </ScrollStackItem>
               ))}
             </ScrollStack>

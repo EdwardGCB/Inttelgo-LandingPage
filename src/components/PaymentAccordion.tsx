@@ -117,7 +117,6 @@ export function PaymentAccordion<T>({
           {items.map((item, index) => {
             const summary = item.getSummary(item.data);
             const details = item.getDetails(item.data);
-
             return (
               <AccordionItem
                 key={item.id}

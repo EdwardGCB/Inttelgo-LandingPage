@@ -1,47 +1,44 @@
-import React, { useLayoutEffect, useRef, useCallback } from 'react';
+import React, { createContext, useContext, useLayoutEffect, useRef, useCallback, useState } from 'react';
 import type { ReactNode } from 'react';
 import Lenis from 'lenis';
 
+export interface ScrollStackContextValue {
+    activeIndex: number;
+}
+
+const ScrollStackContext = createContext<ScrollStackContextValue>({ activeIndex: 0 });
+
+export const useScrollStackContext = () => useContext(ScrollStackContext);
+
 export interface ScrollStackItemProps {
     itemClassName?: string;
-    /** URL de la imagen opcional (arriba del contenido) */
-    image?: string;
-    /** Texto alternativo para la imagen */
-    imageAlt?: string;
-    /** Clases adicionales para el contenedor de la imagen */
-    imageClassName?: string;
+    align?: 'left' | 'right';
+    index: number;
     children: ReactNode;
 }
 
+/** Bloque de timeline: marcador circular + contenido (año, título, descripción, imagen). Sin cards. */
 export const ScrollStackItem: React.FC<ScrollStackItemProps> = ({
-    children,
     itemClassName = '',
-    image,
-    imageAlt = '',
-    imageClassName = ''
-}) => (
-    <div
-        className={`scroll-stack-card relative w-full min-h-80 my-8 rounded-[40px] shadow-[0_0_30px_rgba(0,0,0,0.1)] box-border origin-top will-change-transform overflow-hidden bg-card ${itemClassName}`.trim()}
-        style={{
-            backfaceVisibility: 'hidden',
-            transformStyle: 'preserve-3d'
-        }}
-    >
-        {image && (
-            <div className={`relative w-full aspect-video overflow-hidden ${imageClassName}`.trim()}>
-                <img
-                    src={image}
-                    alt={imageAlt}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                />
+    align = 'left',
+    children
+}) => {
+    const isRight = align === 'right';
+
+    return (
+        <div
+            className={`scroll-stack-card relative w-full min-h-68 my-8 box-border origin-top will-change-transform overflow-hidden ${isRight ? 'md:ml-auto -mr-12 md:pl-0 md:pr-16 md:w-[calc(50%-1rem)]' : 'pl-14 md:pl-16 md:mr-auto md:w-[calc(50%-1rem)]'} ${itemClassName}`.trim()}
+            style={{
+                backfaceVisibility: 'hidden',
+                transformStyle: 'preserve-3d'
+            }}
+        >
+            <div className={`flex flex-col gap-4 md:gap-6 py-4`}>
+                {children}
             </div>
-        )}
-        <div className="p-8 md:p-12">
-            {children}
         </div>
-    </div>
-);
+    );
+};
 
 interface ScrollStackProps {
     className?: string;
@@ -84,6 +81,9 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     /** Posiciones iniciales en documento (sin transformar) para evitar feedback loop y parpadeo */
     const initialCardTopsRef = useRef<number[]>([]);
     const scrollRafRef = useRef<number | null>(null);
+
+    const [activeIndex, setActiveIndex] = useState(0);
+    const lastActiveIndexRef = useRef(0);
 
     const calculateProgress = useCallback((scrollTop: number, start: number, end: number) => {
         if (scrollTop < start) return 0;
@@ -146,6 +146,22 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
 
         const endElementTop = endElement ? getElementOffset(endElement) : 0;
 
+        /** Índice de la card actualmente visible (on top del stack) */
+        let topCardIndex = 0;
+        for (let j = 0; j < cardsRef.current.length; j++) {
+            const jCardTop = useWindowScroll && initialCardTopsRef.current[j] != null
+                ? initialCardTopsRef.current[j]
+                : getElementOffset(cardsRef.current[j]);
+            const jTriggerStart = jCardTop - stackPositionPx - itemStackDistance * j;
+            if (scrollTop >= jTriggerStart) {
+                topCardIndex = j;
+            }
+        }
+        if (lastActiveIndexRef.current !== topCardIndex) {
+            lastActiveIndexRef.current = topCardIndex;
+            setActiveIndex(topCardIndex);
+        }
+
         cardsRef.current.forEach((card, i) => {
             if (!card) return;
 
@@ -174,10 +190,17 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
                         topCardIndex = j;
                     }
                 }
-
-                if (i < topCardIndex) {
+                if (lastActiveIndexRef.current !== topCardIndex) {
+                    lastActiveIndexRef.current = topCardIndex;
+                    setActiveIndex(topCardIndex);
+                }
+                const isStacked = i < topCardIndex;
+                if (isStacked) {
                     const depthInStack = topCardIndex - i;
                     blur = Math.max(0, depthInStack * blurAmount);
+
+                    card.dataset.stacked = isStacked ? 'true' : 'false';
+                    card.classList.toggle('stacked', isStacked);
                 }
             }
 
@@ -366,24 +389,27 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     ]);
 
     return (
-        <div
-            className={`relative w-full h-full overflow-y-auto overflow-x-visible ${className}`.trim()}
-            ref={scrollerRef}
-            style={{
-                overscrollBehavior: 'contain',
-                WebkitOverflowScrolling: 'touch',
-                scrollBehavior: 'smooth',
-                WebkitTransform: 'translateZ(0)',
-                transform: 'translateZ(0)',
-                willChange: 'scroll-position'
-            }}
-        >
-            <div className="scroll-stack-inner px-20 pb-[20rem] min-h-screen">
-                {children}
-                {/* Spacer so the last pin can release cleanly */}
-                <div className="scroll-stack-end w-full h-px" />
+        <ScrollStackContext.Provider value={{ activeIndex }}>
+            <div
+                className={`relative w-full h-full overflow-y-auto overflow-x-visible ${className}`.trim()}
+                ref={scrollerRef}
+                style={{
+                }}
+            >
+                <div className="scroll-stack-inner relative pl-8 md:pl-12 pr-6 md:pr-12 pb-[20rem] min-h-screen">
+                    {/* Línea vertical central */}
+                    <div
+                        className="absolute left-1/2 top-0 bottom-0 w-[2px] -translate-x-1/2"
+                        style={{
+                            background: 'linear-gradient(to bottom, transparent 0%, #f97316 10%, #f97316 90%, transparent 100%)'
+                        }}
+                    />
+                    {children}
+                    {/* Spacer so the last pin can release cleanly */}
+                    <div className="scroll-stack-end w-full h-px" />
+                </div>
             </div>
-        </div>
+        </ScrollStackContext.Provider>
     );
 };
 

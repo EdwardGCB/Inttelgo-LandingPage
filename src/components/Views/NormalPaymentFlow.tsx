@@ -1,5 +1,5 @@
 import { trackConversion, trackEvent, trackFormInteraction } from "@/lib/analytics";
-import { formatCurrency, userTypes, type aditionalPaymentType, type PseFormValues, type PseServiceFormValues, type selectBankOption, type selectTypeOption } from "@/lib/pse";
+import { formatCurrency, userTypes, type aditionalPaymentType, type CuentaType, type PseServiceFormValues, type selectBankOption, type selectTypeOption } from "@/lib/pse";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -12,6 +12,7 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { PaymentAccordion, type PaymentAccordionItem } from "../PaymentAccordion";
+import { TableCalculate } from "../TableCalculate";
 import PSEService from "@/services/PSEService";
 import ClientService from "@/services/ClientService";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,7 +25,7 @@ interface NormalPaymentFlowProps {
 function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialogOpen }: NormalPaymentFlowProps) {
   const [queryMade, setQueryMade] = useState(false);
   // Arrays completos de la consulta (NO se modifican con los checkboxes)
-  const [allPayments, setAllPayments] = useState<Record<string, unknown>[]>([]);
+  const [allPayments, setAllPayments] = useState<CuentaType[]>([]);
   const [allAdditionalPayments, setAllAdditionalPayments] = useState<Array<aditionalPaymentType>>([]);
 
   const [banks, setBanks] = useState<selectBankOption[]>([]);
@@ -86,7 +87,8 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
     const additionalPaymentsArray = watchedAdditionalPayments || [];
 
     const calculateAccountAmount = (acc: any) => {
-      let amount = acc.amount || 0;
+      console.log("acc", acc)
+      let amount = acc.total_amount || 0;
 
       // Solo aplicar descuento si hay cupones Y NO hay pagos adicionales
       if (acc.cupones && Array.isArray(acc.cupones) && allAdditionalPayments.length === 0) {
@@ -99,14 +101,12 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
           }
         });
       }
-
+      console.log("amount", amount)
       return amount;
     };
 
     // Calcular total de cuentas
-    const totalCuentas = accountsArray.reduce((sum, acc) => {
-      return sum + calculateAccountAmount(acc);
-    }, 0);
+    const totalCuentas = accountsArray.reduce((sum, acc) => (sum + calculateAccountAmount(acc)), 0);
 
     // Calcular total de pagos adicionales
     const totalPagosAdicionales = additionalPaymentsArray.reduce((sum, ap) => sum + (ap.amount || 0), 0);
@@ -115,47 +115,27 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
 
     // Construir descripción
     if (totalAmount > 0) {
+      const numCuentas = accountsArray.length;
+      const numPagosAdicionales = additionalPaymentsArray.length;
+      const año = new Date().getFullYear();
       const descriptions: string[] = [];
-
-      // Agregar descripciones de cuentas
-      accountsArray.forEach((acc) => {
-        const payment = allPayments.find((p) => {
-          const idCuenta = (p.idCuenta as number) || p.id || 0;
-          return idCuenta === acc.id;
-        });
-
-        if (payment) {
-          const numeroCuenta = (payment.numero_cuenta as string) || (payment.cuenta as string) || "";
-          const plan = payment.plan as { descripcion?: string } | undefined;
-          const descripcionPlan = plan?.descripcion || "";
-
-          // Calcular el monto con descuento para esta cuenta
-          const montoConDescuento = calculateAccountAmount(acc);
-          const montoFormateado = formatCurrency(montoConDescuento);
-
-          const desc = [numeroCuenta, descripcionPlan, montoFormateado]
-            .filter(Boolean)
-            .join(" - ");
-          if (desc) descriptions.push(desc);
-        }
-      });
-
-      // Agregar descripción de pagos adicionales
-      if (additionalPaymentsArray.length > 0) {
-        const cobrosText = additionalPaymentsArray.length === 1 ? "cobro" : "cobros";
-        const montoFormateado = formatCurrency(totalPagosAdicionales);
-        descriptions.push(`Pagos Adicionales (${additionalPaymentsArray.length} ${cobrosText}) +${montoFormateado}`);
+      if (numCuentas > 0) {
+        descriptions.push(`Pago servicios (${numCuentas})`);
       }
-
-      const paymentDescription = descriptions.join(" | ");
+      if (numPagosAdicionales > 0) {
+        descriptions.push(`Pagos Adicionales (${numPagosAdicionales})`);
+      }
       form.setValue("amount", totalAmount);
-      form.setValue("paymentDescription", paymentDescription);
+      form.setValue("paymentDescription", descriptions.join("+") + " " + mesActual + " " + año);
     } else {
       form.setValue("amount", 0);
       form.setValue("paymentDescription", "");
     }
   }, [watchedAccounts, watchedAdditionalPayments, queryMade, allPayments, allAdditionalPayments, form]);
 
+  useEffect(() => {
+    console.log(form.formState.errors)
+  }, [form.formState.errors])
   // Funciones auxiliares
   const setPSEToken = (token: string | null) => {
     if (!token) return;
@@ -171,15 +151,6 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
     }
 
     document.cookie = cookieParts.join("; ");
-  };
-
-  const setClientData = (cliente: any) => {
-    if (!cliente) return;
-
-    form.setValue("name", cliente.nombre ?? "");
-    form.setValue("phone", cliente.telefono ?? "");
-    form.setValue("email", cliente.correo ?? "");
-    form.setValue("address", cliente.direccion ?? "");
   };
 
   const calculateInstallmentValue = (cobro: any) => {
@@ -221,10 +192,8 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
       form.setValue("accounts", []);
       form.setValue("additionalPayments", []);
 
-      const identificacion = form.getValues("identificationNumber");
-
       // Paso 1: Consultar identificación
-      const response = await ClientService.consultByIdentification(identificacion);
+      const response = await ClientService.consultByIdentification(form.getValues("identificationNumber"));
 
       if (!response.success) {
         console.error("Error consulting service:", response.data?.message);
@@ -246,63 +215,30 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
       // Extraer datos del cliente y cuentas
       const cliente = responseCorte.cliente ?? responseCorte.data?.cliente;
       const cuentas = (responseCorte.cuentas || []) as Record<string, unknown>[];
-
       // Establecer datos del cliente en el formulario
-      setClientData(cliente);
+      form.setValue("name", (cliente?.nombre1 || "") + " " + (cliente?.nombre2 || "") + " " + (cliente?.apellido1 || "") + " " + (cliente?.apellido2 || ""));
+      form.setValue("phone", cliente.telefono1 ?? "");
+      form.setValue("email", cliente.correo ?? "");
+      form.setValue("address", cliente.direccion ?? "");
 
       // Paso 3: Consultar pagos adicionales (solo si hay cliente)
       let cobrosAdicionales: any[] = [];
       if (cliente?.id) {
         const responsePagoAdicional = await PSEService.consultAdditionalPayments(cliente.id, 1);
 
-        console.log("responsePagoAdicional", responsePagoAdicional)
         if (responsePagoAdicional.success) {
           cobrosAdicionales = responsePagoAdicional.cobros ?? responsePagoAdicional.data?.cobros ?? [];
         }
       }
-
-      // Guardar arrays completos
-      setAllPayments(cuentas);
+      setAllPayments(cuentas as CuentaType[]);
       setAllAdditionalPayments(cobrosAdicionales);
 
-      // Pre-seleccionar todas las cuentas
-      const accountsArray = cuentas.map((payment) => {
-        const plan = payment?.plan as { precio?: number, descripcion?: string } | undefined;
-        const price = typeof plan?.precio === "number" ? plan.precio : 0;
-        const idCuenta = (payment.idCuenta as number) || payment.id || 0;
-        return {
-          id: typeof idCuenta === "number" ? idCuenta : 0,
-          amount: price,
-          cupones: (allAdditionalPayments.length > 0) ? undefined : payment?.cupones as Array<{ id: number; codigo: string }> | undefined,
-          description: (plan?.descripcion || "") + "Correspondientes al mes de " + mesActual
-        };
-      });
-
-      // Pre-seleccionar todos los pagos adicionales
-      const additionalPaymentsArray = cobrosAdicionales.map((cobro) => {
-        const valorCuota = Math.round(calculateInstallmentValue(cobro));
-        return {
-          id: cobro.id,
-          amount: valorCuota,
-          cuota: (cobro?.ultimo_pago?.numero_cuota || 0) + 1,
-          description: buildAdditionalPaymentDescription(cobro)
-        };
-      });
-
-      form.setValue("accounts", accountsArray);
-      form.setValue("additionalPayments", additionalPaymentsArray);
-
-      // Calcular totales para el tracking
-      const totalCuentas = accountsArray.reduce((sum, acc) => sum + acc.amount, 0);
-      const totalPagosAdicionales = additionalPaymentsArray.reduce((sum, ap) => sum + ap.amount, 0);
-      const totalAmount = Math.round(totalCuentas + totalPagosAdicionales);
-
       // Track successful service consultation
-      if (totalAmount > 0) {
+      if (form.getValues("amount") > 0) {
         trackEvent("pse_consult_success", {
           event_category: "pse",
           event_label: "service_consultation",
-          value: totalAmount,
+          value: form.getValues("amount"),
           number_of_accounts: cuentas.length,
         });
       }
@@ -315,30 +251,26 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
     }
   };
 
-  const handleAccountCheckboxChange = (payment: Record<string, unknown>, checked: boolean) => {
+  const handleAccountCheckboxChange = (payment: any, checked: boolean) => {
     const currentAccounts = form.getValues("accounts") || [];
-    const idCuenta = (payment.idCuenta as number) || payment.id || 0;
+    const idCuenta = payment?.id || 0;
 
-    const numeroCuenta = (payment.numero_cuenta as string) || (payment.cuenta as string) || "";
-    const plan = payment.plan as { descripcion?: string } | undefined;
-    const descripcionPlan = plan?.descripcion || "";
+    const numeroCuenta = payment?.nro_cuenta || "";
+    const descripcion_servicio = (payment.plan ? payment.plan + "MB " : "") + (payment?.tipo_plan?.descripcion || "") + (payment?.tipo_servicio?.descripcion || "");
 
 
-    const desc = [numeroCuenta, descripcionPlan, "Correspondientes al mes de " + mesActual]
+    const desc = [numeroCuenta, descripcion_servicio, "Correspondientes al mes de " + mesActual]
       .filter(Boolean)
       .join(" ");
 
     if (checked) {
-      // Agregar cuenta
-      const plan = payment?.plan as { precio?: number } | undefined;
-      const price = typeof plan?.precio === "number" ? plan.precio : 0;
       const cupones = (allAdditionalPayments.length > 0)
         ? undefined
         : payment?.cupones as Array<{ id: number; codigo: string; porcentaje?: number }> | undefined;
 
       form.setValue("accounts", [
         ...currentAccounts,
-        { id: typeof idCuenta === "number" ? idCuenta : 0, amount: price, cupones: cupones, description: desc }
+        { id: idCuenta, internet_amount: payment?.valor_internet || 0, telephony_amount: payment?.valor_telefonia || 0, tv_amount: payment?.valor_television || 0, total_amount: payment?.valor_total || 0, cupones: cupones, description: desc }
       ]);
 
     } else {
@@ -357,14 +289,12 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
     const currentAdditionalPayments = form.getValues("additionalPayments") || [];
 
     if (checked) {
-      console.log("cobro", cobro)
       // Agregar pago adicional
       const valorCuota = Math.round(calculateInstallmentValue(cobro));
       form.setValue("additionalPayments", [
         ...currentAdditionalPayments,
         { id: cobro.id, amount: valorCuota, cuota: (cobro?.ultimo_pago?.numero_cuota || 0) + 1, description: buildAdditionalPaymentDescription(cobro) }
       ]);
-      console.log({ id: cobro.id, amount: valorCuota, cuota: (cobro?.ultimo_pago?.numero_cuota || 0) + 1, description: buildAdditionalPaymentDescription(cobro) })
     } else {
       // Eliminar pago adicional
       form.setValue(
@@ -376,8 +306,7 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
     form.trigger(["accounts", "additionalPayments"]);
   };
 
-  const onSubmit = async (values: PseFormValues) => {
-
+  const onSubmit = async (values: PseServiceFormValues) => {
     console.log("values", values)
     setSubmitLoading(true);
     trackFormInteraction("pse_payment_form", "start");
@@ -413,7 +342,7 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
   };
 
   // Calcular total seleccionado de cuentas
-  const selectedAccountsTotal = (watchedAccounts || []).reduce((sum, acc) => sum + (acc.amount || 0), 0);
+  const selectedAccountsTotal = (watchedAccounts || []).reduce((sum, acc) => sum + (acc.total_amount || 0), 0);
 
   // Calcular total seleccionado de pagos adicionales
   const selectedAdditionalTotal = (watchedAdditionalPayments || []).reduce((sum, ap) => sum + (ap.amount || 0), 0);
@@ -423,7 +352,7 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
     const accountsArray = watchedAccounts || [];
 
     return accountsArray.reduce((sum, acc) => {
-      let amount = acc.amount || 0;
+      let amount = acc.total_amount || 0;
 
       // Solo aplicar descuento si hay cupones Y NO hay pagos adicionales
       if (acc.cupones && Array.isArray(acc.cupones) && allAdditionalPayments.length === 0) {
@@ -822,28 +751,25 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
                     selectedItems={new Set(
                       (watchedAccounts || []).map((acc) => {
                         const payment = allPayments.find((p) => {
-                          const idCuenta = (p.idCuenta as number) || p.id || 0;
+                          const idCuenta = (p.id as number) || p.id || 0;
                           return idCuenta === acc.id;
                         });
-                        const numeroCuenta = payment ? ((payment.numero_cuenta as string) || "") : "";
+                        const numeroCuenta = payment ? ((payment.nro_cuenta as string) || "") : "";
                         return numeroCuenta || acc.id;
                       })
                     )}
                     onSelectionChange={(itemId, checked) => {
                       const payment = allPayments.find((p, idx) => {
-                        const numeroCuenta = (p.numero_cuenta as string) || "";
-                        return (numeroCuenta || idx) === itemId;
+                        const nroCuenta = (p.nro_cuenta as string) || "";
+                        return (nroCuenta || idx) === itemId;
                       });
                       if (payment) {
                         handleAccountCheckboxChange(payment, checked);
                       }
                     }}
                     items={allPayments.map((payment, index): PaymentAccordionItem<typeof payment> => {
-                      const plan = payment.plan as {
-                        descripcion?: string;
-                        precio?: number;
-                      };
-                      const numeroCuenta = (payment.numero_cuenta as string) || "";
+                      const description = (payment.plan ? payment.plan + "MB" : "") + " " + (payment?.tipo_servicio?.descripcion || "") + " " + (payment?.tipo_plan?.descripcion || "");
+                      const nroCuenta = (payment.nro_cuenta as string) || "";
                       const direccion = (payment.direccion as string) || "";
 
                       const cuponesArray = payment.cupones as Array<unknown> | undefined;
@@ -851,7 +777,7 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
                         !!cuponesArray && Array.isArray(cuponesArray) && cuponesArray.length > 0 && allAdditionalPayments.length === 0;
 
                       return {
-                        id: numeroCuenta || index,
+                        id: nroCuenta || index,
                         data: payment,
                         getSummary: () => ({
                           title: (
@@ -859,11 +785,11 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
                               {hasCupones && (
                                 <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0" />
                               )}
-                              <span>{plan?.descripcion || "Servicio"}</span>
+                              <span>{description || "Servicio"}</span>
                             </div>
                           ),
-                          subtitle: `Cuenta: ${numeroCuenta} | ${direccion}`,
-                          primaryValue: formatCurrency(plan?.precio || 0),
+                          subtitle: `Cuenta: ${nroCuenta} | ${direccion}`,
+                          primaryValue: formatCurrency(payment?.valor_total || 0),
                           primaryLabel: "Valor",
                           hasWarning: hasCupones,
                         }),
@@ -882,11 +808,11 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
                           const leftColumnItems = [
                             {
                               label: "Número de Cuenta",
-                              value: <span className="font-medium">{numeroCuenta}</span>,
+                              value: <span className="font-medium">{nroCuenta}</span>,
                             },
                             {
                               label: "Servicio",
-                              value: plan?.descripcion || "Sin descripción",
+                              value: description || "Sin descripción",
                             },
                             {
                               label: "Dirección",
@@ -947,14 +873,20 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
                             });
                           }
 
+                          const valorInternet = payment?.valor_internet ?? 0;
+                          const valorTelefonia = payment?.valor_telefonia ?? 0;
+                          const valorTelevision = payment?.valor_television ?? 0;
+                          const valorTotal = payment?.valor_total ?? 0;
+                          const tableRows = [
+                            ...(valorInternet > 0 ? [{ label: "Valor de Internet", value: formatCurrency(valorInternet) }] : []),
+                            ...(valorTelefonia > 0 ? [{ label: "Valor de Telefonía", value: formatCurrency(valorTelefonia) }] : []),
+                            ...(valorTelevision > 0 ? [{ label: "Valor de Televisión", value: formatCurrency(valorTelevision) }] : []),
+                            { label: "Total", value: formatCurrency(valorTotal) },
+                          ];
                           const rightColumnItems = [
                             {
-                              label: "Valor del Servicio",
-                              value: formatCurrency(plan?.precio || 0),
-                            },
-                            {
-                              label: "Estado",
-                              value: "Pendiente",
+                              label: "Desglose",
+                              value: <TableCalculate variant="orange" rows={tableRows} lastRowIsTotal />,
                             },
                           ];
 

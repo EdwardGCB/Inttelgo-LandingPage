@@ -86,7 +86,10 @@ export const PseServiceSchema = z.object({
         .refine((val) => val === true, "Debes aceptar los términos y condiciones"),
     accounts: z.array(z.object({
         id: z.number(),
-        amount: z.number(),
+        internet_amount: z.number(),
+        telephony_amount: z.number(),
+        tv_amount: z.number(),
+        total_amount: z.number(),
         cupones: z.array(z.object({
             id: z.number(),
             codigo: z.string(),
