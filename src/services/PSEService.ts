@@ -18,12 +18,12 @@ class PSEService {
         return ApiService.post(`${primaryPath}iniciar_transaccion`, data, { headers: { "Content-Type": "application/json" } });
     }
 
-    consultAccount(): Promise<any> {
-        return ApiService.get(`${primaryPath}cuenta/corte`, { headers: { "Content-Type": "application/json" } });
+    consultCutAccountByClient(id: string): Promise<any> {
+        return ApiService.get(`${primaryPath}cliente/${id}/cuenta/corte`, { headers: { "Content-Type": "application/json" } });
     }
 
-    consultAdditionalPayments(clientId: number, status: number): Promise<any> {
-        return ApiService.get(`factura-cobro/client/status/${clientId}`, { params: { status: status }, headers: { "Content-Type": "application/json" } });
+    consultAdditionalPayments(id: number, status: number): Promise<any> {
+        return ApiService.get(`factura-cobro/client/${id}/status/${status}`, { headers: { "Content-Type": "application/json" } });
     }
 
     payBill(data: string) {

@@ -103,6 +103,10 @@ export const PseServiceSchema = z.object({
         description: z.string().optional(),
     })).optional(),
     idUrlGenerated: z.number().nullable(),
+    recaptchaToken: z.string({
+        required_error: "Confirma que no eres un robot",
+        invalid_type_error: "Confirma que no eres un robot",
+    }).min(1, "Confirma que no eres un robot")
 }).superRefine((data, ctx) => {
     const hasAccounts = data.accounts && data.accounts.length > 0;
     const hasAdditionalPayments = data.additionalPayments && data.additionalPayments.length > 0;

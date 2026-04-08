@@ -1,8 +1,8 @@
+import ReCAPTCHA from "react-google-recaptcha";
 import { trackConversion, trackEvent, trackFormInteraction } from "@/lib/analytics";
 import { formatCurrency, userTypes, type aditionalPaymentType, type CuentaType, type PseServiceFormValues, type selectBankOption, type selectTypeOption } from "@/lib/pse";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-
 import { Card, CardContent } from "../ui/card";
 import { PageHeader } from "../PageHeader";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
@@ -22,16 +22,20 @@ interface NormalPaymentFlowProps {
   handleSelectPaymentForDiscount: (payment: Record<string, unknown>) => void;
   handleDiscountDialogOpen: (open: boolean) => void;
 }
+const PSE_MAINTENANCE_MESSAGE =
+  "El servicio está en mantenimiento. Intente más tarde.";
+
 function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialogOpen }: NormalPaymentFlowProps) {
   const [queryMade, setQueryMade] = useState(false);
   // Arrays completos de la consulta (NO se modifican con los checkboxes)
   const [allPayments, setAllPayments] = useState<CuentaType[]>([]);
   const [allAdditionalPayments, setAllAdditionalPayments] = useState<Array<aditionalPaymentType>>([]);
-
   const [banks, setBanks] = useState<selectBankOption[]>([]);
   const [identificationTypes, setIdentificationTypes] = useState<selectTypeOption[]>([]);
   const [consultLoading, setConsultLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [banksServiceDown, setBanksServiceDown] = useState(false);
+  const [paymentServiceDown, setPaymentServiceDown] = useState(false);
   const mesActual = new Intl.DateTimeFormat('es-CO', { month: 'long' }).format(new Date());
   const form = useForm<PseServiceFormValues>({
     resolver: zodResolver(PseServiceSchema),
@@ -53,6 +57,7 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
       idUrlGenerated: null,
       accounts: [],
       additionalPayments: [],
+      recaptchaToken: null
     },
   });
 
@@ -63,16 +68,29 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [identificationTypesResponse, banksResponse] = await Promise.all([
+        const [identificationResult, banksResult] = await Promise.allSettled([
           ClientService.getIdentifyTypes(),
-          PSEService.getBanks()
+          PSEService.getBanks(),
         ]);
-        if (identificationTypesResponse.success && banksResponse.success) {
-          setIdentificationTypes(identificationTypesResponse.tipos_identificacion);
-          setBanks(banksResponse.bancos);
+
+        if (
+          identificationResult.status === "fulfilled" &&
+          identificationResult.value.success
+        ) {
+          setIdentificationTypes(identificationResult.value.tipos_identificacion);
+        }
+
+        if (banksResult.status === "fulfilled" && banksResult.value.success) {
+          setBanks(banksResult.value.bancos);
+          setBanksServiceDown(false);
+        } else {
+          setBanks([]);
+          setBanksServiceDown(true);
         }
       } catch (error) {
         console.error("Error loading data:", error);
+        setBanks([]);
+        setBanksServiceDown(true);
       }
     };
 
@@ -87,7 +105,6 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
     const additionalPaymentsArray = watchedAdditionalPayments || [];
 
     const calculateAccountAmount = (acc: any) => {
-      console.log("acc", acc)
       let amount = acc.total_amount || 0;
 
       // Solo aplicar descuento si hay cupones Y NO hay pagos adicionales
@@ -101,7 +118,6 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
           }
         });
       }
-      console.log("amount", amount)
       return amount;
     };
 
@@ -177,8 +193,14 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
     return descriptionParts.join(" - ");
   };
 
+  const pseActionsBlocked = banksServiceDown || paymentServiceDown;
+
   // Función principal de consulta
   const onConsult = async () => {
+    if (pseActionsBlocked) {
+      return;
+    }
+
     trackEvent("pse_consult_start", {
       event_category: "pse",
       event_label: "service_consultation",
@@ -204,16 +226,17 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
       const token = response?.token ?? response?.data?.token ?? response?.result?.token ?? null;
       setPSEToken(token);
 
+      // Extraer datos del cliente y cuentas
+      const cliente = response.cliente ?? response.data?.cliente;
+
       // Paso 2: Consultar cuenta
-      const responseCorte = await PSEService.consultAccount();
+      const responseCorte = await PSEService.consultCutAccountByClient(cliente.id);
 
       if (!responseCorte.success) {
         console.error("Error consulting account:", responseCorte.data?.message);
         return;
       }
 
-      // Extraer datos del cliente y cuentas
-      const cliente = responseCorte.cliente ?? responseCorte.data?.cliente;
       const cuentas = (responseCorte.cuentas || []) as Record<string, unknown>[];
       // Establecer datos del cliente en el formulario
       form.setValue("name", (cliente?.nombre1 || "") + " " + (cliente?.nombre2 || "") + " " + (cliente?.apellido1 || "") + " " + (cliente?.apellido2 || ""));
@@ -223,13 +246,11 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
 
       // Paso 3: Consultar pagos adicionales (solo si hay cliente)
       let cobrosAdicionales: any[] = [];
-      if (cliente?.id) {
-        const responsePagoAdicional = await PSEService.consultAdditionalPayments(cliente.id, 1);
-
-        if (responsePagoAdicional.success) {
-          cobrosAdicionales = responsePagoAdicional.cobros ?? responsePagoAdicional.data?.cobros ?? [];
-        }
+      const responsePagoAdicional = await PSEService.consultAdditionalPayments(cliente.id, 1);
+      if (responsePagoAdicional.success) {
+        cobrosAdicionales = responsePagoAdicional.cobros ?? responsePagoAdicional.data?.cobros ?? [];
       }
+
       setAllPayments(cuentas as CuentaType[]);
       setAllAdditionalPayments(cobrosAdicionales);
 
@@ -307,7 +328,10 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
   };
 
   const onSubmit = async (values: PseServiceFormValues) => {
-    console.log("values", values)
+    if (pseActionsBlocked) {
+      return;
+    }
+
     setSubmitLoading(true);
     trackFormInteraction("pse_payment_form", "start");
 
@@ -326,6 +350,7 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
 
         window.location.href = response.pseURL;
       } else {
+        setPaymentServiceDown(true);
         trackFormInteraction(
           "pse_payment_form",
           "error",
@@ -334,6 +359,7 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
         console.error("Error generating payment link:", response);
       }
     } catch (error) {
+      setPaymentServiceDown(true);
       trackFormInteraction("pse_payment_form", "error", "Network error");
       console.error("Error generating payment link:", error);
     } finally {
@@ -469,12 +495,41 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
             )}
           />
         </div>
-
+        {(banksServiceDown || paymentServiceDown) && (
+          <Card
+            role="alert"
+            aria-live="polite"
+            className="w-full overflow-hidden border-2 border-orange-200 bg-gradient-to-br from-orange-50 via-white to-amber-50/80 shadow-lg shadow-orange-200/40 ring-1 ring-orange-100 p-0"
+          >
+            <div
+              className="h-5.5 w-full bg-gradient-to-r from-[#ff9900] to-[#ec5406]"
+              aria-hidden
+            />
+            <CardContent className="p-4 sm:px-6">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-5">
+                <div className="flex size-14 flex-shrink-0 items-center justify-center rounded-2xl border border-orange-200 bg-white shadow-inner shadow-orange-100/80">
+                  <AlertTriangle className="h-7 w-7 text-[#ec5406]" strokeWidth={2.25} />
+                </div>
+                <div className="min-w-0 space-y-1.5">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-[#ec5406]">
+                    Aviso importante
+                  </p>
+                  <h2 className="text-lg font-bold leading-snug text-gray-900 sm:text-xl break-words">
+                    Servicio en mantenimiento
+                  </h2>
+                  <p className="text-sm font-medium leading-relaxed text-gray-700 sm:text-[0.9375rem] break-words">
+                    {PSE_MAINTENANCE_MESSAGE}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
         <Button
           variant="orange"
           type="button"
           onClick={onConsult}
-          disabled={consultLoading}
+          disabled={consultLoading || pseActionsBlocked}
           className="h-12 w-full text-base font-semibold text-white"
         >
           {consultLoading ? (
@@ -613,6 +668,7 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
                     selectedItems={new Set((watchedAdditionalPayments || []).map((ap) => ap.id))}
                     onSelectionChange={(itemId, checked) => {
                       const cobro = allAdditionalPayments.find((c) => c.id === itemId);
+                      console.log(cobro)
                       if (cobro) {
                         handleAdditionalPaymentCheckboxChange(cobro, checked);
                       }
@@ -1053,9 +1109,31 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
                 </div>
               </div>
             )}
+            <FormField
+              control={form.control}
+              name="recaptchaToken"
+              rules={{ validate: (value) => value || "Confirma que no eres un robot" }}
+              render={({ field }) => (
+                <FormItem className="w-full flex flex-col items-center">
+                  <FormControl>
+                    <div className="flex justify-center w-full">
+                      <ReCAPTCHA
+                        {...field}
+                        sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+                        onChange={(token: string | null) => field.onChange(token)}
+                        onExpired={() => field.onChange(null)}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage className="text-center" />
+                </FormItem>
+              )}
+            />
           </>
         )}
+        <div>
 
+        </div>
         <FormField
           control={form.control}
           name="acceptTerms"
@@ -1090,7 +1168,7 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
               variant="orange"
               type="submit"
               className="h-12 w-full text-base font-semibold text-white"
-              disabled={submitLoading || consultLoading}
+              disabled={submitLoading || consultLoading || pseActionsBlocked}
             >
               {submitLoading ? (
                 <>

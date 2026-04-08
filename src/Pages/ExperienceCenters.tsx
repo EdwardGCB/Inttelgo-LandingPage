@@ -30,10 +30,10 @@ const horarios = [
   },
 ];
 
-const buildMapsLink = (query: string) =>
+/*const buildMapsLink = (query: string) =>
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     query
-  )}`;
+  )}`;*/
 
 interface experienceCentersProps {
   office: string;
@@ -43,7 +43,7 @@ interface experienceCentersProps {
   priority: Priority;
 }
 
-const experienceCenters: Array<experienceCentersProps> = [
+/*const experienceCenters: Array<experienceCentersProps> = [
   {
     office: "Santo Domingo",
     photo: "santo-domingo",
@@ -110,7 +110,9 @@ const experienceCenters: Array<experienceCentersProps> = [
     ),
     priority: "third",
   },
-];
+];*/
+
+const experienceCenters: Array<experienceCentersProps> = [];
 
 const priorityGridClasses: Record<Priority, string> = {
   primary: "sm:col-span-2 lg:col-span-2 lg:row-span-2",

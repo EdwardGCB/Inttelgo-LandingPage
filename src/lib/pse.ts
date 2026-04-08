@@ -75,6 +75,7 @@ export type PseServiceFormValues = {
         description?: string;
     }>;
     additionalPayments?: Array<{ id: number; amount: number, cuota: number, description: string }>;
+    recaptchaToken: string | null
 }
 
 export type selectTypeOption = {
