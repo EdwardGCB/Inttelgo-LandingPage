@@ -6,6 +6,8 @@ declare global {
 }
 
 export const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || "";
+export const GOOGLE_ADS_PURCHASE_SEND_TO =
+  import.meta.env.VITE_GOOGLE_ADS_PURCHASE_SEND_TO || "";
 
 export const initGA = () => {
   if (!GA_MEASUREMENT_ID) {
@@ -65,17 +67,30 @@ export const trackEvent = (
 export const trackConversion = (
   conversionName: string,
   value?: number,
-  currency = "COP"
+  currency = "COP",
+  transactionId?: string
 ) => {
-  if (!window.gtag || !GA_MEASUREMENT_ID) return;
+  if (!window.gtag) return;
 
-  window.gtag("event", "conversion", {
-    send_to: GA_MEASUREMENT_ID,
-    event_category: "conversion",
-    event_label: conversionName,
-    value: value,
-    currency: currency,
-  });
+  if (GOOGLE_ADS_PURCHASE_SEND_TO) {
+    window.gtag("event", "conversion", {
+      send_to: GOOGLE_ADS_PURCHASE_SEND_TO,
+      ...(value != null && { value }),
+      currency,
+      ...(transactionId && { transaction_id: transactionId }),
+    });
+  }
+
+  // Conserva el evento en GA4 para reportes internos.
+  if (GA_MEASUREMENT_ID) {
+    window.gtag("event", conversionName, {
+      event_category: "conversion",
+      event_label: conversionName,
+      ...(value != null && { value }),
+      currency,
+      ...(transactionId && { transaction_id: transactionId }),
+    });
+  }
 };
 
 export const trackOutboundLink = (url: string, linkText?: string) => {
