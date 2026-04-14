@@ -1,5 +1,5 @@
 import ReCAPTCHA from "react-google-recaptcha";
-import { trackConversion, trackEvent, trackFormInteraction } from "@/lib/analytics";
+import { trackEvent, trackFormInteraction } from "@/lib/analytics";
 import { formatCurrency, userTypes, type aditionalPaymentType, type CuentaType, type PseServiceFormValues, type selectBankOption, type selectTypeOption } from "@/lib/pse";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -346,7 +346,6 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
           value: values.amount,
           currency: "COP",
         });
-        trackConversion("pse_payment_initiated", values.amount, "COP");
 
         window.location.href = response.pseURL;
       } else {
