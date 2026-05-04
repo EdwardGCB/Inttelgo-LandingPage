@@ -12,9 +12,16 @@ import {
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
 
+type UserScoreRow = {
+    id: string | number;
+    user: string | number;
+    name: string;
+    puntuation: number;
+};
+
 function Scores() {
     const { user } = useUser();
-    const [puntuations, setPuntuations] = useState([]);
+    const [puntuations, setPuntuations] = useState<UserScoreRow[]>([]);
     const [loadingData, setLoadingData] = useState(true);
 
     useEffect(() => {
@@ -22,9 +29,9 @@ function Scores() {
             ExperienceService.sport
                 .consultUsersScores({ limit: 10 })
                 .then((res) => {
-                    if (res.success) {
-                        // Aseguramos máximo 10 y orden por puntaje descendente
-                        const top10 = [...res.data]
+                    if (res.success && Array.isArray(res.data)) {
+                        const rows = res.data as UserScoreRow[];
+                        const top10 = [...rows]
                             .sort((a, b) => b.puntuation - a.puntuation)
                             .slice(0, 10);
                         setPuntuations(top10);

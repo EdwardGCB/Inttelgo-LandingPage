@@ -30,11 +30,6 @@ const horarios = [
   },
 ];
 
-const buildMapsLink = (query: string) =>
-  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-    query
-  )}`;
-
 interface experienceCentersProps {
   office: string;
   photo: string;
