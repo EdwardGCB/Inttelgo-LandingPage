@@ -30,89 +30,102 @@ const horarios = [
   },
 ];
 
-/*const buildMapsLink = (query: string) =>
+const buildMapsLink = (query: string) =>
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     query
-  )}`;*/
+  )}`;
 
 interface experienceCentersProps {
   office: string;
   photo: string;
   address: string;
   link: string;
+  city: string;
   priority: Priority;
 }
 
-/*const experienceCenters: Array<experienceCentersProps> = [
-  {
+const experienceCenters: Array<experienceCentersProps> = [
+  /*{
     office: "Santo Domingo",
     photo: "santo-domingo",
     address: "Cra. 37 Este #44A - 91",
-    link: buildMapsLink("Cra 37 Este #44A-91, Soacha, Cundinamarca, Colombia"),
+    link: "https://www.google.com/maps/place/Inttelgo+Oficina+Santo+Domingo/@4.5781459,-74.1822831,17z/data=!3m1!4b1!4m6!3m5!1s0x8e3f9f8036e32a9d:0x985466991870f472!8m2!3d4.5781459!4d-74.1797082!16s%2Fg%2F11sv9drvht?entry=ttu&g_ep=EgoyMDI2MDQyNy4wIKXMDSoASAFQAw%3D%3D",
+    city: "Soacha",
     priority: "primary",
   },
   {
     office: "Isla - Oasis",
     photo: "isla-oasis",
-    address: "Calle 42 #41C - 04 Este",
-    link: buildMapsLink(
-      "Calle 42 #41C-04 Este, Soacha, Cundinamarca, Colombia"
-    ),
+    address: "Calle 42 # 41C – 04 Soacha",
+    link: "https://www.google.com/maps/place/Inttelgo+Oficina+Oasis/@4.5741377,-74.1779353,16z/data=!4m6!3m5!1s0x8e3f9f22b8827987:0x33bdf6e77bc91b21!8m2!3d4.5742135!4d-74.1779257!16s%2Fg%2F11svvgg_f1?entry=ttu&g_ep=EgoyMDI2MDQyNy4wIKXMDSoASAFQAw%3D%3D",
+    city: "Soacha",
     priority: "third",
   },
   {
     office: "Ciudadela Sucre",
     photo: "ciudadela-sucre",
-    address: "Calle 36 #44 - 34 Este",
-    link: buildMapsLink("Calle 36 #44-34 Este, Soacha, Cundinamarca, Colombia"),
+    address: "Calle 36 # 44 - 34 Este Soacha",
+    link: "https://www.google.com/maps/place/Inttelgo+Oficina+Ciudadela+Sucre/@4.5630945,-74.1897686,17z/data=!3m1!4b1!4m6!3m5!1s0x8e3f75ac211ee7ed:0xbe4a54da38140df2!8m2!3d4.5630892!4d-74.1848977!16s%2Fg%2F11kqmpk0_w?entry=ttu&g_ep=EgoyMDI2MDQyNy4wIKXMDSoASAFQAw%3D%3D",
+    city: "Soacha",
     priority: "third",
   },
   {
     office: "Quintanares",
     photo: "quintanares",
-    address: "Transv. 9 Este #44 - 18",
-    link: buildMapsLink(
-      "Transversal 9 Este #44-18, Soacha, Cundinamarca, Colombia"
-    ),
+    address: "Transv 9 Este #44 – 18 Soacha",
+    link: "https://www.google.com/maps/place/Inttelgo+Oficina+Quintanares/@4.5836059,-74.1932222,17z/data=!3m1!4b1!4m6!3m5!1s0x8e3f9f5386caf665:0x6675bd85953748f1!8m2!3d4.5836006!4d-74.1906473!16s%2Fg%2F11svqgrys0?entry=ttu&g_ep=EgoyMDI2MDQyNy4wIKXMDSoASAFQAw%3D%3D",
+    city: "Soacha",
     priority: "primary",
-  },
+  },*/
   {
     office: "Vista Hermosa",
-    photo: "vista-hermosa",
-    address: "Diag. 71B Sur #18I - 95",
-    link: buildMapsLink(
-      "Diagonal 71B Sur #18I-95, Soacha, Cundinamarca, Colombia"
-    ),
+    photo: "vista-hermosa.png",
+    address: "Dg. 71b Sur #18i 95 Bogota D.C",
+    link: "https://www.google.com/maps/place/Inttelgo+Oficina+Vista+Hermosa/@4.5467103,-74.154488,17z/data=!3m1!4b1!4m6!3m5!1s0x8e3fa1f781d33fb3:0x1bb361fcb6205ac5!8m2!3d4.546705!4d-74.1496171!16s%2Fg%2F11vjkplkls?entry=ttu&g_ep=EgoyMDI2MDQyNy4wIKXMDSoASAFQAw%3D%3D",
+    city: "Bogota D.C",
     priority: "primary",
   },
   {
     office: "Tesoro",
-    photo: "tesoro",
-    address: "Calle 78C #18C - 10",
-    link: buildMapsLink("Calle 78C #18C-10, Soacha, Cundinamarca, Colombia"),
+    photo: "tesoro.png",
+    address: "Dg. 77a Sur #18G-10 Bogota D.C",
+    link: "https://www.google.com/maps/place/Dg.+77a+Sur+%2318G-10,+Bogot%C3%A1/@4.5395553,-74.1496039,17z/data=!3m1!4b1!4m6!3m5!1s0x8e3fa1e7f12212bf:0xde5d0053e3eb373f!8m2!3d4.53955!4d-74.147029!16s%2Fg%2F11x05mlcdh?entry=ttu&g_ep=EgoyMDI2MDQyNy4wIKXMDSoASAFQAw%3D%3D",
+    city: "Bogota D.C",
     priority: "third",
   },
   {
     office: "Estrella",
-    photo: "estrella",
-    address: "Cra. 18A Bis #73 - 09",
-    link: buildMapsLink(
-      "Carrera 18A Bis #73-09, Soacha, Cundinamarca, Colombia"
-    ),
+    photo: "estrella.png",
+    address: "Cra. 18A Bis #73 - 09 Sur Bogota D.C",
+    link: "https://www.google.com/maps/place/Inttelgo+Oficina+Estrella/@4.5444344,-74.1461691,17z/data=!3m1!4b1!4m6!3m5!1s0x8e3fa1833ef55ced:0xad9ead13f9cd716a!8m2!3d4.5444291!4d-74.1435942!16s%2Fg%2F11z5nk32nx?entry=ttu&g_ep=EgoyMDI2MDQyNy4wIKXMDSoASAFQAw%3D%3D",
+    city: "Bogota D.C",
     priority: "third",
   },
   {
     office: "Paraíso",
-    photo: "paraiso",
-    address: "Calle 71P Sur #27J - 07",
-    link: buildMapsLink(
-      "Calle 71P Sur #27J-07, Soacha, Cundinamarca, Colombia"
-    ),
+    photo: "paraiso.png",
+    address: "Calle 71P Sur #27J - 07 Bogota D.C",
+    link: "https://www.google.com/maps/place/Inttelgo+Oficina+Paraiso/@4.5490341,-74.1675594,17z/data=!3m1!4b1!4m6!3m5!1s0x8e3f9f513489f4d1:0x90a6f952725c3787!8m2!3d4.5490288!4d-74.1626885!16s%2Fg%2F11vlm8qg35?entry=ttu&g_ep=EgoyMDI2MDQyNy4wIKXMDSoASAFQAw%3D%3D",
+    city: "Bogota D.C",
     priority: "third",
   },
-];*/
-
-const experienceCenters: Array<experienceCentersProps> = [];
+  {
+    office: "San Joaquin",
+    photo: "san-joaquin.png",
+    address: "Cra. 17A #77 - 44 Bogota D.C",
+    link: "https://www.google.com/maps/place/Cra.+17A+%2377-44,+Cdad.+Bol%C3%ADvar,+Bogot%C3%A1,+D.C,+Bogot%C3%A1/@4.5401449,-74.1408504,17z/data=!3m1!4b1!4m6!3m5!1s0x8e3fa1e50eae4d47:0x8e381252b859d477!8m2!3d4.5401396!4d-74.1382755!16s%2Fg%2F11n4w2nbbk?entry=ttu&g_ep=EgoyMDI2MDQyNy4wIKXMDSoASAFQAw%3D%3D",
+    city: "Bogota D.C",
+    priority: "third",
+  },
+  {
+    office: "Quintas",
+    photo: "quintas.png",
+    address: "Calle 70C Sur # 17C - 18 Bogota D.C",
+    link: "https://www.google.com/maps/place/Cl.+70c+Sur+%2317C+-+18,+Quintas,+Bogot%C3%A1/@4.5468598,-74.1413733,17z/data=!3m1!4b1!4m6!3m5!1s0x8e3fa1e259072f75:0x6ba005864fb2511c!8m2!3d4.5468545!4d-74.1387984!16s%2Fg%2F11yjlp5m9c?entry=ttu&g_ep=EgoyMDI2MDQyNy4wIKXMDSoASAFQAw%3D%3D",
+    city: "Bogota D.C",
+    priority: "third",
+  },
+];
 
 const priorityGridClasses: Record<Priority, string> = {
   primary: "sm:col-span-2 lg:col-span-2 lg:row-span-2",
@@ -228,11 +241,11 @@ export default function ExperienceCenters() {
               >
                 <div
                   className="absolute inset-0 bg-cover bg-center transition-transform duration-500 ease-out group-hover:scale-105"
-                  style={{ backgroundImage: `url(/offices/${center.photo}.jpg)` }}
+                  style={{ backgroundImage: `url(/offices/${center.photo})` }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                <CardContent className="relative flex h-full w-full items-end p-5">
-                  <h3 className="text-xl font-bold text-white drop-shadow-sm">{center.office}</h3>
+                <CardContent className="relative flex h-full w-full items-end p-5 pb-0">
+                  <h3 className="text-xl font-bold text-white drop-shadow-sm">{center.office} <Badge variant={"secondary"}>{center.city}</Badge></h3>
                 </CardContent>
                 <div className="bg-gradient-to-b to-black/90 via-black/40 from-transparent absolute inset-0 -translate-y-full backdrop-blur-sm text-foreground transition-transform duration-300 ease-out group-hover:translate-y-0">
                   <div className="flex h-full flex-col justify-between p-5">

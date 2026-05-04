@@ -27,9 +27,9 @@ const buttonVariants = cva(
           "bg-gradient-to-b from-[#008000] to-[#006400] text-black hover:from-[#006400] hover:to-[#008000] text-white hover:text-white/80",
       },
       size: {
-        default: "min-h-[44px] h-11 px-4 py-2 has-[>svg]:px-3",
-        sm: "min-h-[44px] h-11 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
-        lg: "min-h-[44px] h-12 rounded-md px-6 has-[>svg]:px-4",
+        default: "min-h-[44px] px-4 py-2 has-[>svg]:px-3",
+        sm: "min-h-[36px] rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
+        lg: "min-h-[44px] rounded-md px-6 has-[>svg]:px-4",
         icon: "min-h-[44px] min-w-[44px] size-11",
       },
     },

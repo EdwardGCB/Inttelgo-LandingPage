@@ -99,6 +99,11 @@ const menuData: Record<string, MenuSection> = {
     type: "link",
     href: "/contacto",
   },
+  /*football: {
+    title: "Mundial",
+    type: "link",
+    href: "/mundial-2026",
+  },*/
   withIcon: {
     title: "BECA 2026",
     type: "link",
@@ -193,15 +198,31 @@ export default function Menu({
                             asChild
                             className={cn(
                               navigationMenuTriggerStyle(),
-                              "bg-transparent text-sm font-medium hover:bg-gradient-to-b hover:from-transparent hover:to-white/60",
-                              isActiveRoute(section.href)
-                                ? "text-orange-500 font-semibold"
-                                : textColor
+                              key === "football"
+                                ? "relative bg-transparent text-sm font-bold overflow-visible"
+                                : "bg-transparent text-sm font-medium hover:bg-gradient-to-b hover:from-transparent hover:to-white/60",
+                              key !== "football" && (
+                                isActiveRoute(section.href)
+                                  ? "text-orange-500 font-semibold"
+                                  : textColor
+                              )
                             )}
                           >
-                            <Link to={section.href || "#"}>
-                              {section.title}
-                            </Link>
+                            {key === "football" ? (
+                              <Link
+                                to={section.href || "#"}
+                                className="relative flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-b from-[#FF9900] to-[#EC5406] hover:from-[#EC5406] hover:to-[#FF9900] text-white font-bold drop-shadow-[0_1px_8px_rgba(236,84,6,0.5)] transition-all"
+                              >
+                                <span>{section.title}</span>
+                                <span className="absolute -top-2 -right-1 text-[10px] font-extrabold bg-white text-[#EC5406] px-1 rounded-full shadow leading-tight animate-bounce">
+                                  2026
+                                </span>
+                              </Link>
+                            ) : (
+                              <Link to={section.href || "#"}>
+                                {section.title}
+                              </Link>
+                            )}
                           </NavigationMenuLink>
                         ) : (
                           <>
@@ -215,11 +236,10 @@ export default function Menu({
                             </NavigationMenuTrigger>
                             <NavigationMenuContent className="backdrop-blur-2xl">
                               <ul
-                                className={`grid gap-2 ${
-                                  key === "components"
-                                    ? "w-[200px] md:w-[300px] lg:w-[400px]"
-                                    : "w-[200px] gap-4"
-                                }`}
+                                className={`grid gap-2 ${key === "components"
+                                  ? "w-[200px] md:w-[300px] lg:w-[400px]"
+                                  : "w-[200px] gap-4"
+                                  }`}
                               >
                                 {section.items?.map(
                                   (item: MenuItem, itemIndex: number) => (
@@ -239,10 +259,10 @@ export default function Menu({
                                             item.featured
                                               ? "from-muted/50 to-muted flex h-full w-full flex-col justify-end rounded-md bg-linear-to-b p-6 no-underline outline-hidden select-none focus:shadow-md"
                                               : item.icon
-                                              ? "flex-row items-center gap-2 rounded-md p-2 transition-all duration-300"
-                                              : "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-all duration-300",
+                                                ? "flex-row items-center gap-2 rounded-md p-2 transition-all duration-300"
+                                                : "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-all duration-300",
                                             isActiveRoute(item.href) &&
-                                              "font-semibold"
+                                            "font-semibold"
                                           )}
                                         >
                                           {item.icon && (
@@ -272,9 +292,9 @@ export default function Menu({
                         Object.entries(menuData).filter(
                           ([key]) => key !== "pse"
                         ).length -
-                          1 && (
-                        <div className={cn("w-px h-6 mx-2", lineColor)} />
-                      )}
+                        1 && (
+                          <div className={cn("w-px h-6 mx-2", lineColor)} />
+                        )}
                     </div>
                   ))}
               </NavigationMenuList>
@@ -325,30 +345,48 @@ export default function Menu({
                 >
                   {Object.entries(menuData).map(([key, section]) =>
                     section.type === "link" ? (
-                      <Link
-                        key={key}
-                        to={section.href || "#"}
-                        onClick={() => setOpen(false)}
-                        className={cn(
-                          "flex items-center py-4 px-4 font-semibold hover:bg-orange-200 hover:text-orange-800 rounded-lg transition-all duration-300 border group",
-                          isMobile ? "text-base" : "text-lg",
-                          isActiveRoute(section.href)
-                            ? "bg-orange-200 text-orange-800 border-orange-300 shadow-md"
-                            : "border-transparent hover:border-orange-300 hover:shadow-md"
-                        )}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={cn(
-                              "w-2 h-2 rounded-full transition-colors",
-                              isActiveRoute(section.href)
-                                ? "bg-orange-700 w-3 h-3"
-                                : "bg-orange-500 group-hover:bg-orange-600"
-                            )}
-                          ></div>
-                          <span>{section.title}</span>
-                        </div>
-                      </Link>
+                      key === "football" ? (
+                        <Link
+                          key={key}
+                          to={section.href || "#"}
+                          onClick={() => setOpen(false)}
+                          className="relative flex items-center gap-3 py-4 px-4 font-bold rounded-lg border border-[#EC5406]/40 bg-gradient-to-b from-[#FF9900] to-[#EC5406] hover:from-[#EC5406] hover:to-[#FF9900] text-white shadow-md shadow-orange-300/50 transition-all duration-300 overflow-hidden"
+                        >
+                          <span className="text-xl">⚽</span>
+                          <span className={isMobile ? "text-base" : "text-lg"}>
+                            {section.title}
+                          </span>
+                          <span className="ml-auto text-[10px] font-extrabold bg-white text-[#EC5406] px-1.5 py-0.5 rounded-full shadow animate-bounce leading-tight">
+                            2026
+                          </span>
+                          <span className="absolute inset-0 bg-white/10 opacity-0 hover:opacity-100 transition-opacity duration-300 rounded-lg" />
+                        </Link>
+                      ) : (
+                        <Link
+                          key={key}
+                          to={section.href || "#"}
+                          onClick={() => setOpen(false)}
+                          className={cn(
+                            "flex items-center py-4 px-4 font-semibold hover:bg-orange-200 hover:text-orange-800 rounded-lg transition-all duration-300 border group",
+                            isMobile ? "text-base" : "text-lg",
+                            isActiveRoute(section.href)
+                              ? "bg-orange-200 text-orange-800 border-orange-300 shadow-md"
+                              : "border-transparent hover:border-orange-300 hover:shadow-md"
+                          )}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={cn(
+                                "w-2 h-2 rounded-full transition-colors",
+                                isActiveRoute(section.href)
+                                  ? "bg-orange-700 w-3 h-3"
+                                  : "bg-orange-500 group-hover:bg-orange-600"
+                              )}
+                            ></div>
+                            <span>{section.title}</span>
+                          </div>
+                        </Link>
+                      )
                     ) : (
                       <AccordionItem
                         key={key}

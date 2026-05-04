@@ -28,7 +28,6 @@ export default function Box3DViewer({
     };
 
     const handleContextRestored = () => {
-      console.log("WebGL context restored");
       setContextLost(false);
     };
 

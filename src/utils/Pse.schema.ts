@@ -52,7 +52,7 @@ export const PseSchema = z.object({
 
 export const PseServiceSchema = z.object({
     ticketId: z.string().min(1, "El ID del ticket es requerido"),
-    userType: z.enum(["person", "business"], {
+    userType: z.enum(["person", "company"], {
         required_error: "El tipo de usuario es requerido",
         invalid_type_error: "Selecciona un tipo de usuario válido",
     }),

@@ -13,6 +13,7 @@ const PlanTelefoniaPage = lazy(() => import("@/Pages/Plan/Telefonia"));
 const SobreNosotrosPage = lazy(() => import("@/Pages/SobreNosotros"));
 const ExperienceCentersPage = lazy(() => import("@/Pages/ExperienceCenters"));
 const ContactUsPage = lazy(() => import("@/Pages/ContactUs"));
+const MundialPage = lazy(() => import("@/Pages/Mundial"));
 const BecaPage = lazy(() => import("@/Pages/Beca"));
 const PqrsPage = lazy(() => import("@/Pages/Legal&Regulatorio/Pqrs"));
 const ManualPage = lazy(() => import("@/Pages/Legal&Regulatorio/Manual"));
@@ -66,6 +67,10 @@ export const publicRoutes: RouteObject[] = [
       {
         path: "contacto",
         element: <ContactUsPage />,
+      },
+      {
+        path: "mundial-2026",
+        element: <MundialPage />,
       },
       {
         path: "beca",

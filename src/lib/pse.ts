@@ -120,6 +120,42 @@ export type aditionalPaymentType = {
     }>;
 }
 
+/** Respuesta típica de `PSEService.payBill` / factura */
+export type PsePayBillResponse = {
+    success?: boolean;
+    returnCode?: string;
+    pseURL?: string;
+    mensaje?: string;
+    message?: string;
+    trazabilityCode?: string | number;
+    transactionCycle?: number;
+};
+
+/** Códigos de negocio que se muestran en diálogo (no en toast genérico). */
+export const PSE_PAY_BILL_FAIL_EXCEEDED_LIMIT = "FAIL_EXCEEDEDLIMIT";
+export const PSE_PAY_BILL_FAIL_SERVICE_NOT_CONFIGURED =
+    "FAIL_SERVICENOTEXISTORNOTCONFIGURED";
+
+export const PSE_PAY_BILL_DIALOG = {
+    exceededLimit: {
+        title: "Límite de transacción excedido",
+        description:
+            "El monto u otra regla del operador superó el límite permitido. Reduzca el valor a pagar o comuníquese con soporte para recibir ayuda.",
+    },
+    serviceNotConfigured: {
+        title: "Servicio de pagos no configurado",
+        description:
+            "El servicio PSE no está disponible por una configuración en el servidor. Comuníquese con soporte para reportar el problema.",
+    },
+} as const;
+
+/** Toast unificado para fallos genéricos de API, red o indisponibilidad. */
+export const PSE_PAY_BILL_MAINTENANCE_TOAST = {
+    title: "Servicio en mantenimiento",
+    description:
+        "No pudimos completar la operación en este momento. Intente más tarde.",
+} as const;
+
 export const formatCurrency = (value: number) => {
     const formatted = new Intl.NumberFormat("es-CO", {
         style: "currency",

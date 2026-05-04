@@ -23,7 +23,7 @@ class PSEService {
     }
 
     consultAdditionalPayments(id: number, status: number): Promise<any> {
-        return ApiService.get(`factura-cobro/client/${id}/status/${status}`, { headers: { "Content-Type": "application/json" } });
+        return ApiService.get(`cobro/client/${id}/status/${status}`, { headers: { "Content-Type": "application/json" } });
     }
 
     payBill(data: string) {
