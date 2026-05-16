@@ -5,6 +5,7 @@ import { Badge } from "../ui/badge"
 import { Button } from "../ui/button"
 import { Check } from "lucide-react"
 import type { Plan } from "@/interfaces/plan"
+import { trackEvent } from "@/lib/analytics"
 
 const Stars = lazy(() => import("@/components/Canvas/Stars"))
 
@@ -361,6 +362,11 @@ export const SecondaryPlanHologram3D = memo(({ plan }: PlanProps) => {
     }, []);
 
     const handleContactUs = useCallback(() => {
+        trackEvent("whatsapp_contact", {
+            event_category: "contact",
+            event_label: "Línea de ventas",
+            phone_number: phone,
+        });
         window.open(`https://wa.me/${phone}`, "_blank");
     }, [phone]);
 
@@ -541,6 +547,12 @@ export const PrimaryPlanHologram3D = memo(({ plan }: PlanProps) => {
     }, []);
 
     const handleContactUs = useCallback(() => {
+        trackEvent("whatsapp_contact", {
+            event_category: "contact",
+            event_label: "Línea de ventas",
+            phone_number: phone,
+        });
+
         window.open(`https://wa.me/${phone}`, "_blank");
     }, [phone]);
 

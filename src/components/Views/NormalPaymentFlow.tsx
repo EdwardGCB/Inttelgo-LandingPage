@@ -190,23 +190,6 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
     }
   }, [watchedAccounts, watchedAdditionalPayments, queryMade, allPayments, allAdditionalPayments, form]);
 
-  // Funciones auxiliares
-  const setPSEToken = (token: string | null) => {
-    if (!token) return;
-
-    const cookieParts = [
-      `pse_token=${encodeURIComponent(token)}`,
-      "path=/",
-      "SameSite=Strict",
-    ];
-
-    if (window.location.protocol === "https:") {
-      cookieParts.push("Secure");
-    }
-
-    document.cookie = cookieParts.join("; ");
-  };
-
   const calculateInstallmentValue = (cobro: any) => {
     if (cobro.cuotas <= 0) return 0;
     return (cobro.valor_total || 0) / cobro.cuotas;
@@ -259,10 +242,6 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
         console.error("Error consulting service:", response.data?.message);
         return;
       }
-
-      // Extraer y guardar token
-      const token = response?.token ?? response?.data?.token ?? response?.result?.token ?? null;
-      setPSEToken(token);
 
       // Extraer datos del cliente y cuentas
       const cliente = response.cliente ?? response.data?.cliente;
@@ -365,6 +344,22 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
     form.trigger(["accounts", "additionalPayments"]);
   };
 
+  const withTokenRetry = async (fn: () => Promise<any>): Promise<any> => {
+    try {
+      return await fn();
+    } catch (err: any) {
+      const isTokenExpired =
+        err.response?.data?.error === "PSE_TOKEN_EXPIRED" ||
+        err.response?.status === 403;
+      if (isTokenExpired) {
+        console.log("[PSE] Token expirado, refrescando y reintentando...");
+        await PSEService.getBanks();
+        return await fn();
+      }
+      throw err;
+    }
+  };
+
   const onSubmit = async (values: PseServiceFormValues) => {
     if (pseActionsBlocked) {
       return;
@@ -374,8 +369,8 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
     trackFormInteraction("pse_payment_form", "start");
 
     try {
-      const data = (await PSEService.payBill(
-        JSON.stringify(values)
+      const data = (await withTokenRetry(() =>
+        PSEService.payBill(JSON.stringify(values))
       )) as PsePayBillResponse;
 
       const returnCode = data.returnCode;
@@ -409,7 +404,7 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
         console.error("Error generating payment link:", data);
         return;
       }
-
+      console.log(returnCode)
       if (returnCode === PSE_PAY_BILL_FAIL_EXCEEDED_LIMIT) {
         setPayBillErrorDialog("exceeded_limit");
         trackFormInteraction(
@@ -421,7 +416,7 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
         return;
       }
 
-      if (returnCode === PSE_PAY_BILL_FAIL_SERVICE_NOT_CONFIGURED) {
+      if (returnCode === "FAIL_SERVICENOTEXISTSORNOTCONFIGURED") {
         setPayBillErrorDialog("service_not_configured");
         trackFormInteraction(
           "pse_payment_form",

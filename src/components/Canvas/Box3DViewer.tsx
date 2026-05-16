@@ -17,6 +17,7 @@ export default function Box3DViewer({
   scale,
 }: Box3DViewerProps) {
   const [contextLost, setContextLost] = useState(false);
+  const [isModelReady, setIsModelReady] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -54,7 +55,12 @@ export default function Box3DViewer({
   const cameraZ = distance * Math.cos(angle);
 
   return (
-    <div ref={canvasRef} className="relative w-full h-full z-10">
+    <div
+      ref={canvasRef}
+      className={`relative w-full h-full z-10 transition-opacity duration-700 ${
+        isModelReady ? "opacity-100" : "opacity-0"
+      }`}
+    >
       {contextLost ? (
         <div className="w-full h-full flex items-center justify-center">
           <div className="text-center p-8 bg-white/10 backdrop-blur-sm rounded-lg">
@@ -110,6 +116,7 @@ export default function Box3DViewer({
               scale={scale}
               rotation={[0, rotation, 0]}
               position={[0, 0, 0]}
+              onReady={() => setIsModelReady(true)}
             />
             <OrbitControls
               enableZoom={false}

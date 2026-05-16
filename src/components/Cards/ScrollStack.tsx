@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useLayoutEffect, useRef, useCallback, useState } from 'react';
 import type { ReactNode } from 'react';
 import Lenis from 'lenis';
+import { useLenis } from '@/lib/lenisContext';
 
 export interface ScrollStackContextValue {
     activeIndex: number;
@@ -75,6 +76,7 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     const stackCompletedRef = useRef(false);
     const animationFrameRef = useRef<number | null>(null);
     const lenisRef = useRef<Lenis | null>(null);
+    const globalLenis = useLenis();
     const cardsRef = useRef<HTMLElement[]>([]);
     const lastTransformsRef = useRef(new Map<number, any>());
     const isUpdatingRef = useRef(false);
@@ -276,6 +278,14 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
 
     const setupLenis = useCallback(() => {
         if (useWindowScroll) {
+            // Reusar el Lenis global del PublicLayout si está disponible
+            if (globalLenis) {
+                globalLenis.on('scroll', handleScroll);
+                lenisRef.current = globalLenis;
+                return globalLenis;
+            }
+
+            // Fallback: crear instancia propia si no hay contexto global
             const lenis = new Lenis({
                 duration: 1.2,
                 easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -364,7 +374,12 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
                 cancelAnimationFrame(animationFrameRef.current);
             }
             if (lenisRef.current) {
-                lenisRef.current.destroy();
+                // Si es el Lenis global, solo quitar el listener; no destruirlo
+                if (useWindowScroll && globalLenis && lenisRef.current === globalLenis) {
+                    globalLenis.off('scroll', handleScroll);
+                } else {
+                    lenisRef.current.destroy();
+                }
             }
             stackCompletedRef.current = false;
             cardsRef.current = [];
@@ -385,7 +400,9 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
         useWindowScroll,
         onStackComplete,
         setupLenis,
-        updateCardTransforms
+        updateCardTransforms,
+        globalLenis,
+        handleScroll
     ]);
 
     return (

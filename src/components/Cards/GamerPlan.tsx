@@ -8,6 +8,7 @@ import {
 import { Search, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import iconoControl from "../../../public/icono-control.svg";
+import { trackEvent } from "@/lib/analytics";
 
 const Stars = lazy(() => import("@/components/Canvas/Stars"));
 
@@ -28,8 +29,14 @@ function GamerPlan({ plan }: GamerPlanProps) {
   const phone = "573002698767";
 
   const handleWhatsAppClick = useCallback(() => {
+    trackEvent("whatsapp_contact", {
+      event_category: "contact",
+      event_label: "Línea de ventas",
+      phone_number: phone,
+    });
     window.open(`https://wa.me/${phone}`, "_blank");
   }, [phone]);
+
   return (
     <div className="relative w-full flex flex-col items-center group cursor-pointer z-10 transition-transform duration-300 hover:scale-105">
       {/* Mbps Card flotante */}

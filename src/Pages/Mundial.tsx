@@ -4,6 +4,7 @@ import LightRays from "@/components/ui/LightRays";
 import Menu from "@/Layouts/Menu";
 import { cn } from "@/lib/utils";
 import { Suspense, useEffect, useRef, useState } from "react";
+import { useLenis } from "@/lib/lenisContext";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import GamesList from "@/components/Views/GamesList";
@@ -14,7 +15,7 @@ import { UserProvider, useUser } from "@/contexts/User";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LogIn, LogOut, UserCheck, ShieldAlert, Info, MousePointerClick } from "lucide-react";
+import { LogIn, LogOut, UserCheck, ShieldAlert, Info, MousePointerClick, Goal, AlarmClock } from "lucide-react";
 import UserPuntuation from "@/components/Views/UserPuntuation";
 import Scores from "@/components/Views/Scores";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -27,16 +28,25 @@ interface UserPrediction {
     puntuation: number;
 }
 
-function RulesDialog() {
-    const [showRules, setShowRules] = useState(true);
+function RulesDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+    const lenis = useLenis();
+
+    useEffect(() => {
+        if (open) {
+            lenis?.stop();
+        } else {
+            lenis?.start();
+        }
+        return () => { lenis?.start(); };
+    }, [open, lenis]);
     const rules = [
         {
             title: "Participantes habilitados",
             items: [
-                { description: "Podrán participar únicamente los titulares activos del servicio." },
-                { description: "La participación se validará ingresando el número de identificación del titular." },
-                { description: "Cada titular podrá participar con un solo registro." },
-                { description: "No se permiten registros duplicados ni participación de terceros no titulares." }
+                { description: <>Podrán participar <span className='font-extrabold'>únicamente los titulares activos del servicio.</span></> },
+                { description: <>La participación se validará ingresando el <span className='font-bold'>número de identificación del titular.</span></> },
+                { description: <>Cada titular podrá participar <span className='font-bold'>con un solo registro.</span></> },
+                { description: <>No se permiten registros duplicados ni participación de terceros no titulares.</> }
             ],
         },
         {
@@ -63,24 +73,111 @@ function RulesDialog() {
                 {
                     description: "Cada participante deberá ingresar:",
                     subItems: [
-                        "El marcador exacto del partido (ejemplo: 2–1)."
+                        <>El <span className="font-extrabold">marcador exacto</span> del partido (ejemplo: 2–1).</>
                     ]
                 },
-                { description: "Los pronósticos solo podrán realizarse antes del cierre automático del partido." },
-                { description: "Una vez enviado el pronóstico, no podrá modificarse" },
+                { description: <>Los pronósticos solo podrán realizarse <span className="font-extrabold">antes del cierre automático del partido.</span></> },
+                { description: <>Una vez enviado el pronóstico, <span className="font-extrabold">no podrá modificarse</span></> },
             ],
+        },
+        {
+            title: "Cierre de pronósticos (regla de tiempo)",
+            items: [
+                { description: <>Los pronósticos se <span className="font-extrabold">bloquearán automáticamente 30 minutos antes del inicio oficial del partido.</span></> },
+                {
+                    description: <>Después de ese tiempo:</>,
+                    subItems: [
+                        <>No será posible registrar nuevos pronósticos.</>,
+                        <>No se permitirán cambios ni correcciones.</>
+                    ]
+                },
+                { description: <>El horario de referencia será el <span className="font-extrabold">horario oficial del partido</span>según la organización del torneo.</> }
+            ]
+        },
+        {
+            title: "Sistema de puntuación",
+            items: [
+                {
+                    description: <span className="font-extrabold text-blue-500 flex"> <Goal /> Resultado exacto</span>,
+                    subItems: [
+                        <p className="flex gap-1"><span className="font-extrabold">100 puntos</span> por acertar el <span className="font-extrabold">marcador exacto</span> del partido.</p>
+                    ]
+                },
+                {
+                    description: <span className="font-extrabold text-blue-500 flex"> <AlarmClock /> Puntos por anticipación</span>,
+                    subItems: [
+                        <p>Se otorgará <span className="font-extrabold">1 punto adicional por cada hora de anticipación</span> con la que se haya realizado el pronóstico.</p>,
+                        <>
+                            <p>Si un participante hace su pronóstico <span className="font-extrabold">10 horas antes</span> del inicio del
+                                partido <span className="font-extrabold">y acierta el marcador</span>, recibirá:</p>
+                            <ul className="pl-2 ">
+                                <li>100 puntos por el resultado exacto</li>
+                                <li>+10 puntos por anticipación</li>
+                                <li className="font-extrabold">Total: 110 puntos</li>
+                            </ul>
+                        </>
+                    ]
+                },
+                {
+                    description: <>Los puntos por anticipación <span className="font-extrabold">solo se suman si el resultado es acertado.</span></>,
+                },
+            ]
+        },
+        {
+            title: "Puntaje acumulado",
+            items: [
+                { description: <>Los puntos obtenidos en cada partido se <span className="font-extrabold">acumulan a lo largo de todo el mundial.</span></> },
+                { description: <>El sistema llevará un <span className="font-extrabold">ranking general</span> visible para los participantes</> }
+            ]
+        },
+        {
+            title: "Ganador",
+            items: [
+                {
+                    description: <>Al finalizar el último partido del mundial</>,
+                    subItems: [
+                        <>El participante con el <span className="font-extrabold">mayor puntaje acumulado</span> será el ganador del <span className="font-extrabold">gran premio.</span></>
+                    ]
+                },
+                {
+                    description: <>En caso de empate:</>,
+                    subItems: [
+                        <>Ganará quien haya acertado <span className="font-extrabold">más marcadores exactos.</span></>,
+                        <>Si el empate persiste, ganará quien haya hecho sus pronósticos con <span className="font-extrabold">mayor anticipación promedio.</span></>,
+                        <>Si aún continúa el empate, el premio se definirá por sorteo entre los empatados.</>
+                    ]
+                }
+            ]
+        },
+        {
+            title: "Condiciones generales",
+            items: [
+                {
+                    description: <>El premio es <span className="font-extrabold">personal e intransferible.</span></>
+                },
+                {
+                    description: <>La organización se reserva el derecho de:</>,
+                    subItems: [
+                        <>Verificar la titularidad del servicio.</>,
+                        <>Descalificar participantes por intentos de fraude o uso indebido delsistema.</>
+                    ]
+                },
+                {
+                    description: <>La participación en la polla implica la <span className="font-extrabold">aceptación total de estas reglas.</span></>
+                },
+            ]
         }
     ]
-    const titleUnderlineClass =
-        "h-0.5 w-full bg-gradient-to-r from-transparent via-[#FF9900] via-50% to-transparent";
+    const titleUnderlineClass = "h-0.5 w-full bg-gradient-to-r from-transparent via-[#FF9900] via-50% to-transparent";
 
     return (
-        <Dialog open={showRules} onOpenChange={setShowRules}>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent
                 className={cn(
-                    "flex max-h-[90vh] min-h-0 flex-col gap-0 overflow-hidden bg-black p-6 text-white border-white/15 sm:max-w-lg",
+                    "flex max-h-[90vh] min-h-0 flex-col gap-0 overflow-hidden bg-black p-6 text-white border-white/15 sm:max-w-2xl",
                     "[&_[data-slot=dialog-close]]:text-white [&_[data-slot=dialog-close]]:ring-offset-black"
                 )}
+                onWheel={e => e.stopPropagation()}
             >
                 <DialogHeader className="shrink-0 space-y-0 pb-2 text-center sm:text-center">
                     <div className="mx-auto inline-flex max-w-full flex-col items-center">
@@ -90,7 +187,10 @@ function RulesDialog() {
                         <div className={cn("mt-4", titleUnderlineClass)} aria-hidden />
                     </div>
                 </DialogHeader>
-                <div className="mt-2 min-h-0 flex-1 overflow-y-auto overflow-x-hidden pr-1 [-webkit-overflow-scrolling:touch]">
+                <div
+                    className="mt-2 min-h-0 flex-1 overflow-y-auto overflow-x-hidden pr-1 overscroll-contain [-webkit-overflow-scrolling:touch]"
+                    onTouchMove={e => e.stopPropagation()}
+                >
                     {rules.map((rule, ruleIndex) => {
                         const { title, items } = rule;
                         return (
@@ -116,7 +216,7 @@ function RulesDialog() {
                                                     className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[#EC5406]"
                                                     aria-hidden
                                                 />
-                                                <div className="min-w-0 font-bold text-white">
+                                                <div className="min-w-0 text-white">
                                                     {description}
                                                 </div>
                                             </li>
@@ -156,6 +256,8 @@ function MundialContent() {
     const [identification, setIdentification] = useState("");
     const [activeTab, setActiveTab] = useState("game");
     const [userPredictions, setUserPredictions] = useState<UserPrediction[]>([]);
+    const [rulesAccepted, setRulesAccepted] = useState(false);
+    const [rulesOpen, setRulesOpen] = useState(true);
     const loginCardRef = useRef<HTMLDivElement | null>(null);
     const tabsRef = useRef<HTMLDivElement | null>(null);
     useEffect(() => {
@@ -204,7 +306,7 @@ function MundialContent() {
     return (
         <>
 
-            <RulesDialog />
+            <RulesDialog open={rulesOpen} onOpenChange={setRulesOpen} />
 
             <div className={cn(
                 "relative overflow-hidden min-h-screen",
@@ -267,14 +369,14 @@ function MundialContent() {
                                                 title="Cerrar sesión"
                                             >
                                                 <LogOut className="h-3.5 w-3.5" />
-
                                                 Salir
                                             </Button>
                                         </div>
                                     ) : (
                                         <Button
                                             onClick={handleGoToLoginCard}
-                                            className="flex items-center gap-2 rounded-full border border-orange-400/50 bg-orange-500/10 px-4 py-2 text-sm text-orange-300 backdrop-blur-sm hover:bg-orange-500/20 transition-colors"
+
+                                            className="flex items-center gap-2 rounded-full border border-orange-400/50 bg-orange-500/10 px-4 py-2 text-sm text-orange-300 backdrop-blur-sm hover:bg-orange-500/20 transition-colors disabled:cursor-not-allowed disabled:opacity-40"
                                         >
                                             <LogIn className="h-4 w-4" />
                                             Inicia sesión para participar
@@ -371,12 +473,31 @@ function MundialContent() {
                                                     <span>{error}</span>
                                                 </div>
                                             )}
-
+                                            {/* Checkbox de aceptación de reglas */}
+                                            <div className="mt-4 flex items-center gap-2">
+                                                <input
+                                                    type="checkbox"
+                                                    id="accept-rules"
+                                                    checked={rulesAccepted}
+                                                    onChange={e => setRulesAccepted(e.target.checked)}
+                                                    className="h-4 w-4 cursor-pointer accent-orange-500"
+                                                />
+                                                <label htmlFor="accept-rules" className="cursor-pointer select-none text-sm">
+                                                    He leído y acepto las {" "}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setRulesOpen(true)}
+                                                        className="text-orange-400 underline hover:text-orange-300 transition-colors"
+                                                    >
+                                                        reglas
+                                                    </button> pactadas por Inttelgo para participar
+                                                </label>
+                                            </div>
                                             <CardFooter className="pt-2 w-full px-0">
                                                 <Button
                                                     variant={"orange"}
                                                     type="submit"
-                                                    disabled={isLoading || !identification.trim()}
+                                                    disabled={isLoading || !identification.trim() || !rulesAccepted}
                                                     className="w-full"
                                                 >
                                                     {isLoading ? (

@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Search } from "lucide-react";
 import { Button } from "../ui/button";
 import { useCallback } from "react";
+import { trackEvent } from "@/lib/analytics";
 
 interface Plan {
   title: string | null;
@@ -26,6 +27,11 @@ function SecondaryPlan({ plan }: SecondaryPlanProps) {
   const phone = "573002698767";
 
   const handleWhatsAppClick = useCallback(() => {
+    trackEvent("whatsapp_contact", {
+      event_category: "contact",
+      event_label: "Línea de ventas",
+      phone_number: phone,
+    });
     window.open(`https://wa.me/${phone}`, "_blank");
   }, [phone]);
 

@@ -208,7 +208,7 @@ function PlanInternetPage() {
         </div>
 
         {/* Sección de beneficios */}
-        <div className="w-full bg-white px-4 sm:px-6 md:px-10">
+        <div className="w-full bg-white px-4 sm:px-6 md:px-10 mb-10">
           <div className="sm:w-[90%] md:w-full lg:w-[80%] mx-auto">
             <Suspense fallback={<LoadingSpinner size="md" />}>
               <AnimatedLines className="mb-6" />

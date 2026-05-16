@@ -1,6 +1,6 @@
-import { AlertTriangle, CheckCircle, Clock3, Loader2, XCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle, Clock3, Loader2, XCircle, BanIcon } from "lucide-react";
 
-export type VerificationStatus = "pending" | "approved" | "rejected";
+export type VerificationStatus = "pending" | "approved" | "rejected" | "failed";
 
 export type TransactionDialogData = {
     ticket?: string;
@@ -92,6 +92,16 @@ export const VISUAL_CONFIG: Record<
         primaryActionLabel: "Realizar otro pago",
         alertClass: "border-rose-200 bg-rose-50",
     },
+    failed: {
+        icon: BanIcon,
+        title: "Fallida",
+        headerClass: "from-red-600 to-red-700",
+        statusColor: "text-red-600",
+        badgeClass: "bg-red-100 text-red-800 border-red-200",
+        cardClass: "border-red-200 bg-red-50/50",
+        primaryActionLabel: "Realizar otro pago",
+        alertClass: "border-red-200 bg-red-50",
+    },
 };
 
 export const COMPANY_INFO = {
@@ -105,7 +115,9 @@ export const DEFAULT_MESSAGES: Record<VerificationStatus, string> = {
     pending:
         "La transacción está siendo procesada por el banco. Por favor espera la confirmación.",
     rejected:
-        "La transacción no pudo ser completada. Por favor verifica tus datos e intenta nuevamente.",
+        "La transacción fue rechazada. Por favor verifica tus datos e intenta nuevamente.",
+    failed:
+        "La transacción falló durante el procesamiento. Por favor intenta realizar el pago nuevamente.",
 };
 
 export const formatCurrency = (value?: number) =>
@@ -126,9 +138,9 @@ export const statusMap: Record<string, VerificationStatus> = {
     procesando: "pending",
     rechazada: "rejected",
     rejected: "rejected",
-    fallida: "rejected",
-    failed: "rejected",
     error: "rejected",
+    fallida: "failed",
+    failed: "failed",
 };
 
 export const decodeTransaction = (value: string) => {

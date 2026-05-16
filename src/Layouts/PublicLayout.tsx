@@ -1,6 +1,8 @@
 import type { FormEvent } from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowRight, Gauge, Phone } from "lucide-react";
+import Lenis from "lenis";
+import { LenisContext } from "@/lib/lenisContext";
 import { Link, Outlet } from "react-router-dom";
 import Footer from "./Footer";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -20,6 +22,7 @@ import {
 import { MessageToast } from "@/lib/messageToast";
 import { getApiUrl } from "@/lib/utils";
 import "../animaciones.css";
+import { trackEvent } from "@/lib/analytics";
 interface WhatsAppLine {
   title: string;
   phone: string;
@@ -29,6 +32,8 @@ interface WhatsAppLine {
 const PublicLayout = () => {
   const [showLeadCapture, setShowLeadCapture] = useState(false);
   const [leadPhone, setLeadPhone] = useState("");
+  const lenisRef = useRef<Lenis | null>(null);
+  const [lenisInstance, setLenisInstance] = useState<Lenis | null>(null);
 
   useEffect(() => {
     let ticking = false;
@@ -43,6 +48,49 @@ const PublicLayout = () => {
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      touchMultiplier: 2,
+      wheelMultiplier: 1,
+      lerp: 0.1,
+      syncTouch: true,
+      syncTouchLerp: 0.075,
+      // Cede el control del scroll a elementos con scroll nativo
+      prevent: (node: Element) => {
+        const tag = node.tagName;
+        if (tag === "SELECT" || tag === "TEXTAREA") return true;
+        if (tag === "INPUT" && (node as HTMLInputElement).type === "range") return true;
+        if (node.hasAttribute("data-lenis-prevent")) return true;
+        // Elementos con overflow scroll/auto que no son el body
+        const { overflowY, overflowX } = getComputedStyle(node);
+        const isScrollable =
+          (overflowY === "auto" || overflowY === "scroll") &&
+          node.scrollHeight > node.clientHeight;
+        return isScrollable;
+      },
+    });
+
+    lenisRef.current = lenis;
+    setLenisInstance(lenis);
+
+    let rafId: number;
+    const raf = (time: number) => {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    };
+    rafId = requestAnimationFrame(raf);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      lenis.destroy();
+      lenisRef.current = null;
+      setLenisInstance(null);
+    };
   }, []);
 
   const handleLeadSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -86,135 +134,142 @@ const PublicLayout = () => {
     },
   ];
 
-  const handleWhatsAppClick = useCallback((phone: string) => {
+  const handleWhatsAppClick = useCallback((phone: string, lineTitle: string) => {
+    trackEvent("whatsapp_contact", {
+      event_category: "contact",
+      event_label: lineTitle,       // "Línea de ventas" o "Línea de Soporte"
+      phone_number: phone,
+    });
     window.open(`https://wa.me/${phone}`, "_blank");
   }, []);
 
   return (
-    <div className="relative flex min-h-screen flex-col bg-white">
-      <ScrollToTop />
-      <div
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${showLeadCapture
-          ? "translate-y-0 opacity-100"
-          : "-translate-y-full opacity-0"
-          }`}
-      >
-        <div className="w-full">
-          <div className="flex flex-col gap-4 bg-black p-4 text-primary-foreground shadow-lg md:flex-row md:items-center md:justify-center">
-            <p className="text-sm font-medium md:text-base text-center md:text-left">
-              <span className="font-bold text-[#FF9900]">
-                ¿En casa necesitas Internet Fibra?
-              </span>{" "}
-              ¡Déjanos tus datos y te llamaremos en breve!
-            </p>
-            <form
-              onSubmit={handleLeadSubmit}
-              className="flex w-full md:w-1/2 lg:w-1/3 items-center overflow-hidden rounded-2xl bg-white shadow-inner focus-within:ring-2 focus-within:ring-[#EC5406]/60"
-            >
-              <input
-                type="tel"
-                inputMode="tel"
-                name="lead-phone"
-                placeholder="Ingresa tu número de celular"
-                className="h-10 flex-1 border-none px-5 text-sm text-slate-900 outline-none md:text-base"
-                value={leadPhone}
-                onChange={(event) => setLeadPhone(event.target.value)}
-              />
-              <Button
-                type="submit"
-                variant="orange"
-                className="h-12 px-5 rounded-l-none"
-                aria-label="Enviar formulario"
+    <LenisContext.Provider value={lenisInstance}>
+      <div className="relative flex min-h-screen flex-col bg-white">
+        <ScrollToTop />
+        <div
+          className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${showLeadCapture
+            ? "translate-y-0 opacity-100"
+            : "-translate-y-full opacity-0"
+            }`}
+        >
+          <div className="w-full">
+            <div className="flex flex-col gap-4 bg-black p-4 text-primary-foreground shadow-lg md:flex-row md:items-center md:justify-center">
+              <p className="text-sm font-medium md:text-base text-center md:text-left">
+                <span className="font-bold text-[#FF9900]">
+                  ¿En casa necesitas Internet Fibra?
+                </span>{" "}
+                ¡Déjanos tus datos y te llamaremos en breve!
+              </p>
+              <form
+                onSubmit={handleLeadSubmit}
+                className="flex w-full md:w-1/2 lg:w-1/3 items-center overflow-hidden rounded-2xl bg-white shadow-inner focus-within:ring-2 focus-within:ring-[#EC5406]/60"
               >
-                <ArrowRight className="size-5" />
-              </Button>
-            </form>
+                <input
+                  type="tel"
+                  inputMode="tel"
+                  name="lead-phone"
+                  placeholder="Ingresa tu número de celular"
+                  className="h-10 flex-1 border-none px-5 text-sm text-slate-900 outline-none md:text-base"
+                  value={leadPhone}
+                  onChange={(event) => setLeadPhone(event.target.value)}
+                />
+                <Button
+                  type="submit"
+                  variant="orange"
+                  className="h-12 px-5 rounded-l-none"
+                  aria-label="Enviar formulario"
+                >
+                  <ArrowRight className="size-5" />
+                </Button>
+              </form>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <main className="flex-1">
-        <Outlet />
-      </main>
+        {/* Main Content */}
+        <main className="flex-1">
+          <Outlet />
+        </main>
 
-      {/* Footer */}
-      <Footer />
+        {/* Footer */}
+        <Footer />
 
-      {/* Botón flotante de WhatsApp con Popover */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              asChild
-              variant="orange"
-              className="w-15 h-15 rounded-full p-0"
-              aria-label="Mide tu velocidad"
-              style={{
-                animation: "orangePulse 2s ease-in-out infinite",
-              }}
-            >
-              <Link to="/planes/internet/speedtest">
-                <Gauge className="size-8" />
-              </Link>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p className="text-xl font-bold">Mide tu velocidad</p>
-          </TooltipContent>
-        </Tooltip>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              size="icon"
-              className="relative overflow-hidden w-15 h-15 rounded-full bg-green-500 hover:bg-green-600 shadow-lg hover:shadow-2xl hover:shadow-green-500/50 hover:scale-110 transition-all duration-300"
-              aria-label="Contactar por WhatsApp"
-              style={{
-                animation: "pulseGreen 2s ease-in-out infinite",
-              }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="size-8 relative z-10"
-              >
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-              </svg>
-
-              {/* Efecto de brillo que pasa por el botón */}
-              <span
-                className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent"
+        {/* Botón flotante de WhatsApp con Popover */}
+        <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                asChild
+                variant="orange"
+                className="w-15 h-15 rounded-full p-0"
+                aria-label="Mide tu velocidad"
                 style={{
-                  animation: "shine 3s ease-in-out infinite",
+                  animation: "orangePulse 2s ease-in-out infinite",
                 }}
-              />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent align="end" className="rounded-xl p-4 w-82">
-            <div className="space-y-4">
-              <h3 className="font-semibold text-lg">Lineas de atención</h3>
-              {whatsappLines.map((line, index) => (
-                <Button
-                  key={index}
-                  onClick={() => handleWhatsAppClick(line.phone)}
-                  className="w-full text-white hover:from-green-500 hover:to-green-600 bg-gradient-to-r from-[#FF9900] to-[#EC5406] relative"
+              >
+                <Link to="/planes/internet/speedtest">
+                  <Gauge className="size-8" />
+                </Link>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="text-xl font-bold">Mide tu velocidad</p>
+            </TooltipContent>
+          </Tooltip>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                size="icon"
+                className="relative overflow-hidden w-15 h-15 rounded-full bg-green-500 hover:bg-green-600 shadow-lg hover:shadow-2xl hover:shadow-green-500/50 hover:scale-110 transition-all duration-300"
+                aria-label="Contactar por WhatsApp"
+                style={{
+                  animation: "pulseGreen 2s ease-in-out infinite",
+                }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="size-8 relative z-10"
                 >
-                  <Phone className="w-4 h-4 mr-2" />
-                  {line.title}
-                  <Badge
-                    variant="secondary"
-                    className="ml-2 bg-white text-[#EC5406] hover:bg-white"
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                </svg>
+
+                {/* Efecto de brillo que pasa por el botón */}
+                <span
+                  className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                  style={{
+                    animation: "shine 3s ease-in-out infinite",
+                  }}
+                />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="rounded-xl p-4 w-82">
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg">Lineas de atención</h3>
+                {whatsappLines.map((line, index) => (
+                  <Button
+                    key={index}
+                    onClick={() => handleWhatsAppClick(line.phone, line.title)}
+                    className="w-full text-white hover:from-green-500 hover:to-green-600 bg-gradient-to-r from-[#FF9900] to-[#EC5406] relative"
                   >
-                    {line.badge}
-                  </Badge>
-                </Button>
-              ))}
-            </div>
-          </PopoverContent>
-        </Popover>
+                    <Phone className="w-4 h-4 mr-2" />
+                    {line.title}
+                    <Badge
+                      variant="secondary"
+                      className="ml-2 bg-white text-[#EC5406] hover:bg-white"
+                    >
+                      {line.badge}
+                    </Badge>
+                  </Button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
-    </div>
+    </LenisContext.Provider>
   );
 };
 

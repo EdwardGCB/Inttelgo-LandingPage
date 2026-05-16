@@ -2,6 +2,10 @@ import ApiService from "@/apis/ApiService.js";
 
 const primaryPath = "pse/";
 class PSEService {
+    generarToken(): Promise<any> {
+        return ApiService.post(`${primaryPath}`);
+    }
+
     consultTransaction(transactionId: string): Promise<any> {
         return ApiService.get(`${primaryPath}verifyTransaction/${transactionId}`, { headers: { "Content-Type": "application/json" } });
     }

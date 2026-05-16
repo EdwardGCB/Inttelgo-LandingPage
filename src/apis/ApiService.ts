@@ -6,12 +6,42 @@ import type {
     AxiosRequestConfig
 } from "axios";
 
-// Helper function to get cookie value
-const extractToken = () =>
-    document.cookie
+const extractToken = () => {
+    const entry = document.cookie
         .split("; ")
-        .find((cookie) => cookie.startsWith("pse_token="))
-        ?.split("=")[1];
+        .find((cookie) => cookie.startsWith("token="));
+    if (!entry) return undefined;
+    return decodeURIComponent(entry.substring("token=".length));
+};
+
+const persistToken = (token: string) => {
+    const cookieParts = [
+        `token=${encodeURIComponent(token)}`,
+        "path=/",
+        "SameSite=Strict",
+    ];
+    if (window.location.protocol === "https:") cookieParts.push("Secure");
+    document.cookie = cookieParts.join("; ");
+};
+
+
+const extractPSEToken = () => {
+    const entry = document.cookie
+        .split("; ")
+        .find((cookie) => cookie.startsWith("pse_token="));
+    if (!entry) return undefined;
+    return decodeURIComponent(entry.substring("pse_token=".length));
+};
+
+const persistPSEToken = (token: string) => {
+    const cookieParts = [
+        `pse_token=${encodeURIComponent(token)}`,
+        "path=/",
+        "SameSite=Strict",
+    ];
+    if (window.location.protocol === "https:") cookieParts.push("Secure");
+    document.cookie = cookieParts.join("; ");
+};
 
 class ApiService {
     private api: AxiosInstance;
@@ -22,24 +52,44 @@ class ApiService {
             withCredentials: true,
         });
 
-        // Interceptor para agregar token a las peticiones
+        // Interceptor de request: adjunta ambos tokens sin sobreescribirse
         this.api.interceptors.request.use(
             (config: InternalAxiosRequestConfig) => {
-                // Obtener token de localStorage (prioridad) o cookies
-                const token = extractToken();
+                const inttelgoToken = extractToken();
+                const pseToken = extractPSEToken();
 
-                if (token) {
-                    config.headers.Authorization = `Bearer ${token}`;
+                // Token de Inttelgo → Authorization: Bearer (para rutas con authRequired)
+                if (inttelgoToken) {
+                    config.headers.Authorization = `Bearer ${inttelgoToken}`;
                 }
 
-                // También enviar cookies por si acaso
-                config.withCredentials = true;
+                // Token PSE → header custom (para rutas con pseTokenRequired)
+                if (pseToken) {
+                    config.headers["pse_token"] = pseToken;
+                }
 
+                config.withCredentials = true;
                 return config;
             },
-            (error: AxiosError) => {
-                return Promise.reject(error);
-            }
+            (error: AxiosError) => Promise.reject(error)
+        );
+
+        // Interceptor de response: actualiza cookies cuando llegan nuevos tokens
+        this.api.interceptors.response.use(
+            (response) => {
+                const inttelgoToken = response.data?.token ?? null;
+                if (inttelgoToken && typeof inttelgoToken === "string") {
+                    persistToken(inttelgoToken);
+                }
+
+                const pseToken = response.data?.pse_token ?? null;
+                if (pseToken && typeof pseToken === "string") {
+                    persistPSEToken(pseToken);
+                }
+
+                return response;
+            },
+            (error: AxiosError) => Promise.reject(error)
         );
     }
 

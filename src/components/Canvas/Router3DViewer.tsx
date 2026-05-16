@@ -46,6 +46,7 @@ function LoadingFallback() {
 function Router3DViewer({ className = "", contentOnly = false }: Router3DViewerProps) {
   const [rotationValue, setRotationValue] = useState([0]);
   const [contextLost, setContextLost] = useState(false);
+  const [isModelReady, setIsModelReady] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
   const webglCleanupRef = useRef<(() => void) | null>(null);
 
@@ -93,7 +94,11 @@ function Router3DViewer({ className = "", contentOnly = false }: Router3DViewerP
   }, []);
 
   const mediaContent = (
-    <div className="relative w-full h-[300px] md:h-[500px] lg:h-[600px] flex items-center justify-center">
+    <div
+      className={`relative w-full h-[300px] md:h-[500px] lg:h-[600px] flex items-center justify-center transition-opacity duration-700 ${
+        isModelReady ? "opacity-100" : "opacity-0"
+      }`}
+    >
       {!contentOnly && (
         <div className="absolute flex flex-col items-center justify-center z-0 pointer-events-none px-4 -top-0">
           <h1 className="text-xl sm:text-2xl lg:text-4xl xl:text-5xl text-white font-bold leading-tight tracking-wide text-center mb-2">
@@ -156,6 +161,7 @@ function Router3DViewer({ className = "", contentOnly = false }: Router3DViewerP
                 scale={1.5}
                 rotation={[0, rotation, 0]}
                 position={[0, 2, 0]}
+                onReady={() => setIsModelReady(true)}
               />
 
 

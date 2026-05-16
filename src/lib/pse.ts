@@ -34,6 +34,7 @@ export type PseFormValues = {
         cupones?: Array<{ id: number; codigo: string }>
     }>;
     additionalPayments?: Array<{ id: number; amount: number }>;
+    recaptchaToken: string;
 };
 
 export type CuentaType = {
@@ -140,12 +141,14 @@ export const PSE_PAY_BILL_DIALOG = {
     exceededLimit: {
         title: "Límite de transacción excedido",
         description:
-            "El monto u otra regla del operador superó el límite permitido. Reduzca el valor a pagar o comuníquese con soporte para recibir ayuda.",
+            `<p>El monto u otra regla del operador superó el límite permitido. Reduzca el valor a pagar o comuníquese con soporte para recibir ayuda.</p>
+            <p>Comunicate con soporte</p>
+            `,
     },
     serviceNotConfigured: {
         title: "Servicio de pagos no configurado",
         description:
-            "El servicio PSE no está disponible por una configuración en el servidor. Comuníquese con soporte para reportar el problema.",
+            "El servicio PSE no está disponible por una configuración en el servidor. Comuníquese con soporte para reportar el problema. tel:___________",
     },
 } as const;
 

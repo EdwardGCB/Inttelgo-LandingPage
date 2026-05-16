@@ -289,12 +289,16 @@ export default function ContactUs() {
                         className="w-full rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-md hover:shadow-lg"
                       >
                         <a
-                          href={`https://wa.me/57${salesLine.number.replace(
-                            /\s/g,
-                            ""
-                          )}`}
+                          href={`https://wa.me/57${salesLine.number.replace(/\s/g, "")}`}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={() => {
+                            trackEvent("whatsapp_contact", {
+                              event_category: "contact",
+                              event_label: "Línea de ventas",
+                              phone_number: salesLine.number.replace(/\s/g, ""),
+                            });
+                          }}
                         >
                           Enviar mensaje
                         </a>
@@ -342,6 +346,13 @@ export default function ContactUs() {
                           )}`}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={() => {
+                            trackEvent("whatsapp_contact", {
+                              event_category: "contact",
+                              event_label: "Línea de Soporte",
+                              phone_number: supportLine.number.replace(/\s/g, ""),
+                            });
+                          }}
                         >
                           Enviar mensaje
                         </a>

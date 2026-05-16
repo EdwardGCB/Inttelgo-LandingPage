@@ -99,11 +99,11 @@ const menuData: Record<string, MenuSection> = {
     type: "link",
     href: "/contacto",
   },
-  /*football: {
+  football: {
     title: "Mundial",
     type: "link",
     href: "/mundial-2026",
-  },*/
+  },
   withIcon: {
     title: "BECA 2026",
     type: "link",
@@ -231,10 +231,17 @@ export default function Menu({
                                 "bg-transparent text-sm font-medium hover:bg-gradient-to-b hover:from-transparent hover:to-white/60",
                                 textColor
                               )}
+                              onPointerEnter={e => e.preventDefault()}
+                              onPointerMove={e => e.preventDefault()}
+                              onPointerLeave={e => e.preventDefault()}
                             >
                               {section.title}
                             </NavigationMenuTrigger>
-                            <NavigationMenuContent className="backdrop-blur-2xl">
+                            <NavigationMenuContent
+                              className="backdrop-blur-2xl"
+                              onPointerEnter={e => e.preventDefault()}
+                              onPointerLeave={e => e.preventDefault()}
+                            >
                               <ul
                                 className={`grid gap-2 ${key === "components"
                                   ? "w-[200px] md:w-[300px] lg:w-[400px]"

@@ -56,11 +56,6 @@ export const fundations: Fundation[] = [
     logo: "/fundations/fundaciones_FUNDACION SEMILLA DE LA VIDA DE SHADDAY.webp",
   },
   {
-    name: "Semilla de Vida Eterna",
-    tagline: "Entretenimiento general",
-    logo: "/fundations/fundaciones_FUNDACIÒN SEMILLA DE VIDA ETERNA.webp",
-  },
-  {
     name: "Shalom Misión Xtrema",
     tagline: "Entretenimiento general",
     logo: "/fundations/fundaciones_FUNDACIÒN SHALOM MISIÒN XTREMA.webp",
@@ -81,9 +76,9 @@ export const fundations: Fundation[] = [
     logo: "/fundations/fundaciones_GENERACION JUAN.webp",
   },
   {
-    name: "Peregrinos de la Esperanza",
+    name: "Parroquia Jesús buen samaritano",
     tagline: "Entretenimiento general",
-    logo: "/fundations/fundaciones_PEREGRINOS DE LA ESPERANZA.webp",
+    logo: "/fundations/Parroquia_Jesús_buen_samaritano.webp",
   },
 ];
 

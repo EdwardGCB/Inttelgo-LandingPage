@@ -47,6 +47,10 @@ export const PseSchema = z.object({
     acceptTerms: z.boolean()
         .refine((val) => val === true, "Debes aceptar los términos y condiciones"),
     idUrlGenerated: z.number().nullable(),
+    recaptchaToken: z.string({
+        required_error: "Confirma que no eres un robot",
+        invalid_type_error: "Confirma que no eres un robot",
+    }).min(1, "Confirma que no eres un robot")
 });
 
 

@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import ClientService from "@/services/ClientService";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PseSchema } from "@/utils/Pse.schema";
+import ReCAPTCHA from "react-google-recaptcha";
 
 function PreConfiguredPayment({ paymentId }: { paymentId: string }) {
   const [loading, setLoading] = useState(true);
@@ -18,10 +19,8 @@ function PreConfiguredPayment({ paymentId }: { paymentId: string }) {
   const [banks, setBanks] = useState<any[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [paymentRedeemed, setPaymentRedeemed] = useState(false);
-  const [identificationTypes, setIdentificationTypes] = useState<
-    selectTypeOption[]
-  >([]);
-
+  const [identificationTypes, setIdentificationTypes] = useState<selectTypeOption[]>([]);
+  const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY ?? "";
   const form = useForm<PseFormValues>(
     {
       resolver: zodResolver(PseSchema),
@@ -65,19 +64,6 @@ function PreConfiguredPayment({ paymentId }: { paymentId: string }) {
             form.setValue("idUrlGenerated", Number(paymentResponse.generateUrl.id));
             setIdentificationTypes(identifyTypesResponse.tipos_identificacion);
             setBanks(banksResponse.bancos);
-            if (banksResponse.token) {
-              const cookieParts = [
-                `pse_token=${encodeURIComponent(banksResponse.token)}`,
-                "path=/",
-                "SameSite=Strict",
-              ];
-
-              if (window.location.protocol === "https:") {
-                cookieParts.push("Secure");
-              }
-
-              document.cookie = cookieParts.join("; ");
-            }
           } else {
             setError("Estado de pago no válido");
           }
@@ -94,10 +80,28 @@ function PreConfiguredPayment({ paymentId }: { paymentId: string }) {
     loadPaymentData();
   }, []);
 
+  const withTokenRetry = async (fn: () => Promise<any>): Promise<any> => {
+    try {
+      return await fn();
+    } catch (err: any) {
+      const isTokenExpired =
+        err.response?.data?.error === "PSE_TOKEN_EXPIRED" ||
+        err.response?.status === 403;
+      if (isTokenExpired) {
+        console.log("[PSE] Token expirado, refrescando y reintentando...");
+        await PSEService.getBanks();
+        return await fn();
+      }
+      throw err;
+    }
+  };
+
   const onSubmit = async (values: PseFormValues) => {
     setSubmitting(true);
     try {
-      const response = await PSEService.generatePayment(JSON.stringify(values));
+      const response = await withTokenRetry(() =>
+        PSEService.generatePayment(JSON.stringify(values))
+      );
       if (response.returnCode === "SUCCESS") {
         window.location.href = response.pseURL;
       } else {
@@ -174,130 +178,131 @@ function PreConfiguredPayment({ paymentId }: { paymentId: string }) {
 
         {/* Información del cliente */}
         <Card className="border border-orange-200 rounded-lg p-6">
-          <CardTitle className="font-semibold text-lg mb-4">Información del Cliente</CardTitle>
-          <CardContent className="grid p-0 md:px-3 pb-6 gap-2 sm:grid-cols-2 w-full max-w-full overflow-hidden">
-            <FormField
-              control={form.control}
-              name="userType"
-              render={({ field }) => (
-                <FormItem className="space-y-3">
-                  <FormLabel className="flex items-center gap-2 text-base font-semibold text-black">
-                    <User className="h-4 w-4 text-[#ff6400]" />
-                    Tipo de usuario *
-                  </FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                  >
+          <CardTitle className="font-semibold text-lg">Información del Cliente</CardTitle>
+          <CardContent className="space-y-2 p-1">
+            <div className="grid p-0 gap-2 sm:grid-cols-2 w-full max-w-full overflow-hidden">
+              <FormField
+                control={form.control}
+                name="userType"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel className="flex items-center gap-2 text-base font-semibold text-black">
+                      <User className="h-4 w-4 text-[#ff6400]" />
+                      Tipo de usuario *
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full truncate">
+                          <SelectValue placeholder="Selecciona el tipo de usuario" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {userTypes.map(({ label, value, icon: Icon }) => (
+                          <SelectItem key={value} value={value}>
+                            <div className="flex items-center gap-2">
+                              <Icon className="h-4 w-4" />
+                              {label}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="identificationType"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel className="flex items-center gap-2 text-base font-semibold text-black">
+                      <CreditCard className="h-4 w-4 text-[#ff6400]" />
+                      Tipo de Identificación *
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value || undefined}
+                      disabled={
+                        identificationTypes.length === 0
+                      }
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full truncate">
+                          <SelectValue placeholder="Selecciona el tipo de identificación" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {identificationTypes.map((option) => (
+                          <SelectItem
+                            key={`${option.value}-${option.label}`}
+                            value={option.valor_identificacion.toString()}
+                          >
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nombre</FormLabel>
                     <FormControl>
-                      <SelectTrigger className="w-full truncate">
-                        <SelectValue placeholder="Selecciona el tipo de usuario" />
-                      </SelectTrigger>
+                      <Input className="h-8 border border-black/10 text-sm text-black" {...field} />
                     </FormControl>
-                    <SelectContent>
-                      {userTypes.map(({ label, value, icon: Icon }) => (
-                        <SelectItem key={value} value={value}>
-                          <div className="flex items-center gap-2">
-                            <Icon className="h-4 w-4" />
-                            {label}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="identificationType"
-              render={({ field }) => (
-                <FormItem className="space-y-3">
-                  <FormLabel className="flex items-center gap-2 text-base font-semibold text-black">
-                    <CreditCard className="h-4 w-4 text-[#ff6400]" />
-                    Tipo de Identificación *
-                  </FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value || undefined}
-                    disabled={
-                      identificationTypes.length === 0
-                    }
-                  >
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="identificationNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Identificación</FormLabel>
                     <FormControl>
-                      <SelectTrigger className="w-full truncate">
-                        <SelectValue placeholder="Selecciona el tipo de identificación" />
-                      </SelectTrigger>
+                      <Input className="h-8 border border-black/10 text-sm text-black" {...field} />
                     </FormControl>
-                    <SelectContent>
-                      {identificationTypes.map((option) => (
-                        <SelectItem
-                          key={`${option.value}-${option.label}`}
-                          value={option.valor_identificacion.toString()}
-                        >
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nombre</FormLabel>
-                  <FormControl>
-                    <Input className="h-8 border border-black/10 text-sm text-black" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="identificationNumber"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Identificación</FormLabel>
-                  <FormControl>
-                    <Input className="h-8 border border-black/10 text-sm text-black" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input className="h-8 border border-black/10 text-sm text-black" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Teléfono</FormLabel>
-                  <FormControl>
-                    <Input className="h-8 border border-black/10 text-sm text-black" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input className="h-8 border border-black/10 text-sm text-black" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Teléfono</FormLabel>
+                    <FormControl>
+                      <Input className="h-8 border border-black/10 text-sm text-black" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <FormField
               control={form.control}
               name="address"
@@ -405,6 +410,39 @@ function PreConfiguredPayment({ paymentId }: { paymentId: string }) {
           </p>
         </div>
 
+        <FormField
+          control={form.control}
+          name="recaptchaToken"
+          rules={{
+            validate: (value) => {
+              if (!RECAPTCHA_SITE_KEY) {
+                return "Falta VITE_RECAPTCHA_SITE_KEY en la configuración del sitio";
+              }
+              return value || "Confirma que no eres un robot";
+            },
+          }}
+          render={({ field }) => (
+            <FormItem className="w-full flex flex-col items-center">
+              <FormControl>
+                <div className="flex justify-center w-full">
+                  {RECAPTCHA_SITE_KEY ? (
+                    <ReCAPTCHA
+                      sitekey={RECAPTCHA_SITE_KEY}
+                      onChange={(token: string | null) => field.onChange(token)}
+                      onExpired={() => field.onChange(null)}
+                    />
+                  ) : (
+                    <p className="text-center text-sm text-destructive max-w-md">
+                      reCAPTCHA no está configurado. Añade VITE_RECAPTCHA_SITE_KEY al entorno y vuelve a generar el
+                      build.
+                    </p>
+                  )}
+                </div>
+              </FormControl>
+              <FormMessage className="text-center" />
+            </FormItem>
+          )}
+        />
         {/* Botón de pago */}
         <Button
           variant="orange"

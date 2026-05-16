@@ -9,6 +9,7 @@ interface Box3DProps {
   rotation?: [number, number, number];
   scale?: number;
   autoRotate?: boolean;
+  onReady?: () => void;
 }
 
 function Box3D({
@@ -17,6 +18,7 @@ function Box3D({
   rotation = [0, 0, 0],
   scale = 1,
   autoRotate = true,
+  onReady,
 }: Box3DProps) {
   const { scene } = useGLTF(`/models/${modelPath}`, true);
   const groupRef = useRef<Group>(null);
@@ -30,6 +32,7 @@ function Box3D({
       box.getCenter(center);
 
       setCenterOffset(center);
+      onReady?.();
 
       // Configurar texturas para evitar warnings de WebGL
       scene.traverse((child: any) => {

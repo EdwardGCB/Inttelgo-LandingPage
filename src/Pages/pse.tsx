@@ -1,8 +1,9 @@
 import Menu from "@/Layouts/Menu";
 import { Card, CardContent } from "@/components/ui/card";
 import SEO from "@/components/SEO";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
+import PSEService from "@/services/PSEService";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +27,12 @@ export default function Pse() {
   const [selectedPaymentForDiscount, setSelectedPaymentForDiscount] =
     useState<Record<string, unknown> | null>(null);
   const [discountDialogOpen, setDiscountDialogOpen] = useState(false);
+
+  useEffect(() => {
+    PSEService.generarToken().catch(() => {
+      // Fallo silencioso: el token se obtendrá en getBanks si este endpoint falla
+    });
+  }, []);
 
   // Si no hay parámetros, mostrar el flujo normal de pago
   return (

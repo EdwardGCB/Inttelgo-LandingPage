@@ -8,6 +8,7 @@ interface Router3DProps {
   rotation?: [number, number, number];
   scale?: number;
   autoRotate?: boolean;
+  onReady?: () => void;
 }
 
 function Router3D({
@@ -15,6 +16,7 @@ function Router3D({
   rotation = [0, 0, 0],
   scale = 1,
   autoRotate = true,
+  onReady,
 }: Router3DProps) {
   const { scene } = useGLTF("/models/router.glb");
   const groupRef = useRef<Group>(null);
@@ -69,6 +71,7 @@ function Router3D({
       });
 
       setIsReady(true);
+      onReady?.();
     };
 
     if ('requestIdleCallback' in window) {

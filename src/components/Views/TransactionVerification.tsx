@@ -58,8 +58,13 @@ function TransactionVerification({
                     ""
                 ).toLowerCase();
 
+                const transactionState = String(
+                    responseData?.transactionInfo?.transactionState ?? ""
+                ).toLowerCase();
+
                 const normalizedStatus =
                     statusMap[rawStatus] ??
+                    statusMap[transactionState] ??
                     (responseData?.success || responseData?.returnCode === "SUCCESS"
                         ? "approved"
                         : "pending");
@@ -403,7 +408,7 @@ function TransactionVerification({
                     </Button>
                 )}
 
-                {visualState === "rejected" && (
+                {(visualState === "rejected" || visualState === "failed") && (
                     <Button
                         type="button"
                         variant="orange"
