@@ -67,7 +67,7 @@ const PublicLayout = () => {
         if (tag === "INPUT" && (node as HTMLInputElement).type === "range") return true;
         if (node.hasAttribute("data-lenis-prevent")) return true;
         // Elementos con overflow scroll/auto que no son el body
-        const { overflowY, overflowX } = getComputedStyle(node);
+        const { overflowY } = getComputedStyle(node);
         const isScrollable =
           (overflowY === "auto" || overflowY === "scroll") &&
           node.scrollHeight > node.clientHeight;

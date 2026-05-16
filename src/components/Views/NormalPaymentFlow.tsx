@@ -4,7 +4,6 @@ import {
   formatCurrency,
   PSE_PAY_BILL_DIALOG,
   PSE_PAY_BILL_FAIL_EXCEEDED_LIMIT,
-  PSE_PAY_BILL_FAIL_SERVICE_NOT_CONFIGURED,
   PSE_PAY_BILL_MAINTENANCE_TOAST,
   userTypes,
   type aditionalPaymentType,
