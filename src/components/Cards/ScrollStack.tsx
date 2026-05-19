@@ -28,13 +28,17 @@ export const ScrollStackItem: React.FC<ScrollStackItemProps> = ({
 
     return (
         <div
-            className={`scroll-stack-card relative w-full min-h-68 my-8 box-border origin-top will-change-transform overflow-hidden ${isRight ? 'md:ml-auto -mr-12 md:pl-0 md:pr-16 md:w-[calc(50%-1rem)]' : 'pl-14 md:pl-16 md:mr-auto md:w-[calc(50%-1rem)]'} ${itemClassName}`.trim()}
+            className={`scroll-stack-card relative w-full min-h-68 box-border origin-top will-change-transform overflow-hidden pl-10 sm:pl-12 pr-4 pb-10 md:pb-0 md:my-8 ${isRight ? 'md:ml-auto md:pl-0 md:pr-16 md:w-[calc(50%-1rem)]' : 'md:pl-16 md:mr-auto md:w-[calc(50%-1rem)]'} ${itemClassName}`.trim()}
             style={{
                 backfaceVisibility: 'hidden',
                 transformStyle: 'preserve-3d'
             }}
         >
-            <div className={`flex flex-col gap-4 md:gap-6 py-4`}>
+            <div
+                className="absolute left-4 sm:left-5 md:left-1/2 top-6 -translate-x-1/2 z-10 w-4 h-4 md:w-5 md:h-5 rounded-full bg-orange-500 border-4 border-white shadow-lg"
+                aria-hidden
+            />
+            <div className="flex flex-col gap-4 md:gap-6 py-4">
                 {children}
             </div>
         </div>
@@ -234,10 +238,15 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
                 const transform = `translate3d(0, ${newTransform.translateY}px, 0) scale(${newTransform.scale}) rotate(${newTransform.rotation}deg)`;
                 const filter = newTransform.blur > 0 ? `blur(${newTransform.blur}px)` : '';
 
+                // Activar will-change solo mientras la card se está transformando
+                card.style.willChange = 'transform';
                 card.style.transform = transform;
                 card.style.filter = filter;
 
                 lastTransformsRef.current.set(i, newTransform);
+            } else {
+                // Liberar will-change cuando la card no está cambiando
+                card.style.willChange = 'auto';
             }
 
             if (i === cardsRef.current.length - 1) {
@@ -353,9 +362,11 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
                 card.style.marginBottom = `${itemDistance}px`;
             }
             card.style.zIndex = String(i);
-            card.style.willChange = 'transform, filter';
+            // will-change solo en el primero para no saturar la GPU en móvil
+            card.style.willChange = i === 0 ? 'transform' : 'auto';
             card.style.transformOrigin = 'top center';
             card.style.backfaceVisibility = 'hidden';
+            (card.style as any).webkitBackfaceVisibility = 'hidden';
             card.style.transform = 'translateZ(0)';
             card.style.webkitTransform = 'translateZ(0)';
             card.style.perspective = '1000px';
@@ -413,12 +424,13 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
                 style={{
                 }}
             >
-                <div className="scroll-stack-inner relative pl-8 md:pl-12 pr-6 md:pr-12 pb-[20rem] min-h-screen">
-                    {/* Línea vertical central */}
+                <div className="scroll-stack-inner relative pl-0 md:pl-12 pr-4 md:pr-12 pb-[20rem] min-h-screen">
+                    {/* Línea vertical: izquierda en móvil, centro en desktop */}
                     <div
-                        className="absolute left-1/2 top-0 bottom-0 w-[2px] -translate-x-1/2"
+                        className="absolute top-0 bottom-0 w-[2px] left-4 sm:left-5 md:left-1/2 md:-translate-x-1/2"
                         style={{
-                            background: 'linear-gradient(to bottom, transparent 0%, #f97316 10%, #f97316 90%, transparent 100%)'
+                            background:
+                                'linear-gradient(to bottom, transparent 0%, #f97316 10%, #f97316 90%, transparent 100%)',
                         }}
                     />
                     {children}

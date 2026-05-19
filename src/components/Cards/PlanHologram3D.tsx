@@ -193,43 +193,6 @@ export const CardBody = ({ children, className, reduceEffects = false, variant =
 
     return (
         <>
-            <style>{`
-                @keyframes hologramPulse {
-                    0%, 100% {
-                        opacity: 1;
-                    }
-                    50% {
-                        opacity: 0.5;
-                    }
-                }
-
-                @keyframes hologramFloat {
-                    0%, 100% {
-                        transform: translateY(0) scale(1);
-                    }
-                    50% {
-                        transform: translateY(-10px) scale(1.01);
-                    }
-                }
-
-                @keyframes hologramOrbit {
-                    from {
-                        transform: translate(-50%, -50%) rotate(0deg) translateX(150px) rotate(0deg);
-                    }
-                    to {
-                        transform: translate(-50%, -50%) rotate(360deg) translateX(150px) rotate(-360deg);
-                    }
-                }
-
-                @keyframes shimmer {
-                    0% {
-                        background-position: -200% center;
-                    }
-                    100% {
-                        background-position: 200% center;
-                    }
-                }
-            `}</style>
             <div
                 className={cn(
                     "[transform-style:preserve-3d] relative rounded-2xl w-full h-full",
@@ -501,21 +464,6 @@ export const SecondaryPlanHologram3D = memo(({ plan }: PlanProps) => {
                 </div>
             </div>
 
-            <style>{`
-                .perspective-1000 {
-                    perspective: 1000px;
-                }
-                .transform-style-3d {
-                    transform-style: preserve-3d;
-                }
-                .backface-hidden {
-                    backface-visibility: hidden;
-                    -webkit-backface-visibility: hidden;
-                }
-                .rotate-y-180 {
-                    transform: rotateY(180deg);
-                }
-            `}</style>
         </div>
     )
 }, (prevProps, nextProps) => {
@@ -686,21 +634,6 @@ export const PrimaryPlanHologram3D = memo(({ plan }: PlanProps) => {
                 </div>
             </div>
 
-            <style>{`
-                .perspective-1000 {
-                    perspective: 1000px;
-                }
-                .transform-style-3d {
-                    transform-style: preserve-3d;
-                }
-                .backface-hidden {
-                    backface-visibility: hidden;
-                    -webkit-backface-visibility: hidden;
-                }
-                .rotate-y-180 {
-                    transform: rotateY(180deg);
-                }
-            `}</style>
         </div >
     )
 }, (prevProps, nextProps) => {

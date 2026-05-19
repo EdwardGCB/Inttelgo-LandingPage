@@ -16,36 +16,69 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   --radius: 0.625rem;
+
+  /* Fallbacks hex para Firefox < 113 (no soporta oklch) */
+  --background: #ffffff;
   --background: oklch(1 0 0);
+  --foreground: #1e2030;
   --foreground: oklch(0.129 0.042 264.695);
+  --card: #ffffff;
   --card: oklch(1 0 0);
+  --card-foreground: #1e2030;
   --card-foreground: oklch(0.129 0.042 264.695);
+  --popover: #ffffff;
   --popover: oklch(1 0 0);
+  --popover-foreground: #1e2030;
   --popover-foreground: oklch(0.129 0.042 264.695);
+  --primary: #1e2030;
   --primary: oklch(0.208 0.042 265.755);
+  --primary-foreground: #f8f8fc;
   --primary-foreground: oklch(0.984 0.003 247.858);
+  --secondary: #f0f1f7;
   --secondary: oklch(0.968 0.007 247.896);
+  --secondary-foreground: #1e2030;
   --secondary-foreground: oklch(0.208 0.042 265.755);
+  --muted: #f0f1f7;
   --muted: oklch(0.968 0.007 247.896);
+  --muted-foreground: #6b7280;
   --muted-foreground: oklch(0.554 0.046 257.417);
+  --accent: #f0f1f7;
   --accent: oklch(0.968 0.007 247.896);
+  --accent-foreground: #1e2030;
   --accent-foreground: oklch(0.208 0.042 265.755);
+  --destructive: #dc2626;
   --destructive: oklch(0.577 0.245 27.325);
+  --border: #e2e4ed;
   --border: oklch(0.929 0.013 255.508);
+  --input: #e2e4ed;
   --input: oklch(0.929 0.013 255.508);
+  --ring: #9ba3bf;
   --ring: oklch(0.704 0.04 256.788);
+  --chart-1: #f97316;
   --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: #14b8a6;
   --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: #3b5bdb;
   --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: #eab308;
   --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: #f59e0b;
   --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: #f8f8fc;
   --sidebar: oklch(0.984 0.003 247.858);
+  --sidebar-foreground: #1e2030;
   --sidebar-foreground: oklch(0.129 0.042 264.695);
+  --sidebar-primary: #1e2030;
   --sidebar-primary: oklch(0.208 0.042 265.755);
+  --sidebar-primary-foreground: #f8f8fc;
   --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-accent: #f0f1f7;
   --sidebar-accent: oklch(0.968 0.007 247.896);
+  --sidebar-accent-foreground: #1e2030;
   --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
+  --sidebar-border: #e2e4ed;
   --sidebar-border: oklch(0.929 0.013 255.508);
+  --sidebar-ring: #9ba3bf;
   --sidebar-ring: oklch(0.704 0.04 256.788);
   --primary-gradient: linear-gradient(to right, #ff9900, #ec5406);
 }
@@ -496,4 +529,59 @@
     50%  { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
   }
+}
+
+/* ── Compatibilidad Firefox para Android ─────────────────────────────────────
+   1. backdrop-filter: Firefox Android tiene soporte limitado.
+      Cuando no está disponible, usamos fondos sólidos como fallback.
+   2. bg-clip-text: Tailwind genera background-clip:text pero Firefox también
+      necesita -webkit-background-clip y -webkit-text-fill-color.
+   3. preserve-3d: asegurar prefijos -webkit- para efectos 3D.
+──────────────────────────────────────────────────────────────────────────── */
+
+/* Fallback backdrop-filter para Firefox sin soporte */
+@supports not (backdrop-filter: blur(1px)) {
+  .backdrop-blur-sm  { background-color: rgba(255, 255, 255, 0.92) !important; }
+  .backdrop-blur     { background-color: rgba(255, 255, 255, 0.93) !important; }
+  .backdrop-blur-md  { background-color: rgba(255, 255, 255, 0.94) !important; }
+  .backdrop-blur-lg  { background-color: rgba(255, 255, 255, 0.96) !important; }
+  .backdrop-blur-xl  { background-color: rgba(255, 255, 255, 0.97) !important; }
+  .backdrop-blur-2xl { background-color: rgba(255, 255, 255, 0.98) !important; }
+  .backdrop-blur-3xl { background-color: rgba(255, 255, 255, 0.99) !important; }
+
+  /* Para fondos oscuros (dark) */
+  .dark .backdrop-blur-sm,
+  .dark .backdrop-blur,
+  .dark .backdrop-blur-md,
+  .dark .backdrop-blur-lg,
+  .dark .backdrop-blur-xl,
+  .dark .backdrop-blur-2xl,
+  .dark .backdrop-blur-3xl {
+    background-color: rgba(15, 20, 40, 0.94) !important;
+  }
+}
+
+/* Fix bg-clip-text: Firefox necesita los prefijos -webkit- */
+.bg-clip-text {
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+}
+
+.text-transparent {
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Fix preserve-3d y backface-visibility con prefijos webkit */
+.transform-style-3d,
+[style*="transform-style: preserve-3d"],
+[style*="transformStyle: preserve-3d"] {
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+}
+
+.backface-hidden,
+[style*="backface-visibility: hidden"] {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }

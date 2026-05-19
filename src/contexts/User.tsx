@@ -1,5 +1,19 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import {
+    createContext,
+    useContext,
+    useState,
+    useEffect,
+    useCallback,
+    type ReactNode,
+} from "react";
 import ClientService from "@/services/ClientService";
+import {
+    clearAuthCookies,
+    getAuthToken,
+    getClientIdentification,
+    setClientIdentification,
+} from "@/lib/authCookies";
+import ExperienceService from "@/services/ExperienceService";
 
 interface UserData {
     id: number;
@@ -23,33 +37,111 @@ interface UserData {
     };
 }
 
+interface UserPrediction {
+    id: string;
+    match: number | string | { id?: number | string };
+    homeScore: number;
+    awayScore: number;
+    puntuation: number;
+}
+
+interface UserPuntuation {
+    user: number | string;
+    name: string;
+    total_score: number;
+    position: number;
+}
+
 interface UserContextType {
     user: UserData | null;
     isLoading: boolean;
+    isInitializing: boolean;
     error: string | null;
     login: (cedula: string) => Promise<boolean>;
     logout: () => void;
+    userPredictions: UserPrediction[];
+    userPuntuation: UserPuntuation | null
 }
 
 const UserContext = createContext<UserContextType | null>(null);
 
+
 export function UserProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<UserData | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isInitializing, setIsInitializing] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [userPredictions, setUserPredictions] = useState<UserPrediction[]>([]);
+    const [userPuntuation, setUserPuntuation] = useState<UserPuntuation | null>(null);
+
+
+
+    const restoreSession = useCallback(async () => {
+        const token = getAuthToken();
+        const identificacion = getClientIdentification();
+
+        if (!token || !identificacion) {
+            if (!token && identificacion) {
+                clearAuthCookies();
+            }
+            return;
+        }
+
+        try {
+            const res = await ClientService.consultByIdentification(identificacion);
+            if (res.success && res.cliente) {
+                setUser(res.cliente);
+                setClientIdentification(identificacion);
+            } else {
+                clearAuthCookies();
+            }
+        } catch {
+            clearAuthCookies();
+        }
+    }, []);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        const init = async () => {
+            await restoreSession();
+            if (!cancelled) {
+                setIsInitializing(false);
+            }
+        };
+
+        init();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [restoreSession]);
+
+    useEffect(() => {
+        if (!user)
+            return;
+        ExperienceService.sport.consultUserPredictions(user.id).then((res) => {
+            const raw = res.data;
+            const list = Array.isArray(raw) ? raw : raw?.items ?? raw?.predictions ?? [];
+            setUserPredictions(Array.isArray(list) ? list : []);
+        }).catch((e) => console.error(e));
+        ExperienceService.sport.consultUserPuntuation(user.id).then((res) => {
+            setUserPuntuation(res.data)
+        });
+    }, [user])
 
     const login = async (cedula: string): Promise<boolean> => {
         setIsLoading(true);
         setError(null);
         try {
             const res = await ClientService.consultByIdentification(cedula);
-            if (res.success) {
+            if (res.success && res.cliente) {
                 setUser(res.cliente);
+                setClientIdentification(cedula.trim());
                 return true;
-            } else {
-                setError(res.message ?? "No se encontró un usuario con esa cédula.");
-                return false;
             }
+            setError(res.message ?? "No se encontró un usuario con esa cédula.");
+            return false;
         } catch {
             setError("No se encontró un usuario con esa cédula o no cuenta con el servicio.");
             return false;
@@ -59,12 +151,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
     };
 
     const logout = () => {
+        clearAuthCookies();
         setUser(null);
         setError(null);
     };
 
     return (
-        <UserContext.Provider value={{ user, isLoading, error, login, logout }}>
+        <UserContext.Provider
+            value={{ user, isLoading, isInitializing, error, login, logout, userPredictions, userPuntuation }}
+        >
             {children}
         </UserContext.Provider>
     );

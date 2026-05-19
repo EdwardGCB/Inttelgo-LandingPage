@@ -6,23 +6,7 @@ import type {
     AxiosRequestConfig
 } from "axios";
 
-const extractToken = () => {
-    const entry = document.cookie
-        .split("; ")
-        .find((cookie) => cookie.startsWith("token="));
-    if (!entry) return undefined;
-    return decodeURIComponent(entry.substring("token=".length));
-};
-
-const persistToken = (token: string) => {
-    const cookieParts = [
-        `token=${encodeURIComponent(token)}`,
-        "path=/",
-        "SameSite=Strict",
-    ];
-    if (window.location.protocol === "https:") cookieParts.push("Secure");
-    document.cookie = cookieParts.join("; ");
-};
+import { getAuthToken, setAuthToken } from "@/lib/authCookies";
 
 
 const extractPSEToken = () => {
@@ -55,7 +39,7 @@ class ApiService {
         // Interceptor de request: adjunta ambos tokens sin sobreescribirse
         this.api.interceptors.request.use(
             (config: InternalAxiosRequestConfig) => {
-                const inttelgoToken = extractToken();
+                const inttelgoToken = getAuthToken();
                 const pseToken = extractPSEToken();
 
                 // Token de Inttelgo → Authorization: Bearer (para rutas con authRequired)
@@ -79,7 +63,7 @@ class ApiService {
             (response) => {
                 const inttelgoToken = response.data?.token ?? null;
                 if (inttelgoToken && typeof inttelgoToken === "string") {
-                    persistToken(inttelgoToken);
+                    setAuthToken(inttelgoToken);
                 }
 
                 const pseToken = response.data?.pse_token ?? null;

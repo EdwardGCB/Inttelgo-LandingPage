@@ -94,6 +94,9 @@ function NormalPaymentFlow({ handleSelectPaymentForDiscount, handleDiscountDialo
   useEffect(() => {
     const loadData = async () => {
       try {
+        // Primero asegurar que el token PSE exista antes de pedir los bancos
+        await PSEService.generarToken();
+
         const [identificationResult, banksResult] = await Promise.allSettled([
           ClientService.getIdentifyTypes(),
           PSEService.getBanks(),

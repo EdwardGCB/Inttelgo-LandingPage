@@ -47,6 +47,8 @@ function PreConfiguredPayment({ paymentId }: { paymentId: string }) {
     const loadPaymentData = async () => {
       try {
         setLoading(true);
+        // Primero asegurar que el token PSE exista antes de pedir los bancos
+        await PSEService.generarToken();
         const [paymentResponse, identifyTypesResponse, banksResponse] = await Promise.all([PSEService.paymentConsultByID(paymentId), ClientService.getIdentifyTypes(), PSEService.getBanks()]);
 
         if (paymentResponse.success && identifyTypesResponse.success && banksResponse.success) {

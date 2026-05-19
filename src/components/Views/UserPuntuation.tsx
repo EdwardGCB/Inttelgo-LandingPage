@@ -81,21 +81,20 @@ function ScoreBox({ home, away, className }: { home: number; away: number; class
     );
 }
 
-function UserPuntuation({ predictionsData = [] }: { predictionsData?: PredictionItem[] }) {
-    const { user } = useUser();
+function UserPuntuation() {
+    const { user, userPredictions, userPuntuation } = useUser();
     const [predictions, setPredictions] = useState<PredictionItem[]>([]);
     const [page, setPage] = useState(1);
 
     useEffect(() => {
-        setPredictions(predictionsData);
-    }, [predictionsData]);
+        setPredictions(userPredictions);
+    }, [userPredictions]);
 
     if (!user) return null;
 
     const totalPages = Math.max(1, Math.ceil(predictions.length / PAGE_SIZE));
     const paginated = predictions.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-    const totalPoints = predictions.reduce((sum, p) => sum + (p.puntuation ?? 0), 0);
     const userFullName = [user.nombre1, user.nombre2, user.apellido1, user.apellido2]
         .filter(Boolean)
         .join(" ");
@@ -118,7 +117,7 @@ function UserPuntuation({ predictionsData = [] }: { predictionsData?: Prediction
                                 <span className="font-bold uppercase text-xs sm:text-sm">Posición</span>
                                 <Card className="p-2">
                                     <CardContent className="text-center px-3 py-1">
-                                        <span className="font-extrabold text-3xl sm:text-4xl">1</span>
+                                        <span className="font-extrabold text-3xl sm:text-4xl">{userPuntuation?.position}</span>
                                     </CardContent>
                                 </Card>
                             </div>
@@ -126,7 +125,7 @@ function UserPuntuation({ predictionsData = [] }: { predictionsData?: Prediction
                                 <span className="font-bold uppercase text-xs sm:text-sm">Puntaje Total</span>
                                 <Card className="p-2 w-full">
                                     <CardContent className="text-center px-3 py-1">
-                                        <span className="font-extrabold text-3xl sm:text-4xl">{totalPoints}</span>
+                                        <span className="font-extrabold text-3xl sm:text-4xl">{userPuntuation?.total_score}</span>
                                     </CardContent>
                                 </Card>
                             </div>

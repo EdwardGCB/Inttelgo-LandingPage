@@ -27,6 +27,9 @@ class ExperienceService {
         },
         consultUsersScores(conditions: any = undefined) {
             return ApiService.get(`${sportPath}scores`, { params: conditions, headers: { "Content-Type": "application/json" } })
+        },
+        consultUserPuntuation(userId: number) {
+            return ApiService.get(`${sportPath}puntuations/user/${userId}`, { headers: { "Content-Type": "application/json" } });
         }
     }
 }

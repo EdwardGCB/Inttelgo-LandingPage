@@ -1,6 +1,7 @@
 import ExperienceService from '@/services/ExperienceService';
 import React, { useEffect, useRef, useState } from 'react'
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { MessageToast } from '@/lib/messageToast';
 import {
     Table,
     TableBody,
@@ -157,6 +158,7 @@ function PredictionDrawer({
 }) {
     const { user } = useUser();
     const [open, setOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const form = useForm<PredictionValues>({
         resolver: zodResolver(predictionSchema),
@@ -169,25 +171,71 @@ function PredictionDrawer({
         }
     }, [open]);
 
-    const onSubmit = (values: PredictionValues) => {
-        if (scoreShownOutside) {
-            ExperienceService.sport.updateUserPredictions(user!!.id, match.id, { name: `${user!!.nombre1} ${user!!.apellido1}`, ...values })
-        } else {
-            ExperienceService.sport.createUserPredictions(user!!.id, match.id, { name: `${user!!.nombre1} ${user!!.apellido1}`, ...values }).then((res) => {
-                if (!res.success) {
-                    return
-                }
-                onSave(res.data.homeScore, res.data.awayScore);
-                setOpen(false)
+    function resolveErrorMessage(error: unknown): string {
+        if (!error) return 'Error al guardar el pronóstico. Intenta de nuevo.';
+        // Axios error con respuesta del backend
+        const axiosErr = error as any;
+        const detail = axiosErr?.response?.data?.detail ?? axiosErr?.response?.data?.message;
+        if (typeof detail === 'string') {
+            if (detail.toLowerCase().includes('scheduled') || detail.toLowerCase().includes('in_time')) {
+                return 'Solo puedes pronosticar partidos programados que aún no han comenzado.';
+            }
+            return detail;
+        }
+        if (axiosErr?.message) return axiosErr.message;
+        return 'Error al guardar el pronóstico. Intenta de nuevo.';
+    }
 
-            }).catch((e) => console.error(e)).finally(() => { })
+    const onSubmit = async (values: PredictionValues) => {
+        if (!user) return;
+        setIsSubmitting(true);
+        const name = `${user.nombre1 ?? ''} ${user.apellido1 ?? ''}`.trim();
+        try {
+            if (scoreShownOutside) {
+                const res = await ExperienceService.sport.updateUserPredictions(user.id, match.id, { name, ...values });
+                if (res?.success === false) {
+                    MessageToast.error({
+                        title: 'No se pudo actualizar',
+                        description: res?.message ?? 'Ocurrió un error al actualizar el pronóstico.',
+                    });
+                    return;
+                }
+                MessageToast.success({
+                    title: 'Pronóstico actualizado',
+                    description: `${match.homeTeam.shortName} ${values.homeScore} - ${values.awayScore} ${match.awayTeam.shortName}`,
+                });
+                onSave(values.homeScore, values.awayScore);
+                setOpen(false);
+            } else {
+                const res = await ExperienceService.sport.createUserPredictions(user.id, match.id, { name, ...values });
+                if (!res?.success) {
+                    MessageToast.error({
+                        title: 'No se pudo registrar',
+                        description: res?.message ?? 'Ocurrió un error al registrar el pronóstico.',
+                    });
+                    return;
+                }
+                MessageToast.success({
+                    title: '¡Pronóstico registrado!',
+                    description: `${match.homeTeam.shortName} ${res.data.homeScore} - ${res.data.awayScore} ${match.awayTeam.shortName}`,
+                });
+                onSave(String(res.data.homeScore), String(res.data.awayScore));
+                setOpen(false);
+            }
+        } catch (error) {
+            MessageToast.error({
+                title: 'Error al guardar',
+                description: resolveErrorMessage(error),
+            });
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     return (
-        <Drawer open={open} onOpenChange={setOpen}>
+        <Drawer open={open} onOpenChange={(v) => { if (!isSubmitting) setOpen(v); }}>
             <DrawerTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-1.5">
+                <Button variant="outline" size="sm" className="gap-1.5" disabled={isSubmitting}>
                     {saved && !scoreShownOutside ? (
                         <>
                             <span className="font-bold text-orange-500">{saved.home}-{saved.away}</span>
@@ -215,7 +263,7 @@ function PredictionDrawer({
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="px-4 space-y-6">
                             {/* Equipos + OTP */}
-                            <div className="flex items-center justify-between gap-3">
+                            <div className={`flex items-center justify-between gap-3 transition-opacity duration-200 ${isSubmitting ? 'opacity-50 pointer-events-none select-none' : ''}`}>
                                 {/* Equipo local */}
                                 <div className="flex flex-col items-center gap-2 flex-1">
                                     <img
@@ -238,7 +286,7 @@ function PredictionDrawer({
                                             <FormItem className="flex flex-col items-center gap-1">
                                                 <FormLabel className="text-xs text-muted-foreground">Local</FormLabel>
                                                 <FormControl>
-                                                    <InputOTP maxLength={1} value={field.value} onChange={field.onChange}>
+                                                    <InputOTP maxLength={1} value={field.value} onChange={field.onChange} disabled={isSubmitting}>
                                                         <InputOTPGroup>
                                                             <InputOTPSlot index={0} className="h-14 w-12 text-2xl font-extrabold border-2 border-orange-400 rounded-lg" />
                                                         </InputOTPGroup>
@@ -258,7 +306,7 @@ function PredictionDrawer({
                                             <FormItem className="flex flex-col items-center gap-1">
                                                 <FormLabel className="text-xs text-muted-foreground">Visitante</FormLabel>
                                                 <FormControl>
-                                                    <InputOTP maxLength={1} value={field.value} onChange={field.onChange}>
+                                                    <InputOTP maxLength={1} value={field.value} onChange={field.onChange} disabled={isSubmitting}>
                                                         <InputOTPGroup>
                                                             <InputOTPSlot index={0} className="h-14 w-12 text-2xl font-extrabold border-2 border-orange-400 rounded-lg" />
                                                         </InputOTPGroup>
@@ -287,12 +335,21 @@ function PredictionDrawer({
                             <DrawerFooter className="px-0 pb-2">
                                 <Button
                                     type="submit"
+                                    disabled={isSubmitting}
                                     className="w-full bg-gradient-to-b from-[#FF9900] to-[#EC5406] text-white font-bold text-base hover:opacity-90"
                                 >
-                                    Pronosticar
+                                    {isSubmitting ? (
+                                        <span className="flex items-center gap-2">
+                                            Guardando...
+                                        </span>
+                                    ) : (
+                                        scoreShownOutside ? 'Actualizar pronóstico' : 'Pronosticar'
+                                    )}
                                 </Button>
                                 <DrawerClose asChild>
-                                    <Button variant="outline" className="w-full">Cancelar</Button>
+                                    <Button variant="outline" className="w-full" disabled={isSubmitting}>
+                                        Cancelar
+                                    </Button>
                                 </DrawerClose>
                             </DrawerFooter>
                         </form>
@@ -306,13 +363,13 @@ function PredictionDrawer({
 function GamesList({ userPredictions = [] }: { userPredictions?: UserPrediction[] }) {
     const { user } = useUser();
     const { latestEvent } = useSocket();
-    const competitionId = "2001"
+    const competitionId = "2000"
     const conditions = {
-        //matchday: 1,
-        dateFrom: "2025-09-16",
-        //dateFrom: "2026-06-11",
-        dateTo: "2026-05-30"
-        //dateTo: "2026-06-27"
+        matchday: 1,
+        //dateFrom: "2025-09-16",
+        dateFrom: "2026-06-11",
+        //dateTo: "2026-05-30"
+        dateTo: "2026-06-27"
     }
     const [games, setGames] = useState<Match[]>([]);
     const [loadingData, setLoadingData] = useState(false);

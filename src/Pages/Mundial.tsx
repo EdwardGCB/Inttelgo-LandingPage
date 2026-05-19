@@ -10,7 +10,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import GamesList from "@/components/Views/GamesList";
 import GroupsList from "@/components/Views/GroupsList";
 import ClasifiesList from "@/components/Views/ClasifiesList";
-import ExperienceService from "@/services/ExperienceService";
 import { UserProvider, useUser } from "@/contexts/User";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,14 +18,6 @@ import { LogIn, LogOut, UserCheck, ShieldAlert, Info, MousePointerClick, Goal, A
 import UserPuntuation from "@/components/Views/UserPuntuation";
 import Scores from "@/components/Views/Scores";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-
-interface UserPrediction {
-    id: string;
-    match: number | string | { id?: number | string };
-    homeScore: number;
-    awayScore: number;
-    puntuation: number;
-}
 
 function RulesDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
     const lenis = useLenis();
@@ -252,34 +243,13 @@ function RulesDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (ope
 }
 
 function MundialContent() {
-    const { login, isLoading, error, user, logout } = useUser();
+    const { login, isLoading, isInitializing, error, user, logout, userPredictions } = useUser();
     const [identification, setIdentification] = useState("");
     const [activeTab, setActiveTab] = useState("game");
-    const [userPredictions, setUserPredictions] = useState<UserPrediction[]>([]);
     const [rulesAccepted, setRulesAccepted] = useState(false);
     const [rulesOpen, setRulesOpen] = useState(true);
     const loginCardRef = useRef<HTMLDivElement | null>(null);
     const tabsRef = useRef<HTMLDivElement | null>(null);
-    useEffect(() => {
-        if (!user) {
-            setUserPredictions([]);
-            return;
-        }
-
-        const loadingData = async () => {
-            try {
-                const predRes = await ExperienceService.sport.consultUserPredictions(user.id);
-                if (predRes.success) {
-                    const raw = predRes.data;
-                    const list = Array.isArray(raw) ? raw : raw?.items ?? raw?.predictions ?? [];
-                    setUserPredictions(Array.isArray(list) ? list : []);
-                }
-            } catch (e) {
-                console.error(e);
-            }
-        };
-        loadingData();
-    }, [user]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -357,7 +327,12 @@ function MundialContent() {
 
                                 {/* User session bar */}
                                 <div className="mt-4 flex items-center gap-3">
-                                    {user ? (
+                                    {isInitializing ? (
+                                        <div className="flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur-sm">
+                                            <LoadingSpinner size="sm" />
+                                            <span className="text-sm text-white/80">Verificando sesión...</span>
+                                        </div>
+                                    ) : user ? (
                                         <div className="flex items-center gap-3 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur-sm">
                                             <UserCheck className="h-4 w-4 text-green-400" />
                                             <span className="text-sm text-white font-medium">
@@ -439,103 +414,107 @@ function MundialContent() {
                     </div>
 
                     <div ref={loginCardRef} className="flex flex-col items-center justify-center py-4 px-3 sm:px-4">
-                        {
-                            !user ? (
-                                <Card className="w-full max-w-xl p-2 sm:p-3 px-0 border-orange-500/40 overflow-hidden transition-all duration-500 ease-out shadow-2xl shadow-orange-500/60 hover:scale-[1.01] sm:hover:scale-[1.02] sm:hover:-translate-y-1 mb-8 sm:mb-12">
-                                    <CardContent className="p-2 sm:p-3 px-0">
-                                        <CardHeader className="px-3 sm:px-6">
-                                            <CardTitle className="text-base sm:text-lg text-center uppercase flex justify-center items-center gap-2">
-                                                <div className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-b from-[#FF9900] to-[#EC5406]">
-                                                    <Info className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
-                                                </div>¡participar!</CardTitle>
-                                            <CardDescription className="text-sm sm:text-base leading-relaxed pt-1 text-center sm:text-left">
-                                                Para participar ingresa el número de indentificacion del titular del servicio
-                                            </CardDescription>
-                                        </CardHeader>
-                                        <form onSubmit={handleSubmit} className="space-y-4 flex flex-col items-center px-3 sm:px-6">
-                                            <div className="space-y-2 w-full">
-                                                <Label htmlFor="identification" className="text-sm sm:text-base">Número de cédula</Label>
-                                                <Input
-                                                    id="identification"
-                                                    type="text"
-                                                    inputMode="numeric"
-                                                    placeholder="Ej. 1234567890"
-                                                    value={identification}
-                                                    onChange={(e) => setIdentification(e.target.value)}
-                                                    disabled={isLoading}
-                                                    autoFocus
-                                                />
-                                            </div>
+                        {isInitializing ? (
+                            <div className="flex items-center justify-center py-12">
+                                <LoadingSpinner size="md" />
+                            </div>
+                        ) : !user ? (
+                            <Card className="w-full max-w-xl p-2 sm:p-3 px-0 border-orange-500/40 overflow-hidden transition-all duration-500 ease-out shadow-2xl shadow-orange-500/60 hover:scale-[1.01] sm:hover:scale-[1.02] sm:hover:-translate-y-1 mb-8 sm:mb-12">
+                                <CardContent className="p-2 sm:p-3 px-0">
+                                    <CardHeader className="px-3 sm:px-6">
+                                        <CardTitle className="text-base sm:text-lg text-center uppercase flex justify-center items-center gap-2">
+                                            <div className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-b from-[#FF9900] to-[#EC5406]">
+                                                <Info className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                                            </div>¡participar!</CardTitle>
+                                        <CardDescription className="text-sm sm:text-base leading-relaxed pt-1 text-center sm:text-left">
+                                            Para participar ingresa el número de indentificacion del titular del servicio
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <form onSubmit={handleSubmit} className="space-y-4 flex flex-col items-center px-3 sm:px-6">
+                                        <div className="space-y-2 w-full">
+                                            <Label htmlFor="identification" className="text-sm sm:text-base">Número de cédula</Label>
+                                            <Input
+                                                id="identification"
+                                                type="text"
+                                                inputMode="numeric"
+                                                placeholder="Ej. 1234567890"
+                                                value={identification}
+                                                onChange={(e) => setIdentification(e.target.value)}
+                                                disabled={isLoading}
+                                                autoFocus
+                                            />
+                                        </div>
 
-                                            {error && (
-                                                <div className="flex items-start gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs sm:text-sm text-red-700 w-full">
-                                                    <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
-                                                    <span>{error}</span>
-                                                </div>
-                                            )}
-                                            {/* Checkbox de aceptación de reglas */}
-                                            <div className="mt-4 flex items-center gap-2">
-                                                <input
-                                                    type="checkbox"
-                                                    id="accept-rules"
-                                                    checked={rulesAccepted}
-                                                    onChange={e => setRulesAccepted(e.target.checked)}
-                                                    className="h-4 w-4 cursor-pointer accent-orange-500"
-                                                />
-                                                <label htmlFor="accept-rules" className="cursor-pointer select-none text-sm">
-                                                    He leído y acepto las {" "}
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => setRulesOpen(true)}
-                                                        className="text-orange-400 underline hover:text-orange-300 transition-colors"
-                                                    >
-                                                        reglas
-                                                    </button> pactadas por Inttelgo para participar
-                                                </label>
+                                        {error && (
+                                            <div className="flex items-start gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs sm:text-sm text-red-700 w-full">
+                                                <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
+                                                <span>{error}</span>
                                             </div>
-                                            <CardFooter className="pt-2 w-full px-0">
+                                        )}
+                                        {/* Checkbox de aceptación de reglas */}
+                                        <div className="mt-4 flex items-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                id="accept-rules"
+                                                checked={rulesAccepted}
+                                                onChange={e => setRulesAccepted(e.target.checked)}
+                                                className="h-4 w-4 cursor-pointer accent-orange-500"
+                                            />
+                                            <label htmlFor="accept-rules" className="cursor-pointer select-none text-sm">
+                                                He leído y acepto las
                                                 <Button
-                                                    variant={"orange"}
-                                                    type="submit"
-                                                    disabled={isLoading || !identification.trim() || !rulesAccepted}
-                                                    className="w-full"
+                                                    type="button"
+                                                    variant={"link"}
+                                                    onClick={() => setRulesOpen(true)}
+                                                    className="text-orange-400 underline hover:text-orange-300 transition-colors"
                                                 >
-                                                    {isLoading ? (
-                                                        <LoadingSpinner size="sm" />
-                                                    ) : (
-                                                        <>
-                                                            Ingresar
-                                                        </>
-                                                    )}
-                                                </Button>
-                                            </CardFooter>
-                                        </form>
+                                                    reglas
+                                                </Button>pactadas por Inttelgo para participar
+                                            </label>
+                                        </div>
+                                        <CardFooter className="pt-2 w-full px-0">
+                                            <Button
+                                                variant={"orange"}
+                                                type="submit"
+                                                disabled={isLoading || !identification.trim() || !rulesAccepted}
+                                                className="w-full"
+                                            >
+                                                {isLoading ? (
+                                                    <LoadingSpinner size="sm" />
+                                                ) : (
+                                                    <>
+                                                        Ingresar
+                                                    </>
+                                                )}
+                                            </Button>
+                                        </CardFooter>
+                                    </form>
+                                </CardContent>
+                            </Card>
+
+                        ) : (
+                            <div className="space-y-2">
+                                <UserPuntuation />
+                                <Card
+                                    className="w-full border-none bg-gradient-to-r from-[#1a0d05] to-[#EC5406] text-white cursor-pointer rounded-xl hover:scale-[1.02] transition-transform duration-300"
+                                    onClick={handleGoToScores}
+                                >
+                                    <CardContent className="flex items-center justify-between gap-3 sm:gap-6 py-4 sm:py-6 px-4 sm:px-8">
+                                        <span className="font-extrabold uppercase text-base sm:text-2xl lg:text-3xl leading-tight">
+                                            Mira tú posición en el top de los clientes
+                                        </span>
+                                        <MousePointerClick className="h-10 w-10 sm:h-14 sm:w-14 shrink-0 text-white/80 animate-bounce" />
+                                        <Button
+                                            variant="outline"
+                                            className="shrink-0 bg-white text-gray-900 font-bold hover:bg-white/90 border-none text-sm sm:text-lg px-3 sm:px-6"
+                                            onClick={(e) => { e.stopPropagation(); handleGoToScores(); }}
+                                        >
+                                            Ver más
+                                        </Button>
                                     </CardContent>
                                 </Card>
-
-                            ) : (
-                                <div className="space-y-2">
-                                    <UserPuntuation predictionsData={userPredictions} />
-                                    <Card
-                                        className="w-full border-none bg-gradient-to-r from-[#1a0d05] to-[#EC5406] text-white cursor-pointer rounded-xl hover:scale-[1.02] transition-transform duration-300"
-                                        onClick={handleGoToScores}
-                                    >
-                                        <CardContent className="flex items-center justify-between gap-3 sm:gap-6 py-4 sm:py-6 px-4 sm:px-8">
-                                            <span className="font-extrabold uppercase text-base sm:text-2xl lg:text-3xl leading-tight">
-                                                Mira tú posición en el top de los clientes
-                                            </span>
-                                            <MousePointerClick className="h-10 w-10 sm:h-14 sm:w-14 shrink-0 text-white/80 animate-bounce" />
-                                            <Button
-                                                variant="outline"
-                                                className="shrink-0 bg-white text-gray-900 font-bold hover:bg-white/90 border-none text-sm sm:text-lg px-3 sm:px-6"
-                                                onClick={(e) => { e.stopPropagation(); handleGoToScores(); }}
-                                            >
-                                                Ver más
-                                            </Button>
-                                        </CardContent>
-                                    </Card>
-                                </div>
-                            )
+                            </div>
+                        )
                         }
                     </div>
                 </div>

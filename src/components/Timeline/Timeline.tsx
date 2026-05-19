@@ -18,6 +18,9 @@ export default function Timeline({ events, className = "" }: TimelineProps) {
 
   useEffect(() => {
     const observers: IntersectionObserver[] = [];
+    // Margen reducido para móvil: en pantallas pequeñas -100px es demasiado agresivo
+    const isMobile = window.innerWidth < 768;
+    const rootMarginBottom = isMobile ? "-40px" : "-100px";
 
     itemRefs.current.forEach((ref, index) => {
       if (!ref) return;
@@ -26,13 +29,21 @@ export default function Timeline({ events, className = "" }: TimelineProps) {
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
-              setVisibleItems((prev) => new Set(prev).add(index));
+              // Una vez visible, nunca vuelve a ocultarse → evita el rebote en Firefox móvil
+              setVisibleItems((prev) => {
+                if (prev.has(index)) return prev;
+                const next = new Set(prev);
+                next.add(index);
+                return next;
+              });
+              // Ya no necesitamos seguir observando este elemento
+              observer.unobserve(entry.target);
             }
           });
         },
         {
-          threshold: 0.2,
-          rootMargin: "0px 0px -100px 0px",
+          threshold: 0.1,
+          rootMargin: `0px 0px ${rootMarginBottom} 0px`,
         }
       );
 
@@ -48,10 +59,16 @@ export default function Timeline({ events, className = "" }: TimelineProps) {
   return (
     <div className={cn("relative py-12 md:py-20", className)}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-12">
-        {/* Línea vertical */}
-        <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-orange-500 via-orange-400 to-orange-300 transform md:-translate-x-1/2" />
+        {/* Línea vertical: izquierda en móvil, centro en desktop */}
+        <div
+          className={cn(
+            "absolute top-0 bottom-0 w-0.5 bg-gradient-to-b from-orange-500 via-orange-400 to-orange-300",
+            "left-4 sm:left-5",
+            "md:left-1/2 md:-translate-x-1/2"
+          )}
+        />
 
-        <div className="space-y-12 md:space-y-20">
+        <div className="space-y-0 md:space-y-20">
           {events.map((event, index) => {
             const isVisible = visibleItems.has(index);
             const isEven = index % 2 === 0;
@@ -63,10 +80,11 @@ export default function Timeline({ events, className = "" }: TimelineProps) {
                   itemRefs.current[index] = el;
                 }}
                 className={cn(
-                  "relative flex items-center transition-all duration-1000 ease-out",
+                  "relative duration-700 ease-out",
+                  "transition-[opacity,transform]",
                   isVisible
                     ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-10"
+                    : "opacity-0 translate-y-6"
                 )}
               >
                 {/* Layout para desktop */}
@@ -74,13 +92,13 @@ export default function Timeline({ events, className = "" }: TimelineProps) {
                   {/* Contenido izquierdo */}
                   <div
                     className={cn(
-                      "transition-all duration-700 delay-200",
+                      "transition-[opacity,transform] duration-700 delay-200",
                       isEven ? "text-right pr-8" : "order-2 pl-8",
                       isVisible
                         ? "opacity-100 translate-x-0"
                         : isEven
-                        ? "opacity-0 -translate-x-10"
-                        : "opacity-0 translate-x-10"
+                          ? "opacity-0 -translate-x-8"
+                          : "opacity-0 translate-x-8"
                     )}
                   >
                     <div className="inline-block max-w-md">
@@ -108,22 +126,22 @@ export default function Timeline({ events, className = "" }: TimelineProps) {
                   <div className={cn(isEven ? "order-2" : "")} />
                 </div>
 
-                {/* Layout para móvil */}
-                <div className="md:hidden flex gap-6 w-full pl-12">
-                  {/* Círculo lateral */}
+                {/* Layout móvil: fechas apiladas verticalmente con línea de tiempo */}
+                <div className="md:hidden relative w-full pl-10 sm:pl-12 pb-12 last:pb-0">
                   <div
                     className={cn(
-                      "absolute left-8 transform -translate-x-1/2 w-5 h-5 rounded-full bg-orange-500 border-4 border-white shadow-lg transition-all duration-500 delay-100",
+                      "absolute left-4 sm:left-5 top-1 -translate-x-1/2",
+                      "w-4 h-4 rounded-full bg-orange-500 border-4 border-white shadow-lg",
+                      "transition-transform duration-500 delay-100",
                       isVisible ? "scale-100" : "scale-0"
                     )}
                   />
 
-                  {/* Contenido */}
-                  <div className="flex-1">
-                    <h3 className="text-3xl font-bold text-orange-600 mb-3">
+                  <div className="space-y-2">
+                    <h3 className="text-3xl font-bold text-orange-600">
                       {event.year}
                     </h3>
-                    <h4 className="text-lg font-semibold text-secondary-foreground mb-2">
+                    <h4 className="text-lg font-semibold text-secondary-foreground">
                       {event.title}
                     </h4>
                     <p className="text-base text-secondary-foreground/80 leading-relaxed">

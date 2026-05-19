@@ -41,13 +41,13 @@ function TimelineEventContent({
     <div className="transition-all duration-1000 ease-out">
       <div
         className={cn(
-          "inline-block max-w-lg",
-          index % 2 === 0 ? "text-left" : "text-right"
+          "inline-block w-full max-w-lg text-left",
+          index % 2 === 0 ? "md:text-left" : "md:text-right"
         )}
       >
         <div
           className={cn(
-            "text-7xl md:text-8xl font-black mb-4 bg-gradient-to-br from-orange-600 via-orange-500 to-orange-400 bg-clip-text text-transparent",
+            "text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black mb-4 bg-gradient-to-br from-orange-600 via-orange-500 to-orange-400 bg-clip-text text-transparent",
             "transition-all duration-300",
             !isVisible && "opacity-0 translate-y-2 scale-[0.98] [transition:opacity_0.3s,transform_0.3s]"
           )}
