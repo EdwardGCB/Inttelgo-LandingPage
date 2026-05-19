@@ -39,6 +39,8 @@ function TransactionVerification({
             setData(null);
 
             try {
+                // El token PSE se pierde al navegar de vuelta; regenerarlo antes de consultar.
+                await PSEService.generarToken();
                 const response = await PSEService.consultTransaction(transactionId);
 
                 if (!response.success) {
@@ -200,6 +202,7 @@ function TransactionVerification({
 
     const handleGeneratePDF = async () => {
         try {
+            await PSEService.generarToken();
             const blob = await PSEService.generatePDF(transactionId);
             // Crear URL del Blob
             const blobUrl = window.URL.createObjectURL(blob);
