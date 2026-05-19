@@ -8,23 +8,14 @@ import type {
 
 import { getAuthToken, setAuthToken } from "@/lib/authCookies";
 
+// El token PSE es de corta vida y se regenera en cada visita a la página,
+// por lo que se mantiene en memoria para evitar problemas de cookies/CORS.
+let _pseToken: string | null = null;
 
-const extractPSEToken = () => {
-    const entry = document.cookie
-        .split("; ")
-        .find((cookie) => cookie.startsWith("pse_token="));
-    if (!entry) return undefined;
-    return decodeURIComponent(entry.substring("pse_token=".length));
-};
+const extractPSEToken = (): string | undefined => _pseToken ?? undefined;
 
 const persistPSEToken = (token: string) => {
-    const cookieParts = [
-        `pse_token=${encodeURIComponent(token)}`,
-        "path=/",
-        "SameSite=Strict",
-    ];
-    if (window.location.protocol === "https:") cookieParts.push("Secure");
-    document.cookie = cookieParts.join("; ");
+    _pseToken = token;
 };
 
 class ApiService {
