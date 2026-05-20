@@ -99,6 +99,24 @@ const predictionSchema = z.object({
 });
 type PredictionValues = z.infer<typeof predictionSchema>;
 type SavedPrediction = { home: string; away: string };
+type LiveFlashType = 'goal' | 'goal_cancelled';
+type LiveFlash = { matchId: number; type: LiveFlashType };
+
+const LIVE_FLASH_STYLES: Record<LiveFlashType, { label: string; cardClassName: string; textClassName: string; scoreClassName: string }> = {
+    goal: {
+        label: 'Gol',
+        cardClassName: 'bg-green-900/60 ring-1 ring-green-500/60',
+        textClassName: 'text-green-400',
+        scoreClassName: 'text-green-400',
+    },
+    goal_cancelled: {
+        label: 'Gol anulado',
+        cardClassName: 'bg-red-900/60 ring-1 ring-red-500/60 animate-pulse',
+        textClassName: 'text-red-400',
+        scoreClassName: 'text-red-400 line-through',
+    },
+};
+
 interface UserPrediction {
     id: string;
     match: number | string | { id?: number | string };
@@ -363,20 +381,20 @@ function PredictionDrawer({
 function GamesList({ userPredictions = [] }: { userPredictions?: UserPrediction[] }) {
     const { user } = useUser();
     const { latestEvent } = useSocket();
-    const competitionId = "2000"
+    const competitionId = "2152"
     const conditions = {
-        matchday: 1,
+        //matchday: 1,
         //dateFrom: "2025-09-16",
-        dateFrom: "2026-06-11",
+        //dateFrom: "2026-06-11",
         //dateTo: "2026-05-30"
-        dateTo: "2026-06-27"
+        //dateTo: "2026-06-27"
     }
     const [games, setGames] = useState<Match[]>([]);
     const [loadingData, setLoadingData] = useState(false);
     const [predictions, setPredictions] = useState<Record<number, SavedPrediction>>({});
     const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
     const [liveScores, setLiveScores] = useState<Record<number, { home: number; away: number }>>({});
-    const [goalFlash, setGoalFlash] = useState<number | null>(null);
+    const [liveFlash, setLiveFlash] = useState<LiveFlash | null>(null);
     const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
@@ -420,11 +438,9 @@ function GamesList({ userPredictions = [] }: { userPredictions?: UserPrediction[
                 [matchId]: { home: data.score!.home, away: data.score!.away },
             }));
 
-            if (event === 'goal') {
-                if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
-                setGoalFlash(matchId);
-                flashTimerRef.current = setTimeout(() => setGoalFlash(null), 4000);
-            }
+            if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+            setLiveFlash({ matchId, type: event });
+            flashTimerRef.current = setTimeout(() => setLiveFlash(null), 4000);
         }
 
         // Actualizar status siempre que venga en el payload (goal, goal_cancelled, status_changed)
@@ -483,20 +499,21 @@ function GamesList({ userPredictions = [] }: { userPredictions?: UserPrediction[
                                     const live = liveScores[match.id];
                                     const homeScore = live?.home ?? match.score?.fullTime?.home ?? 0;
                                     const awayScore = live?.away ?? match.score?.fullTime?.away ?? 0;
-                                    const isFlashing = goalFlash === match.id;
+                                    const flashType = liveFlash?.matchId === match.id ? liveFlash.type : null;
+                                    const flashStyles = flashType ? LIVE_FLASH_STYLES[flashType] : null;
                                     const pred = getPredictionForMatch(predictions, Number(match.id));
                                     const status = STATUS_LABELS[match.status] ?? { label: match.status, className: 'bg-gray-500/20 text-gray-300 border border-gray-500/40' };
                                     const predictable = canPredict(match.status);
                                     return (
-                                        <div key={match.id} className={`rounded-xl px-4 py-3 space-y-2 transition-colors duration-700 ${isFlashing ? 'bg-green-900/60 ring-1 ring-green-500/60' : 'bg-[#3a2010]'}`}>
+                                        <div key={match.id} className={`rounded-xl px-4 py-3 space-y-2 transition-colors duration-700 ${flashStyles?.cardClassName ?? 'bg-[#3a2010]'}`}>
                                             {/* Badges + hora */}
                                             <div className="flex items-center justify-between flex-wrap gap-2">
                                                 <div className="flex items-center gap-2 flex-wrap">
                                                     <Badge>{match.group?.replace(/_/g, ' ')}</Badge>
                                                     <Badge variant="secondary" className={status.className}>{status.label}</Badge>
-                                                    {isFlashing && (
-                                                        <span className="flex items-center gap-1 text-green-400 text-[10px] font-bold uppercase tracking-widest animate-pulse">
-                                                            ⚽ Gol
+                                                    {flashStyles && (
+                                                        <span className={`flex items-center gap-1 ${flashStyles.textClassName} text-[10px] font-bold uppercase tracking-widest animate-pulse`}>
+                                                            {flashStyles.label}
                                                         </span>
                                                     )}
                                                 </div>
@@ -511,7 +528,7 @@ function GamesList({ userPredictions = [] }: { userPredictions?: UserPrediction[
                                                     <span className="text-white font-bold uppercase text-xs text-center leading-tight">{match.homeTeam.shortName}</span>
                                                 </div>
                                                 <div className="flex flex-col items-center gap-1.5 shrink-0">
-                                                    <span className={`font-extrabold text-xl transition-colors duration-300 ${isFlashing ? 'text-green-400' : 'text-white'}`}>
+                                                    <span className={`font-extrabold text-xl transition-colors duration-300 ${flashStyles?.scoreClassName ?? 'text-white'}`}>
                                                         {homeScore}-{awayScore}
                                                     </span>
                                                     {user && pred && (
@@ -589,7 +606,8 @@ function GamesList({ userPredictions = [] }: { userPredictions?: UserPrediction[
                                             const live = liveScores[match.id];
                                             const homeScore = live?.home ?? match.score?.fullTime?.home ?? 0;
                                             const awayScore = live?.away ?? match.score?.fullTime?.away ?? 0;
-                                            const isFlashing = goalFlash === match.id;
+                                            const flashType = liveFlash?.matchId === match.id ? liveFlash.type : null;
+                                            const flashStyles = flashType ? LIVE_FLASH_STYLES[flashType] : null;
                                             const pred = getPredictionForMatch(predictions, Number(match.id));
                                             const status = STATUS_LABELS[match.status] ?? { label: match.status, className: 'bg-gray-500/20 text-gray-300 border border-gray-500/40' };
                                             const predictable = canPredict(match.status);
@@ -599,13 +617,13 @@ function GamesList({ userPredictions = [] }: { userPredictions?: UserPrediction[
                                                         <span className="text-white font-semibold">{formatTime(match.utcDate)}</span>
                                                     </TableCell>
                                                     <TableCell className="py-2 px-3">
-                                                        <div className={`flex flex-col items-center gap-2 rounded-xl px-4 py-3 transition-colors duration-700 ${isFlashing ? 'bg-green-900/60 ring-1 ring-green-500/60' : 'bg-[#3a2010]'}`}>
+                                                        <div className={`flex flex-col items-center gap-2 rounded-xl px-4 py-3 transition-colors duration-700 ${flashStyles?.cardClassName ?? 'bg-[#3a2010]'}`}>
                                                             <div className="flex items-center gap-2">
                                                                 <Badge>{match.group?.replace(/_/g, ' ')}</Badge>
                                                                 <Badge variant="secondary" className={status.className}>{status.label}</Badge>
-                                                                {isFlashing && (
-                                                                    <span className="flex items-center gap-1 text-green-400 text-[10px] font-bold uppercase tracking-widest animate-pulse">
-                                                                        ⚽ Gol
+                                                                {flashStyles && (
+                                                                    <span className={`flex items-center gap-1 ${flashStyles.textClassName} text-[10px] font-bold uppercase tracking-widest animate-pulse`}>
+                                                                        {flashStyles.label}
                                                                     </span>
                                                                 )}
                                                             </div>
@@ -623,7 +641,7 @@ function GamesList({ userPredictions = [] }: { userPredictions?: UserPrediction[
                                                         </div>
                                                     </TableCell>
                                                     <TableCell className="py-2 px-3 text-center align-middle">
-                                                        <span className={`font-bold text-xl transition-colors duration-300 ${isFlashing ? 'text-green-400' : 'text-primary-foreground'}`}>
+                                                        <span className={`font-bold text-xl transition-colors duration-300 ${flashStyles?.scoreClassName ?? 'text-primary-foreground'}`}>
                                                             {homeScore}-{awayScore}
                                                         </span>
                                                     </TableCell>

@@ -115,17 +115,20 @@ export function SocketProvider({ children }: { children: ReactNode }) {
                 const raw = JSON.parse(event.data);
                 console.debug("[Socket] Mensaje parseado:", raw);
 
-                // Formato esperado: { event, resource_type, data }
-                if (raw?.event && raw?.data) {
+                // Acepta el formato del socket y el formato de respuesta manual del backend.
+                const eventName = raw?.event ?? raw?.emitted;
+                const eventData = raw?.data ?? raw?.payload;
+
+                if (eventName && eventData) {
                     const liveEvent: LiveEvent = {
-                        event: raw.event as SocketEventType,
+                        event: eventName as SocketEventType,
                         resource_type: raw.resource_type ?? "match",
-                        data: raw.data,
+                        data: eventData,
                     };
                     console.info("[Socket] Evento procesado:", liveEvent.event, "— match_id:", liveEvent.data.match_id);
                     setLatestEvent(liveEvent);
                 } else {
-                    console.warn("[Socket] Mensaje sin estructura esperada (falta event o data):", raw);
+                    console.warn("[Socket] Mensaje sin estructura esperada:", raw);
                 }
             } catch (e) {
                 console.warn("[Socket] Mensaje no parseable:", event.data, e);
