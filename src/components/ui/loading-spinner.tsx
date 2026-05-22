@@ -17,7 +17,7 @@ export function LoadingSpinner({
 }: LoadingSpinnerProps) {
   if (fullScreen) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white/95 backdrop-blur-sm z-50">
+      <div className="fixed inset-0 flex items-center justify-center bg-transparent backdrop-blur-sm z-50">
         <div className="flex flex-col items-center gap-4 p-6">
           <Spinner size="xl" variant={variant} />
         </div>

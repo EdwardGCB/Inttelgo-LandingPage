@@ -10,7 +10,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Badge } from '../ui/badge';
+import { Badge } from '@/components/ui/badge';
 import type { Match } from '@/interfaces/game';
 import { Button } from '../ui/button';
 import { useUser } from '@/contexts/User';
@@ -25,7 +25,7 @@ import {
     DrawerFooter,
     DrawerClose,
     DrawerTrigger,
-} from '../ui/drawer';
+} from '@/components/ui/drawer';
 import {
     Form,
     FormControl,
@@ -42,6 +42,7 @@ import {
 } from '@/components/ui/input-otp';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import { z } from 'zod';
 
 const PAGE_SIZE = 4;
@@ -64,6 +65,50 @@ const STATUS_LABELS: Record<string, { label: string; className: string }> = {
     SUSPENDED: { label: 'Suspendido', className: 'bg-red-500/20 text-red-300 border border-red-500/40' },
 };
 
+const STAGE_LABELS: Record<string, string> = {
+    FINAL: 'Final',
+    THIRD_PLACE: 'Tercer lugar',
+    SEMI_FINALS: 'Semifinales',
+    QUARTER_FINALS: 'Cuartos de final',
+    LAST_16: 'Octavos de final',
+    LAST_32: 'Ronda de 32',
+    LAST_64: 'Ronda de 64',
+    ROUND_4: 'Ronda 4',
+    ROUND_3: 'Ronda 3',
+    ROUND_2: 'Ronda 2',
+    ROUND_1: 'Ronda 1',
+    GROUP_STAGE: 'Fase de grupos',
+    PRELIMINARY_ROUND: 'Ronda preliminar',
+    QUALIFICATION: 'Clasificación',
+    QUALIFICATION_ROUND_1: 'Clasificación - ronda 1',
+    QUALIFICATION_ROUND_2: 'Clasificación - ronda 2',
+    QUALIFICATION_ROUND_3: 'Clasificación - ronda 3',
+    PLAYOFF_ROUND_1: 'Playoff - ronda 1',
+    PLAYOFF_ROUND_2: 'Playoff - ronda 2',
+    PLAYOFFS: 'Playoffs',
+    CLAUSURA: 'Clausura',
+    APERTURA: 'Apertura',
+    CHAMPIONSHIP: 'Campeonato',
+    RELEGATION: 'Descenso',
+    RELEGATION_ROUND: 'Ronda de descenso',
+};
+
+function formatStageLabel(stage: string): string {
+    return stage
+        .toLowerCase()
+        .split('_')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+}
+
+function getStageHeader(match: Match): string {
+    if (match.stage === 'REGULAR_SEASON') {
+        return `Jornada ${match.matchday}`;
+    }
+
+    return STAGE_LABELS[match.stage] ?? formatStageLabel(match.stage);
+}
+
 function formatTime(utcDate: string): string {
     return new Date(utcDate).toLocaleTimeString('es-CO', {
         hour: '2-digit',
@@ -84,18 +129,18 @@ function formatDayHeader(dateStr: string): string {
 
 function groupMatches(matches: Match[]): Record<string, Record<string, Match[]>> {
     return matches.reduce((acc, match) => {
-        const jornada = `Jornada ${match.matchday}`;
+        const stageHeader = getStageHeader(match);
         const date = match.utcDate.slice(0, 10);
-        if (!acc[jornada]) acc[jornada] = {};
-        if (!acc[jornada][date]) acc[jornada][date] = [];
-        acc[jornada][date].push(match);
+        if (!acc[stageHeader]) acc[stageHeader] = {};
+        if (!acc[stageHeader][date]) acc[stageHeader][date] = [];
+        acc[stageHeader][date].push(match);
         return acc;
     }, {} as Record<string, Record<string, Match[]>>);
 }
 
 const predictionSchema = z.object({
-    homeScore: z.string().length(1, 'Ingresa el marcador local'),
-    awayScore: z.string().length(1, 'Ingresa el marcador visitante'),
+    homeScore: z.string().regex(/^\d$/, 'Ingresa un número'),
+    awayScore: z.string().regex(/^\d$/, 'Ingresa un número'),
 });
 type PredictionValues = z.infer<typeof predictionSchema>;
 type SavedPrediction = { home: string; away: string };
@@ -174,7 +219,7 @@ function PredictionDrawer({
     onSave: (home: string, away: string) => void;
     scoreShownOutside?: boolean;
 }) {
-    const { user } = useUser();
+    const { user, upsertUserPrediction } = useUser();
     const [open, setOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -204,6 +249,19 @@ function PredictionDrawer({
         return 'Error al guardar el pronóstico. Intenta de nuevo.';
     }
 
+    function syncUserPrediction(home: string, away: string, responseData: any = {}) {
+        if (!user) return;
+        const responseMatch = responseData?.match;
+
+        upsertUserPrediction({
+            id: String(responseData?.id ?? `${user.id}-${match.id}`),
+            match: typeof responseMatch === 'object' && responseMatch !== null ? responseMatch : match,
+            homeScore: Number(responseData?.homeScore ?? home),
+            awayScore: Number(responseData?.awayScore ?? away),
+            puntuation: Number(responseData?.puntuation ?? responseData?.points ?? 0),
+        });
+    }
+
     const onSubmit = async (values: PredictionValues) => {
         if (!user) return;
         setIsSubmitting(true);
@@ -223,6 +281,7 @@ function PredictionDrawer({
                     description: `${match.homeTeam.shortName} ${values.homeScore} - ${values.awayScore} ${match.awayTeam.shortName}`,
                 });
                 onSave(values.homeScore, values.awayScore);
+                syncUserPrediction(values.homeScore, values.awayScore, res?.data);
                 setOpen(false);
             } else {
                 const res = await ExperienceService.sport.createUserPredictions(user.id, match.id, { name, ...values });
@@ -238,6 +297,7 @@ function PredictionDrawer({
                     description: `${match.homeTeam.shortName} ${res.data.homeScore} - ${res.data.awayScore} ${match.awayTeam.shortName}`,
                 });
                 onSave(String(res.data.homeScore), String(res.data.awayScore));
+                syncUserPrediction(String(res.data.homeScore), String(res.data.awayScore), res?.data);
                 setOpen(false);
             }
         } catch (error) {
@@ -304,7 +364,7 @@ function PredictionDrawer({
                                             <FormItem className="flex flex-col items-center gap-1">
                                                 <FormLabel className="text-xs text-muted-foreground">Local</FormLabel>
                                                 <FormControl>
-                                                    <InputOTP maxLength={1} value={field.value} onChange={field.onChange} disabled={isSubmitting}>
+                                                    <InputOTP maxLength={1} pattern={REGEXP_ONLY_DIGITS} value={field.value} onChange={field.onChange} disabled={isSubmitting}>
                                                         <InputOTPGroup>
                                                             <InputOTPSlot index={0} className="h-14 w-12 text-2xl font-extrabold border-2 border-orange-400 rounded-lg" />
                                                         </InputOTPGroup>
@@ -324,7 +384,7 @@ function PredictionDrawer({
                                             <FormItem className="flex flex-col items-center gap-1">
                                                 <FormLabel className="text-xs text-muted-foreground">Visitante</FormLabel>
                                                 <FormControl>
-                                                    <InputOTP maxLength={1} value={field.value} onChange={field.onChange} disabled={isSubmitting}>
+                                                    <InputOTP maxLength={1} pattern={REGEXP_ONLY_DIGITS} value={field.value} onChange={field.onChange} disabled={isSubmitting}>
                                                         <InputOTPGroup>
                                                             <InputOTPSlot index={0} className="h-14 w-12 text-2xl font-extrabold border-2 border-orange-400 rounded-lg" />
                                                         </InputOTPGroup>
@@ -381,7 +441,7 @@ function PredictionDrawer({
 function GamesList({ userPredictions = [] }: { userPredictions?: UserPrediction[] }) {
     const { user } = useUser();
     const { latestEvent } = useSocket();
-    const competitionId = "2152"
+    const competitionId = "2014"
     const conditions = {
         //matchday: 1,
         //dateFrom: "2025-09-16",
@@ -504,12 +564,13 @@ function GamesList({ userPredictions = [] }: { userPredictions?: UserPrediction[
                                     const pred = getPredictionForMatch(predictions, Number(match.id));
                                     const status = STATUS_LABELS[match.status] ?? { label: match.status, className: 'bg-gray-500/20 text-gray-300 border border-gray-500/40' };
                                     const predictable = canPredict(match.status);
+                                    const groupBadgeLabel = match.stage === 'REGULAR_SEASON' ? null : match.group?.replace(/_/g, ' ');
                                     return (
                                         <div key={match.id} className={`rounded-xl px-4 py-3 space-y-2 transition-colors duration-700 ${flashStyles?.cardClassName ?? 'bg-[#3a2010]'}`}>
                                             {/* Badges + hora */}
                                             <div className="flex items-center justify-between flex-wrap gap-2">
                                                 <div className="flex items-center gap-2 flex-wrap">
-                                                    <Badge>{match.group?.replace(/_/g, ' ')}</Badge>
+                                                    {groupBadgeLabel && <Badge>{groupBadgeLabel}</Badge>}
                                                     <Badge variant="secondary" className={status.className}>{status.label}</Badge>
                                                     {flashStyles && (
                                                         <span className={`flex items-center gap-1 ${flashStyles.textClassName} text-[10px] font-bold uppercase tracking-widest animate-pulse`}>
@@ -611,6 +672,7 @@ function GamesList({ userPredictions = [] }: { userPredictions?: UserPrediction[
                                             const pred = getPredictionForMatch(predictions, Number(match.id));
                                             const status = STATUS_LABELS[match.status] ?? { label: match.status, className: 'bg-gray-500/20 text-gray-300 border border-gray-500/40' };
                                             const predictable = canPredict(match.status);
+                                            const groupBadgeLabel = match.stage === 'REGULAR_SEASON' ? null : match.group?.replace(/_/g, ' ');
                                             return (
                                                 <TableRow key={match.id} className="border-none hover:bg-transparent">
                                                     <TableCell className="py-2 px-3 text-center align-middle">
@@ -619,7 +681,7 @@ function GamesList({ userPredictions = [] }: { userPredictions?: UserPrediction[
                                                     <TableCell className="py-2 px-3">
                                                         <div className={`flex flex-col items-center gap-2 rounded-xl px-4 py-3 transition-colors duration-700 ${flashStyles?.cardClassName ?? 'bg-[#3a2010]'}`}>
                                                             <div className="flex items-center gap-2">
-                                                                <Badge>{match.group?.replace(/_/g, ' ')}</Badge>
+                                                                {groupBadgeLabel && <Badge>{groupBadgeLabel}</Badge>}
                                                                 <Badge variant="secondary" className={status.className}>{status.label}</Badge>
                                                                 {flashStyles && (
                                                                     <span className={`flex items-center gap-1 ${flashStyles.textClassName} text-[10px] font-bold uppercase tracking-widest animate-pulse`}>

@@ -52,6 +52,34 @@ const tableHeaders = [
     { label: "Puntaje", width: "w-28" },
 ];
 
+const STAGE_LABELS: Record<string, string> = {
+    FINAL: "Final",
+    THIRD_PLACE: "Tercer lugar",
+    SEMI_FINALS: "Semifinales",
+    QUARTER_FINALS: "Cuartos de final",
+    LAST_16: "Octavos de final",
+    LAST_32: "Ronda de 32",
+    LAST_64: "Ronda de 64",
+    ROUND_4: "Ronda 4",
+    ROUND_3: "Ronda 3",
+    ROUND_2: "Ronda 2",
+    ROUND_1: "Ronda 1",
+    GROUP_STAGE: "Fase de grupos",
+    PRELIMINARY_ROUND: "Ronda preliminar",
+    QUALIFICATION: "Clasificación",
+    QUALIFICATION_ROUND_1: "Clasificación - ronda 1",
+    QUALIFICATION_ROUND_2: "Clasificación - ronda 2",
+    QUALIFICATION_ROUND_3: "Clasificación - ronda 3",
+    PLAYOFF_ROUND_1: "Playoff - ronda 1",
+    PLAYOFF_ROUND_2: "Playoff - ronda 2",
+    PLAYOFFS: "Playoffs",
+    CLAUSURA: "Clausura",
+    APERTURA: "Apertura",
+    CHAMPIONSHIP: "Campeonato",
+    RELEGATION: "Descenso",
+    RELEGATION_ROUND: "Ronda de descenso",
+};
+
 type PredictionItem = Omit<Prediction, "id" | "match" | "points" | "puntuation"> & {
     id: string | number;
     match: Prediction["match"] | number | string | { id?: number | string };
@@ -67,6 +95,28 @@ function getResultScore(match: PredictionItem["match"]) {
     const home = match.score?.fullTime?.home ?? 0;
     const away = match.score?.fullTime?.away ?? 0;
     return { home, away };
+}
+
+function formatStageLabel(stage: string): string {
+    return stage
+        .toLowerCase()
+        .split("_")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+}
+
+function getMatchBadgeLabel(match: PredictionItem["match"]): string {
+    if (!hasMatchData(match)) return `Match ${match}`;
+
+    if (match.stage === "REGULAR_SEASON") {
+        return `Jornada ${match.matchday}`;
+    }
+
+    if (match.stage === "GROUP_STAGE") {
+        return match.group?.replace(/_/g, " ") || STAGE_LABELS.GROUP_STAGE;
+    }
+
+    return STAGE_LABELS[match.stage] ?? formatStageLabel(match.stage);
 }
 
 function ScoreBox({ home, away, className }: { home: number; away: number; className?: string }) {
@@ -163,7 +213,7 @@ function UserPuntuation() {
                                                 )}
                                             </div>
                                             <Badge variant="secondary" className="text-[10px] shrink-0">
-                                                {hasMatchData(match) ? match.group?.replace(/_/g, " ") : `Match ${match}`}
+                                                {getMatchBadgeLabel(match)}
                                             </Badge>
                                             <div className="flex flex-col items-center gap-1 flex-1">
                                                 {hasMatchData(match) ? (
@@ -220,7 +270,7 @@ function UserPuntuation() {
                                                 <TableCell className="py-2 px-3">
                                                     <div className="flex flex-col items-center gap-1.5 bg-[#3a2010] rounded-xl px-4 py-3">
                                                         <Badge variant="secondary" className="text-[10px]">
-                                                            {hasMatchData(match) ? match.group?.replace(/_/g, " ") : `Match ${match}`}
+                                                            {getMatchBadgeLabel(match)}
                                                         </Badge>
                                                         <div className="flex items-center justify-center gap-3">
                                                             {hasMatchData(match) ? (

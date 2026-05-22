@@ -393,12 +393,8 @@ function MundialContent() {
                                         </TabsTrigger>
                                     </TabsList>
                                 </div>
-                                <TabsContent value="game" className="w-full flex justify-center">
-                                    <Card className="w-full max-w-7xl border-none bg-white/5 text-center shadow-none backdrop-blur-md">
-                                        <CardContent>
-                                            <GamesList userPredictions={userPredictions} />
-                                        </CardContent>
-                                    </Card>
+                                <TabsContent value="game" className="w-full flex justify-center px-8">
+                                    <GamesList userPredictions={userPredictions} />
                                 </TabsContent>
                                 <TabsContent value="group" className="w-full flex justify-center">
                                     <GroupsList />
@@ -499,18 +495,20 @@ function MundialContent() {
                                     className="w-full border-none bg-gradient-to-r from-[#1a0d05] to-[#EC5406] text-white cursor-pointer rounded-xl hover:scale-[1.02] transition-transform duration-300"
                                     onClick={handleGoToScores}
                                 >
-                                    <CardContent className="flex items-center justify-between gap-3 sm:gap-6 py-4 sm:py-6 px-4 sm:px-8">
-                                        <span className="font-extrabold uppercase text-base sm:text-2xl lg:text-3xl leading-tight">
+                                    <CardContent className="flex flex-col items-start gap-4 py-4 px-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:py-6 sm:px-8">
+                                        <span className="font-extrabold uppercase text-base leading-tight sm:text-2xl lg:text-3xl">
                                             Mira tú posición en el top de los clientes
                                         </span>
-                                        <MousePointerClick className="h-10 w-10 sm:h-14 sm:w-14 shrink-0 text-white/80 animate-bounce" />
-                                        <Button
-                                            variant="outline"
-                                            className="shrink-0 bg-white text-gray-900 font-bold hover:bg-white/90 border-none text-sm sm:text-lg px-3 sm:px-6"
-                                            onClick={(e) => { e.stopPropagation(); handleGoToScores(); }}
-                                        >
-                                            Ver más
-                                        </Button>
+                                        <div className="flex w-full items-center justify-end gap-2 sm:w-auto sm:gap-3">
+                                            <MousePointerClick className="h-9 w-9 shrink-0 rotate-90 text-white/80 animate-bounce sm:h-12 sm:w-12" />
+                                            <Button
+                                                variant="outline"
+                                                className="shrink-0 bg-white text-gray-900 font-bold hover:bg-white/90 border-none text-sm sm:text-lg px-4 sm:px-6"
+                                                onClick={(e) => { e.stopPropagation(); handleGoToScores(); }}
+                                            >
+                                                Ver más
+                                            </Button>
+                                        </div>
                                     </CardContent>
                                 </Card>
                             </div>

@@ -59,11 +59,22 @@ interface UserContextType {
     error: string | null;
     login: (cedula: string) => Promise<boolean>;
     logout: () => void;
+    upsertUserPrediction: (prediction: UserPrediction) => void;
     userPredictions: UserPrediction[];
     userPuntuation: UserPuntuation | null
 }
 
 const UserContext = createContext<UserContextType | null>(null);
+
+function resolvePredictionMatchId(prediction: UserPrediction): string | null {
+    const raw = prediction.match;
+    if (raw == null) return null;
+    if (typeof raw === "object" && "id" in raw) {
+        const id = raw.id;
+        return id == null ? null : String(id);
+    }
+    return String(raw);
+}
 
 
 export function UserProvider({ children }: { children: ReactNode }) {
@@ -154,11 +165,34 @@ export function UserProvider({ children }: { children: ReactNode }) {
         clearAuthCookies();
         setUser(null);
         setError(null);
+        setUserPredictions([]);
+        setUserPuntuation(null);
     };
+
+    const upsertUserPrediction = useCallback((prediction: UserPrediction) => {
+        setUserPredictions((prev) => {
+            const nextMatchId = resolvePredictionMatchId(prediction);
+            const exists = prev.some((current) => {
+                const currentMatchId = resolvePredictionMatchId(current);
+                if (nextMatchId && currentMatchId) return currentMatchId === nextMatchId;
+                return String(current.id) === String(prediction.id);
+            });
+
+            if (!exists) return [prediction, ...prev];
+
+            return prev.map((current) => {
+                const currentMatchId = resolvePredictionMatchId(current);
+                if (nextMatchId && currentMatchId) {
+                    return currentMatchId === nextMatchId ? prediction : current;
+                }
+                return String(current.id) === String(prediction.id) ? prediction : current;
+            });
+        });
+    }, []);
 
     return (
         <UserContext.Provider
-            value={{ user, isLoading, isInitializing, error, login, logout, userPredictions, userPuntuation }}
+            value={{ user, isLoading, isInitializing, error, login, logout, upsertUserPrediction, userPredictions, userPuntuation }}
         >
             {children}
         </UserContext.Provider>
