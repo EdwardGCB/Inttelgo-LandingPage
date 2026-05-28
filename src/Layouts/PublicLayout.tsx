@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowRight, Gauge, Phone } from "lucide-react";
 import Lenis from "lenis";
 import { LenisContext } from "@/lib/lenisContext";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import Footer from "./Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import { Button } from "@/components/ui/button";
@@ -21,20 +21,31 @@ import {
 } from "@/components/ui/tooltip";
 import { MessageToast } from "@/lib/messageToast";
 import { getApiUrl } from "@/lib/utils";
-import "../animaciones.css";
+import "@/animaciones.css";
 import { trackEvent } from "@/lib/analytics";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 interface WhatsAppLine {
   title: string;
   phone: string;
   badge: string;
 }
 
+const WELCOME_DIALOG_SESSION_KEY = "inttelgo_welcome_dialog_seen";
+
 const PublicLayout = () => {
   const [showLeadCapture, setShowLeadCapture] = useState(false);
   const [leadPhone, setLeadPhone] = useState("");
   const lenisRef = useRef<Lenis | null>(null);
   const [lenisInstance, setLenisInstance] = useState<Lenis | null>(null);
-
+  const [welcomeDialogOpen, setWelcomeDialogOpen] = useState(false);
+  const navigate = useNavigate();
+  useEffect(() => {
+    const hasSeenWelcomeDialog = sessionStorage.getItem(WELCOME_DIALOG_SESSION_KEY);
+    if (!hasSeenWelcomeDialog) {
+      setWelcomeDialogOpen(false);
+      sessionStorage.setItem(WELCOME_DIALOG_SESSION_KEY, "true");
+    }
+  }, []);
   useEffect(() => {
     let ticking = false;
     const handleScroll = () => {
@@ -143,10 +154,125 @@ const PublicLayout = () => {
     window.open(`https://wa.me/${phone}`, "_blank");
   }, []);
 
+
   return (
     <LenisContext.Provider value={lenisInstance}>
       <div className="relative flex min-h-screen flex-col bg-white">
         <ScrollToTop />
+
+        <Dialog open={welcomeDialogOpen} onOpenChange={setWelcomeDialogOpen}>
+          <DialogContent className="overflow-hidden p-0 max-w-[92vw] sm:max-w-3xl [&_[data-slot=dialog-close]]:text-white [&_[data-slot=dialog-close]]:opacity-100 border-0">
+            <div className="relative">
+              {/* Imagen: vertical en mobile, horizontal en desktop */}
+              <picture>
+                <source
+                  media="(min-width: 640px)"
+                  srcSet="/publicidad/banner-pollo-mundial-horizontal.webp"
+                />
+                <img
+                  src="/publicidad/banner-pollo-mundial-vertical.webp"
+                  alt="Mensaje de Inttelgo"
+                  className="block h-full w-full object-cover"
+                />
+              </picture>
+
+              {/* Texto superior con efecto dorado */}
+              <div className="absolute left-1/2 top-[3%] w-[90%] -translate-x-1/2 text-center sm:left-auto sm:right-[3%] sm:top-[4%] sm:w-[45%] sm:translate-x-0">
+                <p className="flex flex-wrap justify-center text-center text-lg font-black uppercase italic leading-tight tracking-wide sm:text-2xl">
+                  {Array.from("¡Participa solo por ser nuestro cliente!").map((letter, index) => (
+                    <span
+                      key={`${letter}-${index}`}
+                      className={letter === " " ? "w-[0.35em]" : "inline-block"}
+                      style={
+                        letter === " "
+                          ? undefined
+                          : {
+                            backgroundImage:
+                              "linear-gradient(180deg, #FFF8C9 0%, #FFE066 25%, #F5B800 55%, #B8860B 100%)",
+                            WebkitBackgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
+                            backgroundClip: "text",
+                            filter:
+                              "drop-shadow(0 0 6px rgba(255, 215, 0, 0.75)) drop-shadow(0 0 14px rgba(255, 165, 0, 0.5))",
+                          }
+                      }
+                    >
+                      {letter === " " ? "\u00A0" : letter}
+                    </span>
+                  ))}
+                </p>
+              </div>
+
+              {/* Bloque "Podrás ganar / 6 Meses Gratis" */}
+              <div className="absolute left-1/2 bottom-[18%] w-[90%] -translate-x-1/2 sm:left-auto sm:right-[4%] sm:bottom-[9%] sm:w-[44%] sm:translate-x-0">
+                <p className="text-center text-base font-black uppercase tracking-wide text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)] sm:text-xl">
+                  Podrás ganar
+                </p>
+
+                <div
+                  className="mx-auto my-2 h-[3px] w-[85%] rounded-full bg-orange-500"
+                  style={{
+                    boxShadow:
+                      '0 0 8px rgba(249, 115, 22, 0.9), 0 0 16px rgba(249, 115, 22, 0.5)',
+                  }}
+                />
+
+                <div className="relative mx-auto flex w-full items-center justify-center">
+                  <div
+                    className="relative flex items-center justify-center rounded-full border-2 border-white/90 bg-gradient-to-b from-neutral-900 via-neutral-800 to-black px-4 py-2 sm:px-6 sm:py-3"
+                    style={{
+                      boxShadow:
+                        '0 0 20px rgba(255, 165, 0, 0.45), inset 0 1px 0 rgba(255,255,255,0.25), 0 6px 16px rgba(0,0,0,0.55)',
+                    }}
+                  >
+                    <p className="flex flex-wrap justify-center text-center text-lg font-black uppercase italic leading-tight tracking-wide sm:text-2xl">
+                      {Array.from("6 meses gratis").map((letter, index) => (
+                        <span
+                          key={`${letter}-${index}`}
+                          className={letter === " " ? "w-[0.35em]" : "inline-block"}
+                          style={
+                            letter === " "
+                              ? undefined
+                              : {
+                                backgroundImage:
+                                  "linear-gradient(180deg, #FFF8C9 0%, #FFE066 25%, #F5B800 55%, #B8860B 100%)",
+                                WebkitBackgroundClip: "text",
+                                WebkitTextFillColor: "transparent",
+                                backgroundClip: "text",
+                                filter:
+                                  "drop-shadow(0 0 6px rgba(255, 215, 0, 0.75)) drop-shadow(0 0 14px rgba(255, 165, 0, 0.5))",
+                              }
+                          }
+                        >
+                          {letter === " " ? "\u00A0" : letter}
+                        </span>
+                      ))}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Botón Ver más — centrado abajo en mobile, posicionado en desktop */}
+              <div className="absolute bottom-[4%] left-1/2 -translate-x-1/2 sm:left-[35%]">
+                <Button
+                  onClick={() => {
+                    setWelcomeDialogOpen(false);
+                    navigate("/mundial-2026");
+                  }}
+                  variant={"orange"}
+                  className="rounded-full group relative overflow-hidden px-8 py-2 text-xs font-black uppercase transition-all hover:scale-105 sm:px-10 sm:text-sm"
+                  style={{
+                    boxShadow:
+                      '0 0 18px rgba(255, 140, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.35), 0 4px 12px rgba(0,0,0,0.5)',
+                  }}
+                >
+                  <span className="relative z-10">Ver más</span>
+                  <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
         <div
           className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${showLeadCapture
             ? "translate-y-0 opacity-100"

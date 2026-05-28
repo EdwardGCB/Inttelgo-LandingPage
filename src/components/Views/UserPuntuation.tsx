@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import { useUser } from "@/contexts/User";
 import type { Prediction } from "@/interfaces/game";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 8;
@@ -132,7 +132,7 @@ function ScoreBox({ home, away, className }: { home: number; away: number; class
 }
 
 function UserPuntuation() {
-    const { user, userPredictions, userPuntuation } = useUser();
+    const { user, userPredictions, userPuntuation, logout } = useUser();
     const [predictions, setPredictions] = useState<PredictionItem[]>([]);
     const [page, setPage] = useState(1);
 
@@ -161,6 +161,15 @@ function UserPuntuation() {
                             <span className="text-base sm:text-xl">
                                 {`${user.tipoIdentificacion?.descripcion ?? "CC"}. ${user.identificacion}`}
                             </span>
+                            <Button
+                                onClick={logout}
+                                variant={"orange"}
+                                className="mt-3 flex w-fit items-center gap-1"
+                                title="Cerrar sesión"
+                            >
+                                <LogOut className="h-3.5 w-3.5" />
+                                Salir
+                            </Button>
                         </div>
                         <div className="flex gap-4 justify-start sm:justify-center w-full">
                             <div className="flex flex-col items-center gap-2">
@@ -179,6 +188,7 @@ function UserPuntuation() {
                                     </CardContent>
                                 </Card>
                             </div>
+
                         </div>
                     </div>
                 </CardContent>

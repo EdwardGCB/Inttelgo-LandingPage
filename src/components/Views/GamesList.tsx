@@ -441,12 +441,12 @@ function PredictionDrawer({
 function GamesList({ userPredictions = [] }: { userPredictions?: UserPrediction[] }) {
     const { user } = useUser();
     const { latestEvent } = useSocket();
-    const competitionId = "2014"
+    const competitionId = "2001"
     const conditions = {
         //matchday: 1,
-        //dateFrom: "2025-09-16",
+        dateFrom: "2026-05-30",
         //dateFrom: "2026-06-11",
-        //dateTo: "2026-05-30"
+        dateTo: "2026-06-01"
         //dateTo: "2026-06-27"
     }
     const [games, setGames] = useState<Match[]>([]);
