@@ -441,7 +441,7 @@ function PredictionDrawer({
 function GamesList({ userPredictions = [] }: { userPredictions?: UserPrediction[] }) {
     const { user } = useUser();
     const { latestEvent } = useSocket();
-    const competitionId = "2001"
+    const competitionId = "2013"
     const conditions = {
         //matchday: 1,
         dateFrom: "2026-05-30",
