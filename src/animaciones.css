@@ -2,13 +2,23 @@
 
 /* Hologram (PlanHologram3D) */
 @keyframes hologramPulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 @keyframes hologramFloat {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50%      { transform: translateY(-10px) scale(1.01); }
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-10px) scale(1.01);
+  }
 }
 
 @keyframes hologramOrbit {
@@ -16,13 +26,18 @@
     transform: translate(-50%, -50%) rotate(0deg) translateX(150px) rotate(0deg);
   }
   to {
-    transform: translate(-50%, -50%) rotate(360deg) translateX(150px) rotate(-360deg);
+    transform: translate(-50%, -50%) rotate(360deg) translateX(150px)
+      rotate(-360deg);
   }
 }
 
 @keyframes shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position: 200% center; }
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
 }
 
 /* Clases de flip 3D (PlanHologram3D) — con prefijos para Firefox/Safari */
@@ -73,5 +88,15 @@
   50%,
   100% {
     transform: translateX(200%);
+  }
+}
+
+@keyframes zoomPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.12);
   }
 }

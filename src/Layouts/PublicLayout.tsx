@@ -20,29 +20,177 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { MessageToast } from "@/lib/messageToast";
-import { getApiUrl } from "@/lib/utils";
+import { cn, getApiUrl } from "@/lib/utils";
 import "@/animaciones.css";
 import { trackEvent } from "@/lib/analytics";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  type CarouselApi,
+} from "@/components/ui/carousel";
 interface WhatsAppLine {
   title: string;
   phone: string;
   badge: string;
 }
 
-const WELCOME_DIALOG_SESSION_KEY = "inttelgo_welcome_dialog_seen";
+const WELCOME_DIALOG_SESSION_KEY = "inttelgo_publicity_dialog_seen";
+const PUBLICITY_SLIDER_INTERVAL_MS = 10000;
+
+interface PublicitySlide {
+  id: string;
+  desktopImage: string;
+  mobileImage: string;
+  alt: string;
+  title: string;
+  titleVariant?: "gold" | "plain";
+  centerImage?: string;
+  centerImageAlt?: string;
+  prizeEyebrow: string;
+  prizeText: string;
+  ctaLabel: string;
+  ctaHref: string;
+  ctaTarget?: "_self" | "_blank";
+  className?: string;
+  classNames?: {
+    image?: string;
+    centerImageWrapper?: string;
+    centerImage?: string;
+    titleWrapper?: string;
+    titleText?: string;
+    prizeWrapper?: string;
+    prizeEyebrow?: string;
+    prizeDivider?: string;
+    prizePill?: string;
+    prizeText?: string;
+    ctaWrapper?: string;
+    ctaButton?: string;
+  };
+}
+
+const PUBLICITY_SLIDES: PublicitySlide[] = [
+  {
+    id: "pago-pse-junio",
+    desktopImage: "/publicidad/banner-pago-en-linea-horizontal.webp",
+    mobileImage: "/publicidad/banner-pago-en-linea-vertical.webp",
+    alt: "Pago de factura por PSE",
+    title: "Realice los pagos de su servicio por pse",
+    titleVariant: "plain",
+    centerImage: "/pse.svg",
+    centerImageAlt: "PSE",
+    prizeEyebrow: "",
+    prizeText: "",
+    ctaLabel: "¡Pagar Factura Aquí!",
+    ctaHref: "https://combopay.co/invoices/inttel-go-sas",
+    ctaTarget: "_blank",
+    classNames: {
+      titleWrapper: "left-1/2 top-[7%] w-[86%] -translate-x-1/2 text-center sm:top-[8%] sm:w-[70%]",
+      titleText: "text-base font-black text-white uppercase tracking-wide drop-shadow-[0_2px_6px_rgba(0,0,0,0.85)] sm:text-3xl",
+      centerImageWrapper: "left-1/2 top-1/2 w-[42%] -translate-x-1/2 -translate-y-1/2 sm:w-[44%]",
+      centerImage: "drop-shadow-[0_0_24px_rgba(255,255,255,0.8)]",
+      ctaWrapper: "bottom-[5%] left-1/2 -translate-x-1/2",
+      ctaButton: "animate-[zoomPulse_1.4s_ease-in-out_infinite] px-8 py-3 text-sm shadow-2xl ring-4 ring-white/30 sm:px-12 sm:py-4 sm:text-base",
+    },
+  },
+  {
+    id: "pollo-mundial",
+    desktopImage: "/publicidad/banner-pollo-mundial-horizontal.webp",
+    mobileImage: "/publicidad/banner-pollo-mundial-vertical.webp",
+    alt: "Gran polla futbolera Inttelgo",
+    title: "¡Participa solo por ser nuestro cliente!",
+    prizeEyebrow: "Podrás ganar",
+    prizeText: "6 meses gratis",
+    ctaLabel: "Ver más",
+    ctaHref: "/mundial-2026",
+    classNames: {
+      titleWrapper: "left-1/2 top-[3%] w-[90%] -translate-x-1/2 text-center sm:left-auto sm:right-[3%] sm:top-[4%] sm:w-[45%] sm:translate-x-0",
+      titleText: "text-lg font-black uppercase italic leading-tight tracking-wide sm:text-2xl",
+      prizeWrapper: "left-1/2 bottom-[18%] w-[90%] -translate-x-1/2 sm:left-auto sm:right-[4%] sm:bottom-[9%] sm:w-[44%] sm:translate-x-0",
+      prizeEyebrow: "text-base font-black uppercase tracking-wide text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)] sm:text-xl",
+      prizeText: "text-lg font-black uppercase italic leading-tight tracking-wide sm:text-2xl",
+      ctaWrapper: "bottom-[4%] left-1/2 -translate-x-1/2 sm:left-[35%]",
+      ctaButton: "px-8 py-2 text-xs sm:px-10 sm:text-sm",
+    },
+  },
+];
+
+function GoldenText({ text, className = "" }: { text: string; className?: string }) {
+  return (
+    <span className={`flex flex-wrap justify-center text-center ${className}`}>
+      {Array.from(text).map((letter, index) => (
+        <span
+          key={`${letter}-${index}`}
+          className={letter === " " ? "w-[0.35em]" : "inline-block"}
+          style={
+            letter === " "
+              ? undefined
+              : {
+                backgroundImage:
+                  "linear-gradient(180deg, #FFF8C9 0%, #FFE066 25%, #F5B800 55%, #B8860B 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                filter:
+                  "drop-shadow(0 0 6px rgba(255, 215, 0, 0.75)) drop-shadow(0 0 14px rgba(255, 165, 0, 0.5))",
+              }
+          }
+        >
+          {letter === " " ? "\u00A0" : letter}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+function isExternalUrl(href: string): boolean {
+  return /^(https?:)?\/\//.test(href) || /^(mailto|tel):/.test(href);
+}
 
 const PublicLayout = () => {
   const [showLeadCapture, setShowLeadCapture] = useState(false);
   const [leadPhone, setLeadPhone] = useState("");
   const lenisRef = useRef<Lenis | null>(null);
   const [lenisInstance, setLenisInstance] = useState<Lenis | null>(null);
-  const [welcomeDialogOpen, setWelcomeDialogOpen] = useState(false);
+  const [welcomeDialogOpen, setWelcomeDialogOpen] = useState(true);
+  const [publicityCarouselApi, setPublicityCarouselApi] = useState<CarouselApi>();
+  const [currentPublicity, setCurrentPublicity] = useState(0);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!publicityCarouselApi) return;
+
+    const updateCurrent = () => {
+      setCurrentPublicity(publicityCarouselApi.selectedScrollSnap());
+    };
+
+    updateCurrent();
+    publicityCarouselApi.on("select", updateCurrent);
+    publicityCarouselApi.on("reInit", updateCurrent);
+
+    return () => {
+      publicityCarouselApi.off("select", updateCurrent);
+      publicityCarouselApi.off("reInit", updateCurrent);
+    };
+  }, [publicityCarouselApi]);
+
+  useEffect(() => {
+    if (!welcomeDialogOpen || !publicityCarouselApi || PUBLICITY_SLIDES.length <= 1) return;
+
+    const timer = window.setInterval(() => {
+      publicityCarouselApi.scrollNext();
+    }, PUBLICITY_SLIDER_INTERVAL_MS);
+
+    return () => window.clearInterval(timer);
+  }, [publicityCarouselApi, welcomeDialogOpen]);
+
   useEffect(() => {
     const hasSeenWelcomeDialog = sessionStorage.getItem(WELCOME_DIALOG_SESSION_KEY);
     if (!hasSeenWelcomeDialog) {
-      setWelcomeDialogOpen(false);
+      setWelcomeDialogOpen(true);
       sessionStorage.setItem(WELCOME_DIALOG_SESSION_KEY, "true");
     }
   }, []);
@@ -154,6 +302,27 @@ const PublicLayout = () => {
     window.open(`https://wa.me/${phone}`, "_blank");
   }, []);
 
+  const handlePublicityCtaClick = useCallback((slide: PublicitySlide) => {
+    setWelcomeDialogOpen(false);
+
+    if (isExternalUrl(slide.ctaHref)) {
+      if (slide.ctaTarget === "_self") {
+        window.location.href = slide.ctaHref;
+        return;
+      }
+
+      window.open(slide.ctaHref, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    if (slide.ctaTarget === "_blank") {
+      window.open(slide.ctaHref, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    navigate(slide.ctaHref);
+  }, [navigate]);
+
 
   return (
     <LenisContext.Provider value={lenisInstance}>
@@ -162,115 +331,155 @@ const PublicLayout = () => {
 
         <Dialog open={welcomeDialogOpen} onOpenChange={setWelcomeDialogOpen}>
           <DialogContent className="overflow-hidden p-0 max-w-[92vw] sm:max-w-3xl [&_[data-slot=dialog-close]]:text-white [&_[data-slot=dialog-close]]:opacity-100 border-0">
-            <div className="relative">
-              {/* Imagen: vertical en mobile, horizontal en desktop */}
-              <picture>
-                <source
-                  media="(min-width: 640px)"
-                  srcSet="/publicidad/banner-pollo-mundial-horizontal.webp"
-                />
-                <img
-                  src="/publicidad/banner-pollo-mundial-vertical.webp"
-                  alt="Mensaje de Inttelgo"
-                  className="block h-full w-full object-cover"
-                />
-              </picture>
+            <DialogTitle className="sr-only">Publicidad Inttelgo</DialogTitle>
+            <Carousel
+              setApi={setPublicityCarouselApi}
+              opts={{ loop: PUBLICITY_SLIDES.length > 1 }}
+              className="w-full"
+            >
+              <CarouselContent className="!ml-0">
+                {PUBLICITY_SLIDES.map((slide) => (
+                  <CarouselItem key={slide.id} className="!pl-0">
+                    <div className={cn("relative", slide.className)}>
+                        <picture>
+                          <source media="(min-width: 640px)" srcSet={slide.desktopImage} />
+                          <img
+                            src={slide.mobileImage}
+                            alt={slide.alt}
+                            className={cn("block w-full object-cover", slide.classNames?.image)}
+                          />
+                        </picture>
 
-              {/* Texto superior con efecto dorado */}
-              <div className="absolute left-1/2 top-[3%] w-[90%] -translate-x-1/2 text-center sm:left-auto sm:right-[3%] sm:top-[4%] sm:w-[45%] sm:translate-x-0">
-                <p className="flex flex-wrap justify-center text-center text-lg font-black uppercase italic leading-tight tracking-wide sm:text-2xl">
-                  {Array.from("¡Participa solo por ser nuestro cliente!").map((letter, index) => (
-                    <span
-                      key={`${letter}-${index}`}
-                      className={letter === " " ? "w-[0.35em]" : "inline-block"}
-                      style={
-                        letter === " "
-                          ? undefined
-                          : {
-                            backgroundImage:
-                              "linear-gradient(180deg, #FFF8C9 0%, #FFE066 25%, #F5B800 55%, #B8860B 100%)",
-                            WebkitBackgroundClip: "text",
-                            WebkitTextFillColor: "transparent",
-                            backgroundClip: "text",
-                            filter:
-                              "drop-shadow(0 0 6px rgba(255, 215, 0, 0.75)) drop-shadow(0 0 14px rgba(255, 165, 0, 0.5))",
-                          }
-                      }
-                    >
-                      {letter === " " ? "\u00A0" : letter}
-                    </span>
-                  ))}
-                </p>
-              </div>
+                        {slide.title && (
+                          <div
+                            className={cn(
+                              "absolute",
+                              slide.classNames?.titleWrapper ?? "left-1/2 top-[3%] w-[90%] -translate-x-1/2 text-center sm:left-auto sm:right-[3%] sm:top-[4%] sm:w-[45%] sm:translate-x-0"
+                            )}
+                          >
+                            {slide.titleVariant === "plain" ? (
+                              <p className={cn("text-center", slide.classNames?.titleText ?? "text-lg font-black uppercase italic leading-tight tracking-wide sm:text-2xl")}>
+                                {slide.title}
+                              </p>
+                            ) : (
+                              <GoldenText
+                                text={slide.title}
+                                className={slide.classNames?.titleText ?? "text-lg font-black uppercase italic leading-tight tracking-wide sm:text-2xl"}
+                              />
+                            )}
+                          </div>
+                        )}
 
-              {/* Bloque "Podrás ganar / 6 Meses Gratis" */}
-              <div className="absolute left-1/2 bottom-[18%] w-[90%] -translate-x-1/2 sm:left-auto sm:right-[4%] sm:bottom-[9%] sm:w-[44%] sm:translate-x-0">
-                <p className="text-center text-base font-black uppercase tracking-wide text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)] sm:text-xl">
-                  Podrás ganar
-                </p>
+                        {slide.centerImage && (
+                          <div
+                            className={cn(
+                              "absolute",
+                              slide.classNames?.centerImageWrapper ?? "left-1/2 top-1/2 w-[30%] -translate-x-1/2 -translate-y-1/2"
+                            )}
+                          >
+                            <img
+                              src={slide.centerImage}
+                              alt={slide.centerImageAlt ?? ""}
+                              className={cn("block w-full", slide.classNames?.centerImage)}
+                            />
+                          </div>
+                        )}
 
-                <div
-                  className="mx-auto my-2 h-[3px] w-[85%] rounded-full bg-orange-500"
-                  style={{
-                    boxShadow:
-                      '0 0 8px rgba(249, 115, 22, 0.9), 0 0 16px rgba(249, 115, 22, 0.5)',
-                  }}
-                />
+                        {(slide.prizeEyebrow || slide.prizeText) && (
+                          <div
+                            className={cn(
+                              "absolute",
+                              slide.classNames?.prizeWrapper ?? "left-1/2 bottom-[18%] w-[90%] -translate-x-1/2 sm:left-auto sm:right-[4%] sm:bottom-[9%] sm:w-[44%] sm:translate-x-0"
+                            )}
+                          >
+                            {slide.prizeEyebrow && (
+                              <p
+                                className={cn(
+                                  "text-center",
+                                  slide.classNames?.prizeEyebrow ?? "text-base font-black uppercase tracking-wide text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)] sm:text-xl"
+                                )}
+                              >
+                                {slide.prizeEyebrow}
+                              </p>
+                            )}
 
-                <div className="relative mx-auto flex w-full items-center justify-center">
-                  <div
-                    className="relative flex items-center justify-center rounded-full border-2 border-white/90 bg-gradient-to-b from-neutral-900 via-neutral-800 to-black px-4 py-2 sm:px-6 sm:py-3"
-                    style={{
-                      boxShadow:
-                        '0 0 20px rgba(255, 165, 0, 0.45), inset 0 1px 0 rgba(255,255,255,0.25), 0 6px 16px rgba(0,0,0,0.55)',
-                    }}
-                  >
-                    <p className="flex flex-wrap justify-center text-center text-lg font-black uppercase italic leading-tight tracking-wide sm:text-2xl">
-                      {Array.from("6 meses gratis").map((letter, index) => (
-                        <span
-                          key={`${letter}-${index}`}
-                          className={letter === " " ? "w-[0.35em]" : "inline-block"}
-                          style={
-                            letter === " "
-                              ? undefined
-                              : {
-                                backgroundImage:
-                                  "linear-gradient(180deg, #FFF8C9 0%, #FFE066 25%, #F5B800 55%, #B8860B 100%)",
-                                WebkitBackgroundClip: "text",
-                                WebkitTextFillColor: "transparent",
-                                backgroundClip: "text",
-                                filter:
-                                  "drop-shadow(0 0 6px rgba(255, 215, 0, 0.75)) drop-shadow(0 0 14px rgba(255, 165, 0, 0.5))",
-                              }
-                          }
+                            {slide.prizeEyebrow && slide.prizeText && (
+                              <div
+                                className={cn("mx-auto my-2 h-[3px] w-[85%] rounded-full bg-orange-500", slide.classNames?.prizeDivider)}
+                                style={{
+                                  boxShadow:
+                                    "0 0 8px rgba(249, 115, 22, 0.9), 0 0 16px rgba(249, 115, 22, 0.5)",
+                                }}
+                              />
+                            )}
+
+                            <div className="relative mx-auto flex w-full items-center justify-center">
+                              {slide.prizeText && (
+                                <div
+                                  className={cn(
+                                    "relative flex items-center justify-center rounded-full border-2 border-white/90 bg-gradient-to-b from-neutral-900 via-neutral-800 to-black px-4 py-2 sm:px-6 sm:py-3",
+                                    slide.classNames?.prizePill
+                                  )}
+                                  style={{
+                                    boxShadow:
+                                      "0 0 20px rgba(255, 165, 0, 0.45), inset 0 1px 0 rgba(255,255,255,0.25), 0 6px 16px rgba(0,0,0,0.55)",
+                                  }}
+                                >
+                                  <GoldenText
+                                    text={slide.prizeText}
+                                    className={slide.classNames?.prizeText ?? "text-lg font-black uppercase italic leading-tight tracking-wide sm:text-2xl"}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        <div
+                          className={cn(
+                            "absolute",
+                            slide.classNames?.ctaWrapper ?? "bottom-[4%] left-1/2 -translate-x-1/2 sm:left-[35%]"
+                          )}
                         >
-                          {letter === " " ? "\u00A0" : letter}
-                        </span>
-                      ))}
-                    </p>
-                  </div>
-                </div>
-              </div>
+                          <Button
+                            onClick={() => handlePublicityCtaClick(slide)}
+                            variant="orange"
+                            className={cn(
+                              "rounded-full group relative overflow-hidden font-black uppercase transition-all hover:scale-105",
+                              slide.classNames?.ctaButton ?? "px-8 py-2 text-xs sm:px-10 sm:text-sm"
+                            )}
+                            style={{
+                              boxShadow:
+                                "0 0 18px rgba(255, 140, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.35), 0 4px 12px rgba(0,0,0,0.5)",
+                            }}
+                          >
+                            <span className="relative z-10">{slide.ctaLabel}</span>
+                            <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+                          </Button>
+                        </div>
+                      </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
 
-              {/* Botón Ver más — centrado abajo en mobile, posicionado en desktop */}
-              <div className="absolute bottom-[4%] left-1/2 -translate-x-1/2 sm:left-[35%]">
-                <Button
-                  onClick={() => {
-                    setWelcomeDialogOpen(false);
-                    navigate("/mundial-2026");
-                  }}
-                  variant={"orange"}
-                  className="rounded-full group relative overflow-hidden px-8 py-2 text-xs font-black uppercase transition-all hover:scale-105 sm:px-10 sm:text-sm"
-                  style={{
-                    boxShadow:
-                      '0 0 18px rgba(255, 140, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.35), 0 4px 12px rgba(0,0,0,0.5)',
-                  }}
-                >
-                  <span className="relative z-10">Ver más</span>
-                  <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-                </Button>
-              </div>
-            </div>
+              {PUBLICITY_SLIDES.length > 1 && (
+                <>
+                  <CarouselPrevious className="left-2 z-20 border-white/40 bg-black/30 text-white hover:bg-black/50 hover:text-white sm:left-4" />
+                  <CarouselNext className="right-2 z-20 border-white/40 bg-black/30 text-white hover:bg-black/50 hover:text-white sm:right-4" />
+                  <div className="absolute bottom-2 left-1/2 z-20 flex -translate-x-1/2 gap-2">
+                    {PUBLICITY_SLIDES.map((slide, index) => (
+                      <button
+                        key={`${slide.id}-indicator`}
+                        type="button"
+                        className={`h-2 rounded-full transition-all ${index === currentPublicity ? "w-6 bg-orange-500" : "w-2 bg-white/60"}`}
+                        aria-label={`Ver publicidad ${index + 1}`}
+                        onClick={() => publicityCarouselApi?.scrollTo(index)}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </Carousel>
           </DialogContent>
         </Dialog>
         <div
