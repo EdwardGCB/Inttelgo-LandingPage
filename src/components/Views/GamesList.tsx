@@ -457,6 +457,7 @@ function GamesList({ userPredictions = [] }: { userPredictions?: UserPrediction[
     const [liveFlash, setLiveFlash] = useState<LiveFlash | null>(null);
     const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+
     useEffect(() => {
         setLoadingData(true);
         ExperienceService.sport.consultMatches(competitionId, conditions).then((res) => {
