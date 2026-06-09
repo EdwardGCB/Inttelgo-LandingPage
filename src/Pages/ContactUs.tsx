@@ -30,12 +30,12 @@ import { z } from "zod";
 import SEO from "@/components/SEO";
 import { trackFormInteraction, trackEvent } from "@/lib/analytics";
 
-const phoneNumber = "3002698767";
+const phoneNumber = "6017940127";
 const emailAddress = "info@inttelgo.com";
 
 const salesLine = {
   title: "Ventas",
-  number: "300 269 8767",
+  number: "6017940127",
   note: "Canal comercial de WhatsApp.",
 };
 

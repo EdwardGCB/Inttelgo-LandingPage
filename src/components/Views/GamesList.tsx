@@ -53,6 +53,11 @@ function canPredict(status: string) {
     return PREDICTABLE_STATUSES.has(status);
 }
 
+const LIVE_SCORE_STATUSES = new Set(['IN_PLAY', 'PAUSED', 'LIVE']);
+function canUseLiveScore(status: string) {
+    return LIVE_SCORE_STATUSES.has(status);
+}
+
 const STATUS_LABELS: Record<string, { label: string; className: string }> = {
     SCHEDULED: { label: 'Programado', className: 'bg-blue-500/20 text-blue-300 border border-blue-500/40' },
     TIMED: { label: 'Programado', className: 'bg-blue-500/20 text-blue-300 border border-blue-500/40' },
@@ -63,6 +68,12 @@ const STATUS_LABELS: Record<string, { label: string; className: string }> = {
     POSTPONED: { label: 'Aplazado', className: 'bg-orange-500/20 text-orange-300 border border-orange-500/40' },
     CANCELLED: { label: 'Cancelado', className: 'bg-red-500/20 text-red-300 border border-red-500/40' },
     SUSPENDED: { label: 'Suspendido', className: 'bg-red-500/20 text-red-300 border border-red-500/40' },
+};
+
+const DURATION_LABELS: Record<string, { label: string; className: string }> = {
+    REGULAR: { label: '90 min', className: 'bg-slate-500/20 text-slate-200 border border-slate-500/40' },
+    EXTRA_TIME: { label: 'Tiempo extra', className: 'bg-purple-500/20 text-purple-200 border border-purple-500/40' },
+    PENALTY_SHOOTOUT: { label: 'Penales', className: 'bg-orange-500/20 text-orange-200 border border-orange-500/40' },
 };
 
 const STAGE_LABELS: Record<string, string> = {
@@ -146,6 +157,8 @@ type PredictionValues = z.infer<typeof predictionSchema>;
 type SavedPrediction = { home: string; away: string };
 type LiveFlashType = 'goal' | 'goal_cancelled';
 type LiveFlash = { matchId: number; type: LiveFlashType };
+type ScorePair = { home: number | null; away: number | null };
+type LiveScore = { home: number; away: number };
 
 const LIVE_FLASH_STYLES: Record<LiveFlashType, { label: string; cardClassName: string; textClassName: string; scoreClassName: string }> = {
     goal: {
@@ -198,6 +211,92 @@ function formatMatchDate(utcDate: string): string {
         minute: '2-digit',
         timeZone: 'America/Bogota',
     });
+}
+
+function formatDurationLabel(duration?: string | null) {
+    if (!duration) return null;
+
+    return DURATION_LABELS[duration] ?? {
+        label: formatStageLabel(duration),
+        className: 'bg-gray-500/20 text-gray-300 border border-gray-500/40',
+    };
+}
+
+function hasCompleteScore(score?: ScorePair | null): score is { home: number; away: number } {
+    return typeof score?.home === 'number' && typeof score?.away === 'number';
+}
+
+function formatScorePair(score?: ScorePair | null): string | null {
+    if (!hasCompleteScore(score)) return null;
+    return `${score.home}-${score.away}`;
+}
+
+function addScorePairs(first: ScorePair, second: ScorePair): ScorePair | null {
+    if (!hasCompleteScore(first) || !hasCompleteScore(second)) return null;
+
+    return {
+        home: first.home + second.home,
+        away: first.away + second.away,
+    };
+}
+
+function getMatchBaseScore(match: Match): ScorePair | undefined {
+    const regularTime = match.score?.regularTime;
+    const extraTime = match.score?.extraTime;
+
+    if (regularTime && extraTime) {
+        const totalAfterExtraTime = addScorePairs(regularTime, extraTime);
+        if (totalAfterExtraTime) return totalAfterExtraTime;
+    }
+
+    if (hasCompleteScore(regularTime)) return regularTime;
+
+    return match.score?.fullTime;
+}
+
+function formatPenaltyShootoutScore(match: Match): string | null {
+    const baseScore = getMatchBaseScore(match);
+    const penalties = match.score?.penalties;
+
+    if (!hasCompleteScore(baseScore) || !hasCompleteScore(penalties)) return null;
+
+    return `${baseScore.home} (${penalties.home}) - ${baseScore.away} (${penalties.away})`;
+}
+
+function getMatchScoreView(match: Match, live?: LiveScore) {
+    const penaltyScore = match.score?.duration === 'PENALTY_SHOOTOUT'
+        ? formatPenaltyShootoutScore(match)
+        : null;
+    const baseScore = formatScorePair(getMatchBaseScore(match));
+    const liveScore = live && canUseLiveScore(match.status) ? `${live.home}-${live.away}` : null;
+    const score = liveScore ?? penaltyScore ?? baseScore ?? '0-0';
+
+    return {
+        score,
+        details: [],
+        duration: match.status === 'FINISHED' ? formatDurationLabel(match.score?.duration) : null,
+    };
+}
+
+function MatchScore({
+    score,
+    details,
+    className,
+}: {
+    score: string;
+    details: string[];
+    className: string;
+}) {
+    return (
+        <div className="flex flex-col items-center gap-0.5">
+            <span className={className}>{score}</span>
+            {details.length > 0 && (
+                <span className="text-[10px] font-bold uppercase tracking-wide text-white/60">
+                    {details.join(' · ')}
+                </span>
+            )}
+        </div>
+    );
 }
 
 function PredictionScoreBadge({ home, away }: { home: string; away: string }) {
@@ -441,19 +540,17 @@ function PredictionDrawer({
 function GamesList({ userPredictions = [] }: { userPredictions?: UserPrediction[] }) {
     const { user } = useUser();
     const { latestEvent } = useSocket();
-    const competitionId = "2013"
+    const competitionId = "2000"
     const conditions = {
-        //matchday: 1,
-        dateFrom: "2026-05-30",
-        //dateFrom: "2026-06-11",
-        dateTo: "2026-06-01"
-        //dateTo: "2026-06-27"
+        matchday: 1,
+        dateFrom: "2026-06-11",
+        dateTo: "2026-06-27"
     }
     const [games, setGames] = useState<Match[]>([]);
     const [loadingData, setLoadingData] = useState(false);
     const [predictions, setPredictions] = useState<Record<number, SavedPrediction>>({});
     const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-    const [liveScores, setLiveScores] = useState<Record<number, { home: number; away: number }>>({});
+    const [liveScores, setLiveScores] = useState<Record<number, LiveScore>>({});
     const [liveFlash, setLiveFlash] = useState<LiveFlash | null>(null);
     const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -558,8 +655,7 @@ function GamesList({ userPredictions = [] }: { userPredictions?: UserPrediction[
                                 </div>
                                 {matches.map((match) => {
                                     const live = liveScores[match.id];
-                                    const homeScore = live?.home ?? match.score?.fullTime?.home ?? 0;
-                                    const awayScore = live?.away ?? match.score?.fullTime?.away ?? 0;
+                                    const scoreView = getMatchScoreView(match, live);
                                     const flashType = liveFlash?.matchId === match.id ? liveFlash.type : null;
                                     const flashStyles = flashType ? LIVE_FLASH_STYLES[flashType] : null;
                                     const pred = getPredictionForMatch(predictions, Number(match.id));
@@ -573,6 +669,11 @@ function GamesList({ userPredictions = [] }: { userPredictions?: UserPrediction[
                                                 <div className="flex items-center gap-2 flex-wrap">
                                                     {groupBadgeLabel && <Badge>{groupBadgeLabel}</Badge>}
                                                     <Badge variant="secondary" className={status.className}>{status.label}</Badge>
+                                                    {scoreView.duration && (
+                                                        <Badge variant="secondary" className={scoreView.duration.className}>
+                                                            {scoreView.duration.label}
+                                                        </Badge>
+                                                    )}
                                                     {flashStyles && (
                                                         <span className={`flex items-center gap-1 ${flashStyles.textClassName} text-[10px] font-bold uppercase tracking-widest animate-pulse`}>
                                                             {flashStyles.label}
@@ -590,9 +691,11 @@ function GamesList({ userPredictions = [] }: { userPredictions?: UserPrediction[
                                                     <span className="text-white font-bold uppercase text-xs text-center leading-tight">{match.homeTeam.shortName}</span>
                                                 </div>
                                                 <div className="flex flex-col items-center gap-1.5 shrink-0">
-                                                    <span className={`font-extrabold text-xl transition-colors duration-300 ${flashStyles?.scoreClassName ?? 'text-white'}`}>
-                                                        {homeScore}-{awayScore}
-                                                    </span>
+                                                    <MatchScore
+                                                        score={scoreView.score}
+                                                        details={scoreView.details}
+                                                        className={`font-extrabold text-xl transition-colors duration-300 ${flashStyles?.scoreClassName ?? 'text-white'}`}
+                                                    />
                                                     {user && pred && (
                                                         <div className="flex flex-col items-center gap-1">
                                                             <span className="text-[10px] font-bold uppercase text-white/50">Tu pronóstico</span>
@@ -666,8 +769,7 @@ function GamesList({ userPredictions = [] }: { userPredictions?: UserPrediction[
                                         </TableRow>
                                         {matches.map((match) => {
                                             const live = liveScores[match.id];
-                                            const homeScore = live?.home ?? match.score?.fullTime?.home ?? 0;
-                                            const awayScore = live?.away ?? match.score?.fullTime?.away ?? 0;
+                                            const scoreView = getMatchScoreView(match, live);
                                             const flashType = liveFlash?.matchId === match.id ? liveFlash.type : null;
                                             const flashStyles = flashType ? LIVE_FLASH_STYLES[flashType] : null;
                                             const pred = getPredictionForMatch(predictions, Number(match.id));
@@ -684,6 +786,11 @@ function GamesList({ userPredictions = [] }: { userPredictions?: UserPrediction[
                                                             <div className="flex items-center gap-2">
                                                                 {groupBadgeLabel && <Badge>{groupBadgeLabel}</Badge>}
                                                                 <Badge variant="secondary" className={status.className}>{status.label}</Badge>
+                                                                {scoreView.duration && (
+                                                                    <Badge variant="secondary" className={scoreView.duration.className}>
+                                                                        {scoreView.duration.label}
+                                                                    </Badge>
+                                                                )}
                                                                 {flashStyles && (
                                                                     <span className={`flex items-center gap-1 ${flashStyles.textClassName} text-[10px] font-bold uppercase tracking-widest animate-pulse`}>
                                                                         {flashStyles.label}
@@ -704,9 +811,11 @@ function GamesList({ userPredictions = [] }: { userPredictions?: UserPrediction[
                                                         </div>
                                                     </TableCell>
                                                     <TableCell className="py-2 px-3 text-center align-middle">
-                                                        <span className={`font-bold text-xl transition-colors duration-300 ${flashStyles?.scoreClassName ?? 'text-primary-foreground'}`}>
-                                                            {homeScore}-{awayScore}
-                                                        </span>
+                                                        <MatchScore
+                                                            score={scoreView.score}
+                                                            details={scoreView.details}
+                                                            className={`font-bold text-xl transition-colors duration-300 ${flashStyles?.scoreClassName ?? 'text-primary-foreground'}`}
+                                                        />
                                                     </TableCell>
                                                     {user && (
                                                         <TableCell className="py-2 px-3 text-center align-middle">

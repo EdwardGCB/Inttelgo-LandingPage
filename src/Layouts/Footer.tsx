@@ -1,15 +1,10 @@
-import AnimatedLines from "@/components/Canvas/AnimatedLines";
-import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { Mail, Phone } from "lucide-react";
+import { Mail, Phone, Wifi } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface SocialNetwork {
   descripcion: string;
-  imagen: string;
   link: string;
-  classname: string;
-  iconProps: string;
 }
 
 interface MenuItem {
@@ -26,24 +21,15 @@ interface ContactInfo {
 const redesSociales: SocialNetwork[] = [
   {
     descripcion: "TikTok",
-    imagen: "/social/tiktok.svg",
     link: "https://www.tiktok.com/@inttelgo?is_from_webapp=1&sender_device=pc",
-    classname: "bg-primary",
-    iconProps: "p-0 group-hover:brightness-0 group-hover:invert transition-all",
   },
   {
     descripcion: "Instagram",
-    imagen: "/social/instagram.svg",
     link: "https://www.instagram.com/inttelgo/",
-    classname: "bg-gradient-to-b from-pink-500 to-yellow-500",
-    iconProps: "p-0 brightness-0 invert",
   },
   {
     descripcion: "LinkedIn",
-    imagen: "/social/linkedin.svg",
     link: "https://www.linkedin.com/company/inttel-go/",
-    classname: "bg-blue-500",
-    iconProps: "p-0 brightness-0 invert",
   },
 ];
 
@@ -73,119 +59,136 @@ const legalItems: MenuItem[] = [
 
 const contactInfo: ContactInfo[] = [
   {
-    icono: <Phone className="w-4 h-4" />,
-    texto: "+57 300-269-8767",
-    link: "tel:573002698767",
+    icono: <Phone className="w-3.5 h-3.5" />,
+    texto: "+57 601-794-0127",
+    link: "tel:576017940127",
   },
   {
-    icono: <Mail className="w-4 h-4" />,
+    icono: <Mail className="w-3.5 h-3.5" />,
     texto: "info@inttelgo.com",
     link: "mailto:info@inttelgo.com",
   },
 ];
 
+const linkClass =
+  "relative w-fit text-[13px] text-zinc-200 no-underline transition-colors duration-200 hover:text-orange-600 " +
+  "after:content-[''] after:absolute after:-bottom-px after:left-0 after:h-px after:w-0 after:bg-zinc-900 " +
+  "after:transition-[width] after:duration-300 after:ease-[cubic-bezier(0.22,1,0.36,1)] hover:after:w-full";
+
+const colTitleClass =
+  "text-[10px] font-bold tracking-[.14em] uppercase text-white mb-4";
+
 export default function Footer() {
   return (
-    <footer className="bg-black">
-      <div className="container mx-auto px-6 py-8 space-y-4">
-        <AnimatedLines />
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mx-5 lg:mx-20">
-          <div className="flex flex-col space-y-2">
-            <h3 className=" text-xl font-bold text-primary-foreground">
-              Somos
-            </h3>
-            <h1 className=" text-base text-primary-foreground">
-              Inttelgo GO llega a tu hogar para ofrecerte un excelente servicio
-              de entretenimiento y conectividad confiable y de calidad
-            </h1>
-            <div className="flex justify-start items-start gap-3">
-              {redesSociales.map((red, index) => (
-                <a
-                  key={index}
-                  href={red.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-center hover:opacity-80 transition-opacity"
-                >
-                  <Card
-                    className={cn(
-                      "size-15 sm:size-10 md:size-10 lg:size-13 p-0 hover:shadow-orange-500/50 hover:scale-105 hover:bg-gradient-to-b hover:from-[#FF9900] hover:to-[#EC5406] border-none  rounded-full not-last:",
-                      red.classname
-                    )}
-                  >
-                    <CardContent className=" p-3 flex justify-center items-center">
-                      <img
-                        src={red.imagen}
-                        alt={red.descripcion}
-                        className={cn("size-full", red.iconProps)}
-                      />
-                    </CardContent>
-                  </Card>
-                </a>
-              ))}
-            </div>
-            <span className="text-base text-primary-foreground">
-              © {new Date().getFullYear()} Inttelgo - Todos los derechos
-              reservados
-            </span>
-          </div>
-          <div className="flex flex-col space-y-2">
-            <h3 className=" text-xl font-bold text-primary-foreground">Menu</h3>
-            {menuItems.map((item, index) =>
-              item.titulo === "PSE" ? (
-                <a
-                  key={index}
-                  href="https://combopay.co/invoices/inttel-go-sas"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-base text-primary-foreground hover:underline"
-                >
-                  {item.titulo}
-                </a>
-              ) : (
-                <Link
-                  key={index}
-                  to={item.ruta}
-                  className="text-base text-primary-foreground hover:underline"
-                >
-                  {item.titulo}
-                </Link>
-              )
-            )}
-          </div>
-          <div className="flex flex-col space-y-2">
-            <h3 className=" text-xl font-bold text-primary-foreground">
-              Linea de ventas
-            </h3>
-            {contactInfo.map((info, index) => (
+    <footer className="bg-black border-t border-zinc-200">
+      {/* ── Hero CTA ── */}
+      <div className="px-6 md:px-12 lg:px-16 pt-16 pb-12 border-b border-zinc-200">
+        <div
+          className={cn(
+            "group relative inline-block no-underline",
+            "text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight leading-none",
+            "text-zinc-200 transition-colors duration-300 hover:text-[#EC5406]",
+            "after:content-[''] after:absolute after:bottom-0 after:left-0",
+            "after:h-[3px] after:w-0 after:bg-[#EC5406]",
+            "after:transition-[width] after:duration-500 after:ease-[cubic-bezier(0.22,1,0.36,1)]",
+            "hover:after:w-full"
+          )}
+        >
+          Internet 100% Fibra Óptica
+          <Wifi className="inline-block ml-3 size-5 sm:size-10 lg:size-15 xl:size-15 align-middle transition-transform duration-300 group-hover:translate-x-1.5 group-hover:-translate-y-1.5" />
+        </div>
+      </div>
+
+      {/* ── 4-column grid ── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-8 px-6 md:px-12 lg:px-16 py-10 border-b border-zinc-200">
+        {/* Somos */}
+        <div className="col-span-2 md:col-span-1 flex flex-col gap-3">
+          <p className={colTitleClass}>Somos</p>
+          <p className="text-[13px] text-zinc-200 leading-relaxed">
+            Inttelgo GO llega a tu hogar para ofrecerte un excelente servicio de
+            entretenimiento y conectividad confiable y de calidad.
+          </p>
+          <div className="flex items-center gap-2 flex-wrap mt-1">
+            {redesSociales.map((red) => (
               <a
-                key={index}
-                href={info.link}
-                className="text-base text-primary-foreground flex items-center gap-2 hover:underline"
+                key={red.descripcion}
+                href={red.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(
+                  "text-[11px] font-semibold tracking-wide text-orange-600 no-underline",
+                  "border border-orange-600 rounded-full px-3 py-1",
+                  "transition-all duration-200 hover:bg-zinc-900 hover:text-zinc-50 hover:border-zinc-900"
+                )}
               >
-                {info.icono}
-                {info.texto}
+                {red.descripcion}
               </a>
-            ))}
-            <span className="text-base text-primary-foreground">
-              Bogota D.C/Soacha - Colombia
-            </span>
-          </div>
-          <div className="flex flex-col space-y-2">
-            <h3 className=" text-xl font-bold text-primary-foreground">
-              LEGAL Y REGULATORIO
-            </h3>
-            {legalItems.map((item, index) => (
-              <Link
-                key={index}
-                to={item.ruta}
-                className="text-base text-primary-foreground hover:underline"
-              >
-                {item.titulo}
-              </Link>
             ))}
           </div>
         </div>
+
+        {/* Menú */}
+        <div className="flex flex-col gap-1.5">
+          <p className={colTitleClass}>Menú</p>
+          {menuItems.map((item) =>
+            item.titulo === "PSE" ? (
+              <a
+                key={item.titulo}
+                href="https://combopay.co/invoices/inttel-go-sas"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={linkClass}
+              >
+                {item.titulo}
+              </a>
+            ) : (
+              <Link key={item.titulo} to={item.ruta} className={linkClass}>
+                {item.titulo}
+              </Link>
+            )
+          )}
+        </div>
+
+        {/* Línea de ventas */}
+        <div className="flex flex-col gap-1.5">
+          <p className={colTitleClass}>Línea de ventas</p>
+          {contactInfo.map((info) => (
+            <a
+              key={info.link}
+              href={info.link}
+              className={cn(
+                linkClass,
+                "flex items-center gap-1.5 w-auto"
+              )}
+            >
+              {info.icono}
+              {info.texto}
+            </a>
+          ))}
+          <p className="text-[13px] text-white mt-1">
+            Bogotá D.C. / Soacha — Colombia
+          </p>
+        </div>
+
+        {/* Legal */}
+        <div className="flex flex-col gap-1.5">
+          <p className={colTitleClass}>Legal y regulatorio</p>
+          {legalItems.map((item) => (
+            <Link key={item.titulo} to={item.ruta} className={linkClass}>
+              {item.titulo}
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Bottom bar ── */}
+      <div className="flex flex-wrap items-center justify-between gap-3 px-6 md:px-12 lg:px-16 py-5">
+        <span className="flex items-center gap-2 text-[12px] text-white">
+          Bogotá D.C., Colombia
+        </span>
+        <span className="text-[12px] text-white">
+          © {new Date().getFullYear()} Inttelgo — Todos los derechos reservados.
+        </span>
       </div>
     </footer>
   );

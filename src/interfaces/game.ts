@@ -7,6 +7,11 @@ export interface Team {
 
 export interface Score {
     fullTime: { home: number | null; away: number | null };
+    halfTime?: { home: number | null; away: number | null };
+    regularTime?: { home: number | null; away: number | null };
+    extraTime?: { home: number | null; away: number | null };
+    penalties?: { home: number | null; away: number | null };
+    duration?: string | null;
     winner: string | null;
 }
 

@@ -312,7 +312,7 @@ export const useMouseEnter = () => {
 
 
 export const SecondaryPlanHologram3D = memo(({ plan }: PlanProps) => {
-    const phone = "573002698767";
+    const phone = "576017940127"
     const [isFlipped, setIsFlipped] = useState(false)
     const [reduceEffects, setReduceEffects] = useState(false)
 
@@ -405,7 +405,7 @@ export const SecondaryPlanHologram3D = memo(({ plan }: PlanProps) => {
                             <CardItem translateZ={40} className="w-full">
                                 <Button
                                     onClick={handleShowMore}
-                                    className="w-full py-6 flex rounded-xl text-lg"
+                                    className="w-full py-3 flex rounded-xl text-lg"
                                 >
                                     <span className="font-semibold">Ver más</span>
                                 </Button>
@@ -447,14 +447,14 @@ export const SecondaryPlanHologram3D = memo(({ plan }: PlanProps) => {
                                 <Button
                                     onClick={handleContactUs}
                                     variant="green"
-                                    className="w-full min-h-[44px] py-6 flex rounded-xl"
+                                    className="w-full min-h-[44px] py-3 flex rounded-xl"
                                 >
                                     <span className="text-lg font-semibold">¡Contáctanos!</span>
                                 </Button>
                                 <Button
                                     onClick={handleShowLess}
                                     variant="outline"
-                                    className="w-full min-h-[44px] py-6 flex rounded-xl"
+                                    className="w-full min-h-[44px] py-3 flex rounded-xl"
                                 >
                                     <span className="text-lg font-semibold">Ver menos</span>
                                 </Button>
@@ -482,7 +482,7 @@ export const SecondaryPlanHologram3D = memo(({ plan }: PlanProps) => {
 
 
 export const PrimaryPlanHologram3D = memo(({ plan }: PlanProps) => {
-    const phone = "573002698767";
+    const phone = "576017940127";
     const [isFlipped, setIsFlipped] = useState(false)
     const [reduceEffects, setReduceEffects] = useState(false)
 
@@ -575,7 +575,7 @@ export const PrimaryPlanHologram3D = memo(({ plan }: PlanProps) => {
                                 <Button
                                     onClick={handleShowMore}
                                     variant="purple"
-                                    className="w-full py-6 flex rounded-xl text-lg"
+                                    className="w-full py-3 flex rounded-xl text-lg"
                                 >
                                     <span className="font-semibold">Ver más</span>
                                 </Button>
@@ -617,14 +617,14 @@ export const PrimaryPlanHologram3D = memo(({ plan }: PlanProps) => {
                                 <Button
                                     onClick={handleContactUs}
                                     variant="green"
-                                    className="w-full min-h-[44px] py-6 flex rounded-xl"
+                                    className="w-full min-h-[44px] py-3 flex rounded-xl"
                                 >
                                     <span className="text-lg font-semibold">¡Contáctanos!</span>
                                 </Button>
                                 <Button
                                     onClick={handleShowLess}
                                     variant="outline"
-                                    className="w-full min-h-[44px] py-6 flex rounded-xl"
+                                    className="w-full min-h-[44px] py-3 flex rounded-xl"
                                 >
                                     <span className="text-lg font-semibold">Ver menos</span>
                                 </Button>

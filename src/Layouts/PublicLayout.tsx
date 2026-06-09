@@ -283,7 +283,7 @@ const PublicLayout = () => {
   const whatsappLines: WhatsAppLine[] = [
     {
       title: "Línea de ventas",
-      phone: "573002698767",
+      phone: "576017940127",
       badge: "Línea ventas",
     },
     {
@@ -341,123 +341,123 @@ const PublicLayout = () => {
                 {PUBLICITY_SLIDES.map((slide) => (
                   <CarouselItem key={slide.id} className="!pl-0">
                     <div className={cn("relative", slide.className)}>
-                        <picture>
-                          <source media="(min-width: 640px)" srcSet={slide.desktopImage} />
-                          <img
-                            src={slide.mobileImage}
-                            alt={slide.alt}
-                            className={cn("block w-full object-cover", slide.classNames?.image)}
-                          />
-                        </picture>
+                      <picture>
+                        <source media="(min-width: 640px)" srcSet={slide.desktopImage} />
+                        <img
+                          src={slide.mobileImage}
+                          alt={slide.alt}
+                          className={cn("block w-full object-cover", slide.classNames?.image)}
+                        />
+                      </picture>
 
-                        {slide.title && (
-                          <div
-                            className={cn(
-                              "absolute",
-                              slide.classNames?.titleWrapper ?? "left-1/2 top-[3%] w-[90%] -translate-x-1/2 text-center sm:left-auto sm:right-[3%] sm:top-[4%] sm:w-[45%] sm:translate-x-0"
-                            )}
-                          >
-                            {slide.titleVariant === "plain" ? (
-                              <p className={cn("text-center", slide.classNames?.titleText ?? "text-lg font-black uppercase italic leading-tight tracking-wide sm:text-2xl")}>
-                                {slide.title}
-                              </p>
-                            ) : (
-                              <GoldenText
-                                text={slide.title}
-                                className={slide.classNames?.titleText ?? "text-lg font-black uppercase italic leading-tight tracking-wide sm:text-2xl"}
-                              />
-                            )}
-                          </div>
-                        )}
-
-                        {slide.centerImage && (
-                          <div
-                            className={cn(
-                              "absolute",
-                              slide.classNames?.centerImageWrapper ?? "left-1/2 top-1/2 w-[30%] -translate-x-1/2 -translate-y-1/2"
-                            )}
-                          >
-                            <img
-                              src={slide.centerImage}
-                              alt={slide.centerImageAlt ?? ""}
-                              className={cn("block w-full", slide.classNames?.centerImage)}
-                            />
-                          </div>
-                        )}
-
-                        {(slide.prizeEyebrow || slide.prizeText) && (
-                          <div
-                            className={cn(
-                              "absolute",
-                              slide.classNames?.prizeWrapper ?? "left-1/2 bottom-[18%] w-[90%] -translate-x-1/2 sm:left-auto sm:right-[4%] sm:bottom-[9%] sm:w-[44%] sm:translate-x-0"
-                            )}
-                          >
-                            {slide.prizeEyebrow && (
-                              <p
-                                className={cn(
-                                  "text-center",
-                                  slide.classNames?.prizeEyebrow ?? "text-base font-black uppercase tracking-wide text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)] sm:text-xl"
-                                )}
-                              >
-                                {slide.prizeEyebrow}
-                              </p>
-                            )}
-
-                            {slide.prizeEyebrow && slide.prizeText && (
-                              <div
-                                className={cn("mx-auto my-2 h-[3px] w-[85%] rounded-full bg-orange-500", slide.classNames?.prizeDivider)}
-                                style={{
-                                  boxShadow:
-                                    "0 0 8px rgba(249, 115, 22, 0.9), 0 0 16px rgba(249, 115, 22, 0.5)",
-                                }}
-                              />
-                            )}
-
-                            <div className="relative mx-auto flex w-full items-center justify-center">
-                              {slide.prizeText && (
-                                <div
-                                  className={cn(
-                                    "relative flex items-center justify-center rounded-full border-2 border-white/90 bg-gradient-to-b from-neutral-900 via-neutral-800 to-black px-4 py-2 sm:px-6 sm:py-3",
-                                    slide.classNames?.prizePill
-                                  )}
-                                  style={{
-                                    boxShadow:
-                                      "0 0 20px rgba(255, 165, 0, 0.45), inset 0 1px 0 rgba(255,255,255,0.25), 0 6px 16px rgba(0,0,0,0.55)",
-                                  }}
-                                >
-                                  <GoldenText
-                                    text={slide.prizeText}
-                                    className={slide.classNames?.prizeText ?? "text-lg font-black uppercase italic leading-tight tracking-wide sm:text-2xl"}
-                                  />
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
-
+                      {slide.title && (
                         <div
                           className={cn(
                             "absolute",
-                            slide.classNames?.ctaWrapper ?? "bottom-[4%] left-1/2 -translate-x-1/2 sm:left-[35%]"
+                            slide.classNames?.titleWrapper ?? "left-1/2 top-[3%] w-[90%] -translate-x-1/2 text-center sm:left-auto sm:right-[3%] sm:top-[4%] sm:w-[45%] sm:translate-x-0"
                           )}
                         >
-                          <Button
-                            onClick={() => handlePublicityCtaClick(slide)}
-                            variant="orange"
-                            className={cn(
-                              "rounded-full group relative overflow-hidden font-black uppercase transition-all hover:scale-105",
-                              slide.classNames?.ctaButton ?? "px-8 py-2 text-xs sm:px-10 sm:text-sm"
-                            )}
-                            style={{
-                              boxShadow:
-                                "0 0 18px rgba(255, 140, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.35), 0 4px 12px rgba(0,0,0,0.5)",
-                            }}
-                          >
-                            <span className="relative z-10">{slide.ctaLabel}</span>
-                            <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-                          </Button>
+                          {slide.titleVariant === "plain" ? (
+                            <p className={cn("text-center", slide.classNames?.titleText ?? "text-lg font-black uppercase italic leading-tight tracking-wide sm:text-2xl")}>
+                              {slide.title}
+                            </p>
+                          ) : (
+                            <GoldenText
+                              text={slide.title}
+                              className={slide.classNames?.titleText ?? "text-lg font-black uppercase italic leading-tight tracking-wide sm:text-2xl"}
+                            />
+                          )}
                         </div>
+                      )}
+
+                      {slide.centerImage && (
+                        <div
+                          className={cn(
+                            "absolute",
+                            slide.classNames?.centerImageWrapper ?? "left-1/2 top-1/2 w-[30%] -translate-x-1/2 -translate-y-1/2"
+                          )}
+                        >
+                          <img
+                            src={slide.centerImage}
+                            alt={slide.centerImageAlt ?? ""}
+                            className={cn("block w-full", slide.classNames?.centerImage)}
+                          />
+                        </div>
+                      )}
+
+                      {(slide.prizeEyebrow || slide.prizeText) && (
+                        <div
+                          className={cn(
+                            "absolute",
+                            slide.classNames?.prizeWrapper ?? "left-1/2 bottom-[18%] w-[90%] -translate-x-1/2 sm:left-auto sm:right-[4%] sm:bottom-[9%] sm:w-[44%] sm:translate-x-0"
+                          )}
+                        >
+                          {slide.prizeEyebrow && (
+                            <p
+                              className={cn(
+                                "text-center",
+                                slide.classNames?.prizeEyebrow ?? "text-base font-black uppercase tracking-wide text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)] sm:text-xl"
+                              )}
+                            >
+                              {slide.prizeEyebrow}
+                            </p>
+                          )}
+
+                          {slide.prizeEyebrow && slide.prizeText && (
+                            <div
+                              className={cn("mx-auto my-2 h-[3px] w-[85%] rounded-full bg-orange-500", slide.classNames?.prizeDivider)}
+                              style={{
+                                boxShadow:
+                                  "0 0 8px rgba(249, 115, 22, 0.9), 0 0 16px rgba(249, 115, 22, 0.5)",
+                              }}
+                            />
+                          )}
+
+                          <div className="relative mx-auto flex w-full items-center justify-center">
+                            {slide.prizeText && (
+                              <div
+                                className={cn(
+                                  "relative flex items-center justify-center rounded-full border-2 border-white/90 bg-gradient-to-b from-neutral-900 via-neutral-800 to-black px-4 py-2 sm:px-6 sm:py-3",
+                                  slide.classNames?.prizePill
+                                )}
+                                style={{
+                                  boxShadow:
+                                    "0 0 20px rgba(255, 165, 0, 0.45), inset 0 1px 0 rgba(255,255,255,0.25), 0 6px 16px rgba(0,0,0,0.55)",
+                                }}
+                              >
+                                <GoldenText
+                                  text={slide.prizeText}
+                                  className={slide.classNames?.prizeText ?? "text-lg font-black uppercase italic leading-tight tracking-wide sm:text-2xl"}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      <div
+                        className={cn(
+                          "absolute",
+                          slide.classNames?.ctaWrapper ?? "bottom-[4%] left-1/2 -translate-x-1/2 sm:left-[35%]"
+                        )}
+                      >
+                        <Button
+                          onClick={() => handlePublicityCtaClick(slide)}
+                          variant="orange"
+                          className={cn(
+                            "rounded-full group relative overflow-hidden font-black uppercase transition-all hover:scale-105",
+                            slide.classNames?.ctaButton ?? "px-8 py-2 text-xs sm:px-10 sm:text-sm"
+                          )}
+                          style={{
+                            boxShadow:
+                              "0 0 18px rgba(255, 140, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.35), 0 4px 12px rgba(0,0,0,0.5)",
+                          }}
+                        >
+                          <span className="relative z-10">{slide.ctaLabel}</span>
+                          <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+                        </Button>
                       </div>
+                    </div>
                   </CarouselItem>
                 ))}
               </CarouselContent>
