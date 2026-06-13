@@ -5,19 +5,20 @@ import Menu from "@/Layouts/Menu";
 import { cn } from "@/lib/utils";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useLenis } from "@/lib/lenisContext";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import GamesList from "@/components/Views/GamesList";
 import GroupsList from "@/components/Views/GroupsList";
 import ClasifiesList from "@/components/Views/ClasifiesList";
 import { UserProvider, useUser } from "@/contexts/User";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { LogIn, LogOut, UserCheck, ShieldAlert, Info, MousePointerClick, Goal, AlarmClock } from "lucide-react";
+import { LogIn, LogOut, UserCheck, Info, MousePointerClick, Goal, AlarmClock } from "lucide-react";
 import UserPuntuation from "@/components/Views/UserPuntuation";
 import Scores from "@/components/Views/Scores";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { CreatePinDialog } from "@/components/Dialogs/CreatePinDialog";
+import { LoginForm } from "@/components/Forms/Login";
+import type { UserLoginFormValues } from "@/Forms/User";
 
 function RulesDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
     const lenis = useLenis();
@@ -243,18 +244,16 @@ function RulesDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (ope
 }
 
 function MundialContent() {
-    const { login, isLoading, isInitializing, error, user, logout, userPredictions } = useUser();
-    const [identification, setIdentification] = useState("");
+    const { login, isLoading, isInitializing, user, logout, userPredictions } = useUser();
     const [activeTab, setActiveTab] = useState("game");
     const [rulesAccepted, setRulesAccepted] = useState(false);
     const [rulesOpen, setRulesOpen] = useState(true);
     const loginCardRef = useRef<HTMLDivElement | null>(null);
     const tabsRef = useRef<HTMLDivElement | null>(null);
+    const [pinDialogOpen, setPinDialogOpen] = useState(false)
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!identification.trim()) return;
-        await login(identification.trim());
+    const handleSubmit = async (data: UserLoginFormValues) => {
+        await login(data);
     };
 
     const handleGoToLoginCard = () => {
@@ -426,65 +425,15 @@ function MundialContent() {
                                             Para participar ingresa el número de indentificacion del titular del servicio
                                         </CardDescription>
                                     </CardHeader>
-                                    <form onSubmit={handleSubmit} className="space-y-4 flex flex-col items-center px-3 sm:px-6">
-                                        <div className="space-y-2 w-full">
-                                            <Label htmlFor="identification" className="text-sm sm:text-base">Número de cédula</Label>
-                                            <Input
-                                                id="identification"
-                                                type="text"
-                                                inputMode="numeric"
-                                                placeholder="Ej. 1234567890"
-                                                value={identification}
-                                                onChange={(e) => setIdentification(e.target.value)}
-                                                disabled={isLoading}
-                                                autoFocus
-                                            />
-                                        </div>
-
-                                        {error && (
-                                            <div className="flex items-start gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs sm:text-sm text-red-700 w-full">
-                                                <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
-                                                <span>{error}</span>
-                                            </div>
-                                        )}
-                                        {/* Checkbox de aceptación de reglas */}
-                                        <div className="mt-4 flex items-center gap-2">
-                                            <input
-                                                type="checkbox"
-                                                id="accept-rules"
-                                                checked={rulesAccepted}
-                                                onChange={e => setRulesAccepted(e.target.checked)}
-                                                className="h-4 w-4 cursor-pointer accent-orange-500"
-                                            />
-                                            <label htmlFor="accept-rules" className="cursor-pointer select-none text-sm">
-                                                He leído y acepto las
-                                                <Button
-                                                    type="button"
-                                                    variant={"link"}
-                                                    onClick={() => setRulesOpen(true)}
-                                                    className="text-orange-400 underline hover:text-orange-300 transition-colors"
-                                                >
-                                                    reglas
-                                                </Button>pactadas por Inttelgo para participar
-                                            </label>
-                                        </div>
-                                        <CardFooter className="pt-2 w-full px-0">
-                                            <Button
-                                                variant={"orange"}
-                                                type="submit"
-                                                disabled={isLoading || !identification.trim() || !rulesAccepted}
-                                                className="w-full"
-                                            >
-                                                {isLoading ? (
-                                                    <LoadingSpinner size="sm" />
-                                                ) : (
-                                                    <>
-                                                        Ingresar
-                                                    </>
-                                                )}
-                                            </Button>
-                                        </CardFooter>
-                                    </form>
+                                    <LoginForm
+                                        isLoading={isLoading}
+                                        onSubmit={handleSubmit}
+                                        rulesAccepted={rulesAccepted}
+                                        setPinDialogOpen={setPinDialogOpen}
+                                        setRulesAccepted={setRulesAccepted}
+                                        setRulesOpen={setRulesOpen}
+                                    />
+                                    <CreatePinDialog open={pinDialogOpen} onOpenChange={setPinDialogOpen} />
                                 </CardContent>
                             </Card>
 

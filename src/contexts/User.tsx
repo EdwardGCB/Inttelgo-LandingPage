@@ -14,6 +14,7 @@ import {
     setClientIdentification,
 } from "@/lib/authCookies";
 import ExperienceService from "@/services/ExperienceService";
+import type { UserLoginFormValues } from "@/Forms/User";
 
 interface UserData {
     id: number;
@@ -57,11 +58,12 @@ interface UserContextType {
     isLoading: boolean;
     isInitializing: boolean;
     error: string | null;
-    login: (cedula: string) => Promise<boolean>;
+    login: (form: UserLoginFormValues) => Promise<boolean>;
     logout: () => void;
     upsertUserPrediction: (prediction: UserPrediction) => void;
     userPredictions: UserPrediction[];
-    userPuntuation: UserPuntuation | null
+    userPuntuation: UserPuntuation | null;
+    createPin: (form: any) => Promise<boolean>
 }
 
 const UserContext = createContext<UserContextType | null>(null);
@@ -84,8 +86,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
     const [error, setError] = useState<string | null>(null);
     const [userPredictions, setUserPredictions] = useState<UserPrediction[]>([]);
     const [userPuntuation, setUserPuntuation] = useState<UserPuntuation | null>(null);
-
-
 
     const restoreSession = useCallback(async () => {
         const token = getAuthToken();
@@ -139,16 +139,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
         ExperienceService.sport.consultUserPuntuation(user.id).then((res) => {
             setUserPuntuation(res.data)
         });
-    }, [user])
+    }, [user]);
 
-    const login = async (cedula: string): Promise<boolean> => {
+    const login = async (form: UserLoginFormValues): Promise<boolean> => {
         setIsLoading(true);
         setError(null);
         try {
-            const res = await ClientService.consultByIdentification(cedula);
+            const res = await ClientService.login(form);
             if (res.success && res.cliente) {
                 setUser(res.cliente);
-                setClientIdentification(cedula.trim());
+                setClientIdentification(res.cliente.identificacion)
                 return true;
             }
             setError(res.message ?? "No se encontró un usuario con esa cédula.");
@@ -160,6 +160,22 @@ export function UserProvider({ children }: { children: ReactNode }) {
             setIsLoading(false);
         }
     };
+
+    const createPin = async (form: any) => {
+        try {
+            const res = await ClientService.register(form);
+            if (res.success && res.cliente) {
+                setUser(res.cliente);
+                setClientIdentification(res.cliente.identificacion);
+                return true;
+            }
+            setError(res.message ?? "No se encontró un usuario con esa cédula.");
+            return false;
+        } catch (error) {
+            setError("No se encontró un usuario con esa cédula o no cuenta con el servicio.");
+            return false;
+        }
+    }
 
     const logout = () => {
         clearAuthCookies();
@@ -192,7 +208,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
     return (
         <UserContext.Provider
-            value={{ user, isLoading, isInitializing, error, login, logout, upsertUserPrediction, userPredictions, userPuntuation }}
+            value={{ user, isLoading, isInitializing, error, login, logout, upsertUserPrediction, userPredictions, userPuntuation, createPin }}
         >
             {children}
         </UserContext.Provider>
